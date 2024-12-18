@@ -1,11 +1,7 @@
-# Groczi
-Literature + Competitors Document : 
-[Literature + Competitors.docx](https://github.com/user-attachments/files/18188417/Literature.%2B.Competitors.docx)
----
-
 # Groczi  
 ### *Your Grocery Price Comparison & Optimization App*  
-
+Literature + Competitors Document : 
+[Literature + Competitors.docx](https://github.com/user-attachments/files/18188417/Literature.%2B.Competitors.docx)
 ---
 
 ## **Project Overview**  
