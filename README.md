@@ -2,7 +2,12 @@
 
 Literature + Competitors Document : 
 [Literature + Competitors.docx](https://github.com/user-attachments/files/18188417/Literature.%2B.Competitors.docx)
-# **Groczi**  
+# Groczi  
+Literature + Competitors Document : [📄 Literature + Competitors.docx](link-to-file)  
+
+---
+
+# Groczi  
 ### *Your Grocery Price Comparison & Optimization App*  
 
 ---
@@ -13,21 +18,27 @@ Literature + Competitors Document :
 ---
 
 ## **Key Features**  
-- **Real-Time Price Comparison**: Compare live prices of grocery items across multiple stores.  
-- **Total List Cost Optimization**: Find the lowest total price for your entire shopping list.  
-- **Multi-Store Strategy**: Get suggestions for splitting your list across stores for maximum savings.  
-- **Location-Based Recommendations**: Navigate to nearby stores offering the best deals using GPS.  
-- **User Preferences**: Filter results based on distance, preferred brands, and dietary needs.  
-- **Barcode Scanning**: Instantly compare prices by scanning product barcodes.  
-- **User Engagement**: Gamified features (rewards, badges) for contributing updated prices.  
+- **🛒 Real-Time Price Comparison**: Compare live prices of grocery items across multiple stores.  
+- **📊 Total List Cost Optimization**: Find the lowest total price for your entire shopping list.  
+- **🔀 Multi-Store Strategy**: Get suggestions for splitting your list across stores for maximum savings.  
+- **📍 Location-Based Recommendations**: Navigate to nearby stores offering the best deals using GPS.  
+- **⚙️ User Preferences**: Filter results based on distance, preferred brands, and dietary needs.  
+- **📷 Barcode Scanning**: Instantly compare prices by scanning product barcodes.  
+- **🎮 User Engagement**: Gamified features (rewards, badges) for contributing updated prices.  
 
 ---
 
 ## **Competitors**  
 Groczi addresses the limitations of existing competitors:  
-- **Instacart**: Prioritizes convenience but lacks cost optimization.  
-- **Flipp**: Offers static weekly deals, not real-time pricing.  
-- **Basket Savings**: Optimizes total costs but lacks advanced features like multi-store suggestions.  
+
+- **Instacart**:  
+   - Prioritizes convenience but lacks cost optimization.  
+
+- **Flipp**:  
+   - Offers static weekly deals, not real-time pricing.  
+
+- **Basket Savings**:  
+   - Optimizes total costs but lacks advanced features like multi-store suggestions.  
 
 ---
 
