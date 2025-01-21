@@ -1,1 +1,3 @@
 py-scrape/jsons/*
+py-scrape/scrapes/files/gzFiles/*
+py-scrape/scrapes/files/xmlFiles/*

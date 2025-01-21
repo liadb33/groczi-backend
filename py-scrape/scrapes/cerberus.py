@@ -1,4 +1,7 @@
+import gzip
 import os
+import shutil
+import requests
 import json
 import time
 from selenium import webdriver
@@ -9,7 +12,7 @@ from datetime import datetime
 
 # Constants #
 json_file_path = "../jsons/cerberus.json"
-base_folder = "C:\\Users\\hassh\\OneDrive\\שולחן העבודה\\Projects\\groczi\\py-scrape\\scrapes\\files"
+base_folder = "D:\\VsCode Projects\\Groczi\\Groczi\\py-scrape\\scrapes\\files"
 
 ####### function to find files #######
 def find_files(driver):
@@ -21,6 +24,7 @@ def find_files(driver):
     search_bar.clear()
     search_bar.send_keys(current_date)
     search_bar.submit()
+    time.sleep(2)
 
     # Scroll to the bottom of the page to load all files
     last_height = driver.execute_script("return document.body.scrollHeight")
@@ -42,11 +46,44 @@ def find_files(driver):
         driver.quit()
         exit()
 
+    return file_links
+
 ####### function to download files #######
-def download_files(driver):
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+def download_files(file_links, session_cookies, download_folder, xml_folder):
+
+    for file_link in file_links:
+        try:
+            file_name = file_link.split("/")[-1]
+            gz_file_path = os.path.join(download_folder, file_name)
+            extracted_file_path = os.path.join(xml_folder, file_name.replace(".gz", ".xml"))
+
+            print(f"Downloading file: {file_name}")
+            response = requests.get(file_link, cookies=session_cookies, stream=True)
+            response.raise_for_status()
+
+            with open(gz_file_path, "wb") as file:
+                shutil.copyfileobj(response.raw, file)
+               
+            print(f"Downloaded: {file_name}")
+
+
+            # Extract the .gz file
+            print(f"Extracting: {file_name}")
+            with gzip.open(gz_file_path, "rb") as gz_file:
+                with open(extracted_file_path, "wb") as xml_file:
+                    shutil.copyfileobj(gz_file, xml_file)
+            
+            print(f"Extracted: {file_name} -> {extracted_file_path}")
+            
+            # Delete the .gz file after extraction
+            os.remove(gz_file_path)
+            print(f"Deleted: {gz_file_path}")
         
-    
+        except Exception as e:
+            print(f"Failed to process {file_link}. Error: {e}")
+
+
+
 
     
 def main():
@@ -91,7 +128,7 @@ def main():
 
         driver = webdriver.Chrome()
         driver.get(login_url)
-
+        time.sleep(1)
         try:
             username_field = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "username")))
             username_field.send_keys(username)
@@ -104,14 +141,18 @@ def main():
 
             print("Logged in successfully. Proceeding to the file page...")
             
+            file_links = find_files(driver)
             
-            find_files(driver)
-            
-            
+            # Get cookies for authenticated requests
+            cookies = driver.get_cookies()
+            session_cookies = {cookie['name']: cookie['value'] for cookie in cookies}
+
+            download_files(file_links, session_cookies, download_folder, xml_folder)
 
 
 
-            download_files(driver)
+
+            
         except Exception as e:
             print("Error: cerberus.py : Login failed")
 
@@ -119,9 +160,10 @@ def main():
             driver.quit()
 
 
-main()
-find_files()
-download_files()
+if __name__ == "__main__":
+    main()
+
+
     
 
 
