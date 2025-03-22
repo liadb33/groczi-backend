@@ -9,6 +9,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
+from selenium.webdriver.common.keys import Keys
+from datetime import datetime, timedelta
 
 # Constants #
 json_file_path = "../jsons/cerberus.json"
@@ -16,46 +18,65 @@ base_folder = "D:\\VsCode Projects\\Groczi\\Groczi\\py-scrape\\scrapes\\files"
 
 ####### function to find files #######
 def find_files(driver):
-    # Get the current date and format it as YYYYMMDD
-    current_date = datetime.now().strftime("%Y%m%d")
-    print(f"Searching for files from the current date: {current_date}")
-    ####### Locate the search bar and enter the formatted date ########
-    search_bar = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//input[@type='search']")))
-    search_bar.clear()
-    search_bar.send_keys(current_date)
-    search_bar.submit()
-    time.sleep(2)
+    """Locate .gz files using current hour. If none found, try previous hour."""
+    
+    def perform_search(driver, date_hour):
+        print(f"Searching with timestamp: {date_hour}")
+        search_bar = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, "//input[@type='search']"))
+        )
+        search_bar.clear()
+        search_bar.send_keys(date_hour)
+        search_bar.send_keys(Keys.RETURN)
+        time.sleep(2)
 
-    # Scroll to the bottom of the page to load all files
-    last_height = driver.execute_script("return document.body.scrollHeight")
-    while True:
-        current_height = driver.execute_script("return document.body.scrollHeight")
-        if current_height == last_height:
-            break
-        last_height = current_height
-                
-    # Find all .gz file links on the page
-    file_elements = driver.find_elements(By.XPATH, "//a[contains(@href, '.gz')]")
-    file_links = [file_elem.get_attribute("href") for file_elem in file_elements]
-    print(f"Found {len(file_links)} .gz file links:")
-    for link in file_links:
-        print(link)
+        # Scroll to bottom to load all files
+        last_height = driver.execute_script("return document.body.scrollHeight")
+        while True:
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(2)
+            new_height = driver.execute_script("return document.body.scrollHeight")
+            if new_height == last_height:
+                break
+            last_height = new_height
 
-    if not file_links:
-        print("No .gz files found.")
-        driver.quit()
-        exit()
+        file_elements = driver.find_elements(By.XPATH, "//a[contains(@href, '.gz')]")
+        return [elem.get_attribute("href") for elem in file_elements]
+
+    # --- First attempt: current hour ---
+    current_datetime = datetime.now()
+    current_hour_str = current_datetime.strftime("%Y%m%d%H")
+    file_links = perform_search(driver, current_hour_str)
+
+    if file_links:
+        print(f"Found {len(file_links)} .gz files for {current_hour_str}")
+        return file_links
+
+    # --- Fallback: previous hour ---
+    previous_datetime = current_datetime - timedelta(hours=1)
+    previous_hour_str = previous_datetime.strftime("%Y%m%d%H")
+    print(f"No files found for current hour. Trying previous hour: {previous_hour_str}")
+    file_links = perform_search(driver, previous_hour_str)
+
+    if file_links:
+        print(f"Found {len(file_links)} .gz files for {previous_hour_str}")
+    else:
+        print("No .gz files found for current or previous hour.")
 
     return file_links
 
 ####### function to download files #######
-def download_files(file_links, session_cookies, download_folder, xml_folder):
+def download_files(file_links, session_cookies, download_folder, xml_folder, username):
 
+    # Create a unique folder for each user inside xmlFiles/
+    user_xml_folder = os.path.join(xml_folder, username)
+    os.makedirs(user_xml_folder, exist_ok=True)  # Ensure folder exists
+    
     for file_link in file_links:
         try:
             file_name = file_link.split("/")[-1]
             gz_file_path = os.path.join(download_folder, file_name)
-            extracted_file_path = os.path.join(xml_folder, file_name.replace(".gz", ".xml"))
+            extracted_file_path = os.path.join(user_xml_folder, file_name.replace(".gz", ".xml"))
 
             print(f"Downloading file: {file_name}")
             response = requests.get(file_link, cookies=session_cookies, stream=True)
@@ -141,13 +162,14 @@ def main():
 
             print("Logged in successfully. Proceeding to the file page...")
             
+            time.sleep(6)
             file_links = find_files(driver)
             
             # Get cookies for authenticated requests
             cookies = driver.get_cookies()
             session_cookies = {cookie['name']: cookie['value'] for cookie in cookies}
 
-            download_files(file_links, session_cookies, download_folder, xml_folder)
+            download_files(file_links, session_cookies, download_folder, xml_folder, username)
 
 
 
