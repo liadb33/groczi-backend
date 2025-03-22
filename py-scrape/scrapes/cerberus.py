@@ -18,8 +18,26 @@ base_folder = "D:\\VsCode Projects\\Groczi\\Groczi\\py-scrape\\scrapes\\files"
 
 ####### function to find files #######
 def find_files(driver):
-    """Locate .gz files using current hour. If none found, try previous hour."""
-    
+    """If there's a folder on the file page, enter it. Then search and find .gz files for current or previous hour."""
+
+    def enter_folder_if_needed(driver):
+        try:
+            # Wait for any folder links to be present
+            folder_link = WebDriverWait(driver, 5).until(
+                EC.presence_of_element_located((By.XPATH, "//a[contains(@class, 'fd') and contains(@href, '/file/d/')]"))
+            )
+            folder_name = folder_link.get_attribute("title") or folder_link.text
+            print(f"Folder detected: '{folder_name}' - entering...")
+            folder_link.click()
+
+            # Wait for folder content to load
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, "//table"))
+            )
+            time.sleep(1)  # Small pause just in case
+        except:
+            print("No folder found, continuing directly to file search.")
+
     def perform_search(driver, date_hour):
         print(f"Searching with timestamp: {date_hour}")
         search_bar = WebDriverWait(driver, 10).until(
@@ -30,7 +48,7 @@ def find_files(driver):
         search_bar.send_keys(Keys.RETURN)
         time.sleep(2)
 
-        # Scroll to bottom to load all files
+        # Scroll to load all files
         last_height = driver.execute_script("return document.body.scrollHeight")
         while True:
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -43,23 +61,26 @@ def find_files(driver):
         file_elements = driver.find_elements(By.XPATH, "//a[contains(@href, '.gz')]")
         return [elem.get_attribute("href") for elem in file_elements]
 
-    # --- First attempt: current hour ---
-    current_datetime = datetime.now()
-    current_hour_str = current_datetime.strftime("%Y%m%d%H")
-    file_links = perform_search(driver, current_hour_str)
+    # 1. If folder exists, enter it
+    enter_folder_if_needed(driver)
+
+    # 2. Try current hour
+    now = datetime.now()
+    timestamp = now.strftime("%Y%m%d%H")
+    file_links = perform_search(driver, timestamp)
 
     if file_links:
-        print(f"Found {len(file_links)} .gz files for {current_hour_str}")
+        print(f"Found {len(file_links)} .gz files for {timestamp}")
         return file_links
 
-    # --- Fallback: previous hour ---
-    previous_datetime = current_datetime - timedelta(hours=1)
-    previous_hour_str = previous_datetime.strftime("%Y%m%d%H")
-    print(f"No files found for current hour. Trying previous hour: {previous_hour_str}")
-    file_links = perform_search(driver, previous_hour_str)
+    # 3. Fallback: try previous hour
+    prev = now - timedelta(hours=1)
+    prev_timestamp = prev.strftime("%Y%m%d%H")
+    print(f"No files found for current hour. Trying previous hour: {prev_timestamp}")
+    file_links = perform_search(driver, prev_timestamp)
 
     if file_links:
-        print(f"Found {len(file_links)} .gz files for {previous_hour_str}")
+        print(f"Found {len(file_links)} .gz files for {prev_timestamp}")
     else:
         print("No .gz files found for current or previous hour.")
 
@@ -138,7 +159,7 @@ def main():
     os.makedirs(download_folder, exist_ok=True)
     os.makedirs(xml_folder, exist_ok=True)
     
-    for users in users_list:
+    for users in users_list[12:]:
         username = users.get("username","")
         password = users.get("password","")
 
