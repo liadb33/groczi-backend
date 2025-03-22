@@ -159,7 +159,7 @@ def main():
     os.makedirs(download_folder, exist_ok=True)
     os.makedirs(xml_folder, exist_ok=True)
     
-    for users in users_list[12:]:
+    for users in users_list:
         username = users.get("username","")
         password = users.get("password","")
 
