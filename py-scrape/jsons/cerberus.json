@@ -1,0 +1,18 @@
+{
+  "url": "https://url.publishedprices.co.il/login",
+  "users": [
+    { "username": "doralon", "password": null },
+    { "username": "TivTaam", "password": null },
+    { "username": "yohananof", "password": null },
+    { "username": "osherad", "password": null },
+    { "username": "politzer", "password": null },
+    { "username": "Keshet", "password": null },
+    { "username": "RamiLevi", "password": null },
+    { "username": "freshmarket", "password": null },
+    { "username": "SuperCofixApp", "password": null },
+    { "username": "Stop_Market", "password": null },
+    { "username": "SalachD", "password": "12345" },
+    { "username": "Paz_bo", "password": "paz468" },
+    { "username": "yuda_ho", "password": "Yud@147" }
+  ]
+}
