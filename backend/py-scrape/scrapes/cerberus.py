@@ -9,13 +9,17 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 
 # === CONFIG ===
-json_file_path = "../jsons/cerberus.json"
-base_download_url = "https://url.publishedprices.co.il/file/d"
-post_url = "https://url.publishedprices.co.il/file/json/dir"
-download_folder = os.path.join("./files", "gzFiles")
-xml_folder = os.path.join("./files", "xmlFiles")
+JSON_FILE_PATH = "../jsons/cerberus.json"
+DOWNLOAD_URL = "https://url.publishedprices.co.il/file/d"
+POST_URL = "https://url.publishedprices.co.il/file/json/dir"
+LOGOUT_URL = "https://url.publishedprices.co.il/logout"
+LOGIN_URL ="https://url.publishedprices.co.il/login"
+
+GZ_FOLDER_PATH = os.path.join("../files", "gzFiles")
+XML_FOLDER_PATH = os.path.join("../files", "xmlFiles")
 
 # === FILE DOWNLOAD AND EXTRACTION ===
 def download_and_extract(file_links, session, user_xml_folder):
@@ -24,7 +28,7 @@ def download_and_extract(file_links, session, user_xml_folder):
     for file_link in file_links:
         try:
             file_name = file_link.split("/")[-1].split("?")[0]
-            gz_path = os.path.join(download_folder, file_name)
+            gz_path = os.path.join(GZ_FOLDER_PATH, file_name)
             extracted_path = os.path.join(user_xml_folder, file_name.replace(".gz", ".xml"))
 
             print(f"⬇️ Downloading: {file_name}")
@@ -49,26 +53,33 @@ def download_and_extract(file_links, session, user_xml_folder):
         except Exception as e:
             print(f"❌ Failed to process {file_link}: {e}")
 
-# === MAIN DRIVER ===
+# === MAIN ===
 def main():
-    os.makedirs(download_folder, exist_ok=True)
-    os.makedirs(xml_folder, exist_ok=True)
+    os.makedirs(GZ_FOLDER_PATH, exist_ok=True)
+    os.makedirs(XML_FOLDER_PATH, exist_ok=True)
 
+    # Load configuration JSON
     try:
-        with open(json_file_path, "r") as json_file:
-            cerberusJson = json.load(json_file)
+        with open(JSON_FILE_PATH, "r") as f:
+            config = json.load(f)
+    except FileNotFoundError:
+        print(f"❌ Error: Configuration file not found at '{JSON_FILE_PATH}'")
+        return
+    except json.JSONDecodeError as e:
+        print(f"❌ Error: Failed to decode JSON from '{JSON_FILE_PATH}': {e}")
+        return
     except Exception as e:
         print(f"❌ Failed to load config: {e}")
         return
 
-    login_url = cerberusJson.get("url", "")
-    users_list = cerberusJson.get("users", [])
-
-    if not login_url or not users_list or not isinstance(users_list, list):
-        print("❌ Error: Invalid or missing login URL / users")
+    users = config.get("users", [])
+    if not users or not isinstance(users, list):
+        print("❌ Error: 'users' list missing or invalid in configuration JSON.")
         return
 
-    for user in users_list:
+    session = requests.Session()
+
+    for user in users:
         username = user.get("username", "")
         password = user.get("password", "")
         folder = user.get("folder", "")
@@ -78,9 +89,12 @@ def main():
             continue
 
         print(f"\n🔐 Starting session for user: {username}")
-        driver = webdriver.Chrome()
-        driver.get(login_url)
+        options = Options()
+        options.add_argument("--headless")
+        driver = webdriver.Chrome(options=options)
+        driver.get(LOGIN_URL)
 
+        # Login Process
         try:
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "username"))).send_keys(username)
             if password:
@@ -90,23 +104,18 @@ def main():
             print("✅ Logged in")
 
             selenium_cookies = driver.get_cookies()
-            session = requests.Session()
             for cookie in selenium_cookies:
                 session.cookies.set(cookie['name'], cookie['value'])
-
         except Exception as e:
             print(f"❌ Login failed for {username}: {e}")
-            driver.quit()
             continue
 
-        finally:
-            driver.quit()
-
-        user_xml_folder = os.path.join(xml_folder, username)
+        user_xml_folder = os.path.join(XML_FOLDER_PATH, username)
         os.makedirs(user_xml_folder, exist_ok=True)
 
+        # Fetch file list and download
         try:
-            resp = session.get(login_url)
+            resp = session.get(LOGIN_URL)
             soup = BeautifulSoup(resp.text, "html.parser")
             meta_tag = soup.find("meta", {"name": "csrftoken"})
             token = meta_tag["content"] if meta_tag else None
@@ -115,8 +124,9 @@ def main():
                 continue
 
             found_files = False
-        
-            timestamp = datetime.now().strftime("%Y%m%d%H")
+            
+            # Format timestamp for search
+            timestamp = datetime.now().strftime("%d/%m/%Y %H:%M")
             print(f"🔍 Searching with timestamp: {timestamp}")
 
             payload = {
@@ -138,13 +148,13 @@ def main():
             }
             headers = {
                 "Content-Type": "application/x-www-form-urlencoded",
-                "Referer": login_url,
+                "Referer": LOGIN_URL,
                 "Origin": "https://url.publishedprices.co.il",
                 "X-Requested-With": "XMLHttpRequest",
                 "X-CSRFToken": token
             }
 
-            response = session.post(post_url, data=payload, headers=headers)
+            response = session.post(POST_URL, data=payload, headers=headers)
             response.raise_for_status()
             file_data = response.json()
 
@@ -154,27 +164,22 @@ def main():
             else:
                 print("No files found for current timestamp.")
 
-            if not found_files:
-                print(f"🛑 Skipping user {username}: No files found for current or previous hour.")
-                continue
-
-            file_links = []
-            for item in file_data.get("aaData", []):
-                fname = item.get("fname", "")
-                if fname.endswith(".gz"):
-                    if folder: ## Check if there is a folder path (Yuda) 
-                        url = f"{base_download_url}{folder}/{fname}"
-                    else:
-                        url = f"{base_download_url}/{fname}"
-                    file_links.append(url)
-
-            if file_links:
-                download_and_extract(file_links, session, user_xml_folder)
-            else:
-                print("❌ No .gz links in saved JSON.")
-
+            if found_files:
+                file_links = [f"{DOWNLOAD_URL}{folder}/{item['fname']}" if folder else f"{DOWNLOAD_URL}/{item['fname']}" for item in file_data.get("aaData", []) if item.get("fname", "").endswith(".gz")]
+                if file_links:
+                    download_and_extract(file_links, session, user_xml_folder)
         except Exception as e:
             print(f"🚨 Failed during fetch/download for {username}: {e}")
+
+        # Logging out
+        try:
+            driver.get(LOGOUT_URL)
+            WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.NAME, "username")))
+            print(f"🔓 Logged out {username}")
+        except Exception as e:
+            print(f"⚠️ Failed to logout {username}: {e}")
+            driver.quit()
+    driver.quit()
 
 # === LAUNCH ===
 if __name__ == "__main__":
