@@ -1,5 +1,7 @@
 {
-    "url": ".binaprojects.com/Main.aspx",
+    "settings": {
+
+    },
     "users": [
         { "username": "kingstore" },
         { "username": "maayan2000" },

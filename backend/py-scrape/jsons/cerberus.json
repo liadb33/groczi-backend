@@ -1,5 +1,10 @@
 {
-  "url": "https://url.publishedprices.co.il/login",
+  "settings": {
+    "login_url": "https://url.publishedprices.co.il/login",
+    "logout_url": "https://url.publishedprices.co.il/logout",
+    "post_url": "https://url.publishedprices.co.il/file/json/dir",
+    "download_base_url": "https://url.publishedprices.co.il/file/d"
+  },
   "users": [
     { "username": "doralon", "password": null },
     { "username": "TivTaam", "password": null },
