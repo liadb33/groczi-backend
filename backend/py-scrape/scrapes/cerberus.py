@@ -21,7 +21,7 @@ SCRIPT_DIR = Path(__file__).parent.resolve()
 # paths relative to the script's directory
 JSON_FILE_PATH = SCRIPT_DIR.parent / "jsons" / "cerberus.json"
 GZ_FOLDER_PATH = SCRIPT_DIR.parent / "files" / "gzFiles"
-XML_FOLDER_PATH = SCRIPT_DIR.parent / "files" / "xmlFiles"
+XML_FOLDER_PATH = SCRIPT_DIR.parent / "files" / "xmlFilesCerberus"
 
 LOGIN_URL = None
 LOGOUT_URL = None
@@ -29,11 +29,6 @@ POST_URL = None
 DOWNLOAD_URL = None
 
 # === CONSTANTS ===
-DOWNLOAD_HEADERS = {
-    "Referer": "https://url.publishedprices.co.il/file",
-    "User-Agent": "Mozilla/5.0",
-    "X-Requested-With": "XMLHttpRequest"
-}
 POST_REQUEST_HEADERS_BASE = {
     "Content-Type": "application/x-www-form-urlencoded",
     "Referer": LOGIN_URL,
@@ -44,7 +39,11 @@ POST_REQUEST_HEADERS_BASE = {
 DOWNLOAD_TIMEOUT_SECONDS = 60 
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%d/%m/%Y %H:%M'  
+)
 
 # === FILE DOWNLOAD AND EXTRACTION ===
 def download_and_extract(file_links: list[str], session: requests.Session, user_xml_folder: str | Path):
@@ -65,7 +64,7 @@ def download_and_extract(file_links: list[str], session: requests.Session, user_
             extracted_path = Path(user_xml_folder) / file_name_xml
 
             logging.info(f"⬇️ Downloading: {file_name_gz} to {gz_path}")
-            response = session.get(file_link, headers=DOWNLOAD_HEADERS, stream=True, timeout=DOWNLOAD_TIMEOUT_SECONDS)
+            response = session.get(file_link, stream=True, timeout=DOWNLOAD_TIMEOUT_SECONDS)
             response.raise_for_status() 
 
             with open(gz_path, "wb") as f_gz:
@@ -136,22 +135,8 @@ def get_csrf_token_from_page(driver: webdriver.Chrome) -> str | None:
         page_source = driver.page_source
         soup = BeautifulSoup(page_source, "html.parser")
         meta_tag = soup.find("meta", {"name": "csrftoken"})
-        if meta_tag and meta_tag.get("content"):
-            token = meta_tag["content"]
-            logging.debug(f"Found CSRF token in meta tag: {token}")
-            return token
-        else:
-             logging.warning("CSRF meta tag not found in page source.")
-             # Fallback: Check cookies (often named 'csrftoken')
-             csrf_cookie = driver.get_cookie("csrftoken")
-             if csrf_cookie and csrf_cookie.get('value'):
-                 token = csrf_cookie['value']
-                 logging.debug(f"Found CSRF token in cookie: {token}")
-                 return token
-             else:
-                 logging.warning("CSRF token not found in cookies either.")
-                 return None
-
+        token = meta_tag["content"]
+        return token
      except Exception as e:
         logging.error(f"Error extracting CSRF token from page source: {e}")
         return None

@@ -1,18 +1,22 @@
 {
     "settings": {
-
+      "domain_suffix": ".binaprojects.com",
+      "main_page_path": "/Main.aspx",
+      "file_list_path": "/MainIO_Hok.aspx",
+      "download_path_template": "/Download/",
+      "download_timeout": 60
     },
     "users": [
-        { "username": "kingstore" },
-        { "username": "maayan2000" },
-        { "username": "goodpharm" },
-        { "username": "supersapir" },
-        { "username": "superbareket" },
-        { "username": "shuk-hayir" },
-        { "username": "shefabirkathashem" },
-        { "username": "zolvebegadol" },
-        { "username": "citymarketkiryatgat" },
-        { "username": "citymarketgivatayim" },
-        { "username": "ktshivuk"}
+      { "username": "kingstore" },
+      { "username": "maayan2000" },
+      { "username": "goodpharm" },
+      { "username": "supersapir" },
+      { "username": "superbareket" },
+      { "username": "shuk-hayir" },
+      { "username": "shefabirkathashem" },
+      { "username": "zolvebegadol" },
+      { "username": "citymarketkiryatgat" },
+      { "username": "citymarketgivatayim" },
+      { "username": "ktshivuk"}
     ]
-}
+  }

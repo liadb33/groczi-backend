@@ -1,11 +1,10 @@
 {
   "users": [
     { "url":"https://laibcatalog.co.il/" },
-    { "url":"https://www.citymarket-shops.co.il/" },
-    { "url":"https://shop.hazi-hinam.co.il/Prices" },
     { "url":"http://141.226.203.152/" },
     { "url":"http://prices.super-pharm.co.il/" },
-    { "url":"https://chp-kt.pages.dev/" },
-    { "url":"http://prices.shufersal.co.il/"}
+    { "url":"http://prices.shufersal.co.il/"},
+    { "url":"https://chp-kt.pages.dev/" }
+    
   ]
 }
