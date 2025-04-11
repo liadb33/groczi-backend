@@ -7,7 +7,7 @@ import requests
 import gzip
 from datetime import datetime
 from urllib.parse import urlparse
-
+from selenium.common.exceptions import WebDriverException, TimeoutException
 # Selenium Imports
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -20,11 +20,10 @@ from requests.exceptions import RequestException
 # === PATHS AND CONSTANTS ===
 SCRIPT_DIR = Path(__file__).parent.resolve()
 SHOPS_JSON_FILE = SCRIPT_DIR.parent / "jsons" / "shop.json"
-DOWNLOAD_FOLDER = SCRIPT_DIR.parent / "files" / "gzFiles"
+GZ_FOLDER_PATH = SCRIPT_DIR.parent / "files" / "gzFiles"
 
 # Define the two extraction folders that will be used.
-extract_folder_citymarket = SCRIPT_DIR.parent / "files" / "xmlFilesCityMarket"
-extract_folder_hazihinam = SCRIPT_DIR.parent / "files" / "xmlFilesHaziHinam"
+XML_FOLDER_PATH = SCRIPT_DIR.parent / "files" / "xmlFiles"
 
 # Logging Setup
 logging.basicConfig(
@@ -36,197 +35,136 @@ logging.info(f"Looking for JSON file at: {SHOPS_JSON_FILE.resolve()}")
 
 # === HELPER FUNCTIONS ===
 
-def load_shops_json(file_path: Path) -> dict:
-    """Loads the JSON file containing the list of site URLs."""
-    if not file_path.exists():
-        raise FileNotFoundError(f"Could not find JSON file at {file_path}")
-    with open(file_path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-def normalize_download_url(url: str, base_url: str) -> str:
-    """
-    If the download URL is relative (starting with "/downloadFile/"),
-    prepend the provided base_url (from JSON) to build the full URL.
-    Otherwise, return the URL unchanged.
-    """
-    if url.startswith("http"):
-        return url
-    elif url.startswith("/downloadFile/"):
-        return base_url.rstrip('/') + url
-    else:
-        return url
+def load_config(file_path: str | Path) -> dict:
+    """Loads and returns the configuration JSON."""
+    try:
+        with open(file_path, "r", encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        logging.error(f"❌ Configuration file not found: '{file_path}'")
+        raise
+    except json.JSONDecodeError as e:
+        logging.error(f"❌ Failed to decode JSON from '{file_path}': {e}")
+        raise
+    except Exception as e:
+        logging.error(f"❌ Failed to load config '{file_path}': {type(e).name} - {e}")
+        raise
 
 def access_site(driver: webdriver.Chrome, url: str) -> bool:
-    """
-    Opens the given URL in Selenium.
-    Waits until the page loads by checking for either a table with class "table-striped"
-    or the <body> tag.
-    Returns True if the page loads successfully.
-    """
+  
     logging.info(f"Accessing site: {url}")
+    
     try:
         driver.get(url)
-        try:
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "table.table-striped"))
-            )
-            logging.info("✅ Found table with class 'table-striped'.")
-        except Exception:
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.TAG_NAME, "body"))
-            )
-            logging.info("✅ Found <body> element.")
+        WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CSS_SELECTOR, "table.table-striped")))
+        logging.info(f"✅ Found table with class 'table-striped'.")
         return True
+    except TimeoutException:
+        logging.error(f"❌ Timed out waiting for site confirmation")
+        return False
+    except WebDriverException as e:
+        logging.error(f"❌ Site access failed {e}")
+        return False    
     except Exception as e:
         logging.error(f"❌ Error accessing {url}: {e}")
         return False
 
-def fetch_file_list(driver: webdriver.Chrome) -> list:
-    """
-    Extracts file entries from the table on the page.
-    Detects the layout by the number of cells in a row:
-      - 7 cells: City Market layout.
-      - 6 cells: Hazihinam layout.
-    Returns a list of dictionaries containing:
-      date, time, shop, file_name, file_type, full_partial (empty for Hazihinam),
-      size_kb, and download_url.
-    """
+def fetch_all_file_entries(driver,base_url: str) -> list:
     results = []
+    while not fetch_file_list(driver,base_url,results):
+        # If all rows in this page matched, try to click next page.
+        try:
+            current_page_li = driver.find_element(By.CSS_SELECTOR, "li.pagination-item.is-active")
+            next_page_li = current_page_li.find_element(By.XPATH, "following-sibling::li[1]")
+            next_page_link = next_page_li.find_element(By.TAG_NAME, "a")
+            next_href = next_page_link.get_attribute("href")
+            if next_href:
+                next_page_link.click()
+                WebDriverWait(driver, 10).until(EC.staleness_of(current_page_li))
+                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "table.table-striped")))
+            else:
+                break
+        except Exception as e:
+            logging.info("No next page found or error clicking next page; ending pagination.")
+            break
+    return results  
+     
+def fetch_file_list(driver: webdriver.Chrome,base_url: str,results: list) -> bool:
+   
     try:
         table = driver.find_element(By.CSS_SELECTOR, "table.table-striped")
         tbody = table.find_element(By.TAG_NAME, "tbody")
         rows = tbody.find_elements(By.TAG_NAME, "tr")
+        current_hour = datetime.now().hour
         for row in rows:
             cells = row.find_elements(By.TAG_NAME, "td")
-            if len(cells) == 7:
-                # City Market layout
-                spans = cells[0].find_elements(By.TAG_NAME, "span")
-                if len(spans) < 2:
-                    continue
-                date_text = spans[0].text.strip()
-                time_text = spans[1].text.strip()
-                shop = cells[1].text.strip()
-                file_name = cells[2].text.strip()
-                file_type = cells[3].text.strip()
-                full_partial = cells[4].text.strip()
-                size_kb = cells[5].text.strip()
-                try:
-                    download_link = cells[6].find_element(By.TAG_NAME, "a").get_attribute("href")
-                except Exception:
-                    download_link = ""
-                results.append({
-                    "date": date_text,
-                    "time": time_text,
-                    "shop": shop,
-                    "file_name": file_name,
-                    "file_type": file_type,
-                    "full_partial": full_partial,
-                    "size_kb": size_kb,
-                    "download_url": download_link
-                })
-            elif len(cells) == 6:
-                # Hazihinam layout
-                spans = cells[0].find_elements(By.TAG_NAME, "span")
-                if len(spans) < 2:
-                    continue
-                date_text = spans[0].text.strip()
-                time_text = spans[1].text.strip()
-                store_code = cells[1].text.strip()
-                file_name = cells[2].text.strip()
-                file_type = cells[3].text.strip()
-                size_kb = cells[4].text.strip()
-                try:
-                    download_link = cells[5].find_element(By.TAG_NAME, "a").get_attribute("href")
-                except Exception:
-                    download_link = ""
-                results.append({
-                    "date": date_text,
-                    "time": time_text,
-                    "shop": store_code,  # use the store code
-                    "file_name": file_name,
-                    "file_type": file_type,
-                    "full_partial": "",
-                    "size_kb": size_kb,
-                    "download_url": download_link
-                })
-            else:
-                continue  # Unrecognized layout
-        logging.info(f"✅ Found {len(results)} file entries in total.")
+            spans = cells[0].find_elements(By.TAG_NAME, "span")
+            file_hour = int(spans[1].text.strip().split(":")[0])  # Extract the hour from the span text
+            if file_hour != current_hour:
+                return True  # Stop if the hour doesn't match the current hour.
+            download_link = cells[-1].find_element(By.TAG_NAME, "a").get_attribute("href")
+            if not download_link.startswith("http"):
+                download_link = base_url + download_link
+            results.append(download_link)
     except Exception as e:
         logging.error(f"❌ Error fetching file list: {e}")
-    return results
+        return False
+    return False
 
-def download_and_extract(file_links: list[str], session: requests.Session, destination_folder: Path, base_url: str):
-    """
-    Downloads files from the provided URLs.
-    If a file appears gzipped (by filename or Content-Type header),
-    decompress it to extract the underlying XML file and save it in destination_folder.
-    If the file is XML, move it directly to destination_folder.
-    """
-    os.makedirs(destination_folder, exist_ok=True)
-    os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+def download_and_extract(file_links: list[str], session: requests.Session, user_xml_folder: str | Path):
+    """Downloads GZ files, extracts them to XML in the user's folder, and removes the GZ."""
+    
+    os.makedirs(user_xml_folder, exist_ok=True)
+    os.makedirs(GZ_FOLDER_PATH, exist_ok=True) 
 
-    for link in file_links:
-        temp_file_path = None
+    for file_link in file_links:
         try:
-            full_link = normalize_download_url(link, base_url)
-            filename = full_link.split("/")[-1]
-            temp_file_path = DOWNLOAD_FOLDER / filename
+            file_name_gz = file_link.split("/")[-1].split("?")[0]  # Extract the file name from the URL
 
-            logging.info(f"⬇️ Downloading: {full_link}")
-            resp = session.get(full_link, stream=True, timeout=60)
-            resp.raise_for_status()
-            with open(temp_file_path, "wb") as f:
-                shutil.copyfileobj(resp.raw, f)
+            gz_path = Path(GZ_FOLDER_PATH) / file_name_gz
+            file_name_xml = file_name_gz + ".xml" 
+            extracted_path = Path(user_xml_folder) / file_name_xml
+            logging.info(f"⬇️ Downloading: {file_link}")
+            response = session.get(file_link, stream=True)
+            response.raise_for_status() 
 
-            content_type = resp.headers.get("Content-Type", "").lower()
-            logging.info(f"Content-Type: {content_type}")
+            with open(gz_path, "wb") as f:
+                shutil.copyfileobj(response.raw, f)
 
-            if filename.lower().endswith(".gz") or "gzip" in content_type:
-                xml_filename = filename[:-3] if filename.lower().endswith(".gz") else filename + ".xml"
-                xml_file_path = destination_folder / xml_filename
-                logging.info(f"📦 Decompressing gz file {filename} to {xml_filename}")
-                with gzip.open(temp_file_path, 'rb') as f_in, open(xml_file_path, 'wb') as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-                logging.info(f"✅ Successfully decompressed to {xml_filename}.")
-            elif filename.lower().endswith(".xml") or "xml" in content_type:
-                xml_file_path = destination_folder / filename
-                logging.info(f"✅ Downloaded XML file; moving to {destination_folder}.")
-                shutil.move(str(temp_file_path), xml_file_path)
-            else:
-                logging.info(f"✅ Downloaded file {filename} not recognized as gzipped or XML; leaving it in place.")
-        except RequestException as dl_err:
-            logging.error(f"❌ Request/Download error: {dl_err}")
+            logging.info(f"📦 Extracting:")
+            with gzip.open(gz_path, "rb") as f_gzip:
+                with open(extracted_path, "wb") as f_xml:
+                    shutil.copyfileobj(f_gzip, f_xml)
+
+            os.remove(gz_path) 
+            logging.info(f"✅ Done & Cleaned: {file_name_gz}")
+
+        except RequestException as e:
+            logging.error(f"❌ Download failed for {file_link}: {e}")
+        except OSError as e:
+            logging.error(f"❌ File/Extract error for {file_name_gz} (Link: {file_link}): {e}")
         except Exception as e:
-            logging.error(f"❌ Unexpected error processing {link}: {e}")
-        finally:
-            if temp_file_path and temp_file_path.exists():
-                try:
-                    temp_file_path.unlink()
-                except Exception as cleanup_err:
-                    logging.error(f"Failed cleaning up {temp_file_path}: {cleanup_err}")
+            logging.error(f"❌ Unexpected error processing {file_link}: {type(e).__name__} - {e}")
 
 # === MAIN FLOW ===
 def main():
     try:
-        shops_data = load_shops_json(SHOPS_JSON_FILE)
-    except Exception as e:
-        logging.critical(f"Could not load shops.json: {e}")
+        config = load_config(SHOPS_JSON_FILE)
+    except Exception:
+        logging.critical("Failed to load configuration. Exiting.")
         return
-
-    os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
     
-    logging.info("Initializing WebDriver (Chrome headless)...")
-    options = Options()
-    options.add_argument("--headless")
     driver = None
     try:
+        logging.info("Initializing WebDriver")
+        options = Options()
+        options.add_argument("--headless")
         driver = webdriver.Chrome(options=options)
         logging.info("WebDriver initialized.")
         session = requests.Session()
-        
-        for user_config in shops_data.get("users", []):
-            site_url = user_config.get("url", "").strip()
+        users = config.get("users", [])
+        for user in users:
+            site_url = user.get("url", "").strip()
             if not site_url:
                 logging.warning("⚠️ No 'url' found in user entry; skipping.")
                 continue
@@ -236,37 +174,12 @@ def main():
                 logging.error(f"Skipping {site_url} due to site access failure.")
                 continue
 
-            base_url = site_url.rstrip('/')  # Use the site's URL from JSON as base.
+            file_list_items = fetch_all_file_entries(driver,site_url)
 
-            # Determine extraction folder based on URL.
-            if "citymarket-shops" in site_url:
-                output_folder = extract_folder_citymarket
-            elif "hazi-hinam" in site_url:
-                output_folder = extract_folder_hazihinam
-            else:
-                logging.warning(f"Site {site_url} not recognized; skipping.")
-                continue
-
-            logging.info(f"Saving files for site to: {output_folder}")
-            file_entries = fetch_file_list(driver)
-
-            # Filter for files from the current hour.
-            current_hour = datetime.now().hour
-            filtered_entries = []
-            for entry in file_entries:
-                try:
-                    file_hour = int(entry["time"].split(":")[0])
-                    if file_hour == current_hour:
-                        filtered_entries.append(entry)
-                except Exception as err:
-                    logging.error(f"Error parsing time '{entry.get('time')}' for file '{entry.get('file_name')}': {err}")
-            logging.info(f"Filtered entries: {len(filtered_entries)} file(s) match the current hour ({current_hour}).")
-
-            download_links = [item["download_url"] for item in filtered_entries if item["download_url"]]
-            logging.info(f"Found {len(download_links)} download link(s) after filtering by current hour.")
-            
-            if download_links:
-                download_and_extract(download_links, session, output_folder, base_url)
+            if file_list_items:
+                user_xml_folder_path = XML_FOLDER_PATH / user.get("username", "")
+                os.makedirs(user_xml_folder_path, exist_ok=True) # Ensure folder exists here
+                download_and_extract(file_list_items, session,user_xml_folder_path)
             else:
                 logging.info("No downloadable files found for this site in the current hour.")
             logging.info(f"===== FINISHED: {site_url} =====")
