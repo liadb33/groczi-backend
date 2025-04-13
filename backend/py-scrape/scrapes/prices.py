@@ -3,6 +3,9 @@ import logging
 import requests
 import gzip
 import shutil
+import re
+import json
+import os
 from bs4 import BeautifulSoup
 from pathlib import Path
 from datetime import datetime
@@ -21,74 +24,111 @@ logging.basicConfig(
     datefmt='%d/%m/%Y %H:%M'
 )
 
-def read_config(config_path: str) -> list[dict]:
-    """📖 Reads usernames and settings from JSON config file."""
-    with open(config_path, "r", encoding="utf-8") as f:
-        config = json.load(f)
-    return config["users"]
+def load_config(file_path: str | Path) -> dict:
+    """Loads and returns the configuration JSON."""
+    try:
+        with open(file_path, "r", encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        logging.error(f"❌ Configuration file not found: '{file_path}'")
+        raise
+    except json.JSONDecodeError as e:
+        logging.error(f"❌ Failed to decode JSON from '{file_path}': {e}")
+        raise
+    except Exception as e:
+        logging.error(f"❌ Failed to load config '{file_path}': {type(e).name} - {e}")
+        raise
 
-def fetch_file_list_from_html(session: requests.Session, username: str) -> list[str] | None:
+def fetch_file_list_from_html(session: requests.Session, url: str) -> list[str] | None:
     """🌐 Parses the HTML page and returns a list of full download links for .gz files."""
     try:
-        url = f"https://prices.{username}.co.il/"
-        logging.info(f"🌐 Fetching HTML page for {username} from {url}")
+        
+        logging.info(f"🌐 Fetching HTML page for {url}")
 
         response = session.get(url, timeout=30)
         response.raise_for_status()
+        # Extract the script tag containing the JSON data.
+        pattern = r'const\s+files\s*=\s*JSON\.parse\(`(.*?)`\)\.map\(String\);'
+        match = re.search(pattern, response.text, re.DOTALL)
+        if match:
+            files_json_str = match.group(1)
+            files_list = json.loads(files_json_str) 
+        else:
+            print("No match found for the files array.")
+            return None
+        
+        date_str = datetime.now().strftime("%Y%m%d")
+        hour_str = datetime.now().strftime("%Y%m%d%H")
+        base_url = url.rstrip("/")
+          # Filter the file list: only include those filenames that contain the current hour.
+        filtered_files = [filename for filename in files_list if hour_str in filename]
 
-        soup = BeautifulSoup(response.text, 'html.parser')
-        file_links = []
+        # Chain the base URL, current date, and filtered filename to create full links.
+        full_links = [f"{base_url}/{date_str}/{filename}" for filename in filtered_files]
+        
 
-        for link in soup.find_all('a', href=True):
-            href = link['href'].lstrip("./")
-            if href.endswith(".gz"):
-                full_link = url + href
-                file_links.append(full_link)
-
-        logging.info(f"🔗 Found {len(file_links)} .gz file links for {username}")
-        return file_links
-
+    except json.JSONDecodeError as e:
+        logging.error(f"❌ Failed to decode JSON from {url}: {e}")
+        return None
     except RequestException as e:
-        logging.error(f"❌ Request error while fetching HTML for {username}: {e}")
+        logging.error(f"❌ Request error while fetching HTML {e}")
         return None
     except Exception as e:
-        logging.error(f"⚠️ Unexpected error during HTML parsing for {username}: {type(e).__name__} - {e}")
+        logging.error(f"⚠️ Unexpected error during HTML parsing {type(e).__name__} - {e}")
         return None
+    return full_links
 
-def download_and_extract(file_urls: list[str], session: requests.Session, target_dir: Path) -> None:
+def download_and_extract(file_links: list[str], session: requests.Session, user_xml_folder: Path) -> None:
     """📥 Downloads and extracts .gz files to a specified folder."""
-    target_dir.mkdir(parents=True, exist_ok=True)
-    for url in file_urls:
-        filename = url.split("/")[-1]
-        gz_path = target_dir / filename
-        xml_path = target_dir / filename.replace(".gz", "")
-
+    os.makedirs(user_xml_folder, exist_ok=True)
+    os.makedirs(GZ_FOLDER_PATH, exist_ok=True)
+    for file_link in file_links:
         try:
-            logging.info(f"⬇️ Downloading {url}")
-            with session.get(url, timeout=60, stream=True) as r:
-                r.raise_for_status()
-                with open(gz_path, "wb") as f:
-                    for chunk in r.iter_content(chunk_size=8192):
-                        f.write(chunk)
+            file_name_gz = file_link.split("/")[-1]
 
-            with gzip.open(gz_path, "rb") as f_in:
-                with open(xml_path, "wb") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
+            gz_path = Path(GZ_FOLDER_PATH) / file_name_gz
+            file_name_xml = file_name_gz + ".xml" 
+            extracted_path = Path(user_xml_folder) / file_name_xml
+            logging.info(f"⬇️ Downloading: {file_link}")
+            response = session.get(file_link, stream=True)
+            response.raise_for_status() 
 
-            logging.info(f"📦 Extracted to {xml_path}")
-            gz_path.unlink()
+            with open(gz_path, "wb") as f:
+                shutil.copyfileobj(response.raw, f)
 
+            logging.info(f"📦 Extracting:")
+            with gzip.open(gz_path, "rb") as f_gzip:
+                with open(extracted_path, "wb") as f_xml:
+                    shutil.copyfileobj(f_gzip, f_xml)
+
+            os.remove(gz_path) 
+            logging.info(f"✅ Done & Cleaned: {file_name_gz}")
+
+        except RequestException as e:
+            logging.error(f"❌ Download failed for {file_link}: {e}")
+        except OSError as e:
+            logging.error(f"❌ File/Extract error for {file_name_gz} (Link: {file_link}): {e}")
         except Exception as e:
-            logging.error(f"❌ Failed to download or extract {url}: {e}")
+            logging.error(f"❌ Unexpected error processing {file_link}: {type(e).name} - {e}")
 
 def main():
     logging.info("🚀 Starting download and extract process...")
-    users = read_config(JSON_FILE_PATH)
+    try:
+        config = load_config(JSON_FILE_PATH)
+    except Exception:
+        logging.critical("Failed to load configuration. Exiting.")
+        return
+   
     session = requests.Session()
+    users = config.get("users", [])
+    if not users:
+        logging.error("❌ No users found in the configuration.")
+        return
 
     for user in users:
+        url = user["url"]
         username = user["username"]
-        file_links = fetch_file_list_from_html(session, username)
+        file_links = fetch_file_list_from_html(session, url)
         if file_links:
             user_folder = Path(XML_FOLDER_PATH) / username
             download_and_extract(file_links, session, user_folder)
@@ -96,6 +136,7 @@ def main():
             logging.error(f"⚠️ No file links found for {username}")
 
     logging.info("✅ All done!")
+
 
 if __name__ == "__main__":
     main()
