@@ -56,8 +56,8 @@ def access_site(driver: webdriver.Chrome, url: str) -> bool:
     
     try:
         driver.get(url)
-        WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CSS_SELECTOR, "table.table-striped")))
-        logging.info(f"✅ Found table with class 'table-striped'.")
+        WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CSS_SELECTOR, "table")))
+        logging.info(f"✅ Found table.")
         return True
     except TimeoutException:
         logging.error(f"❌ Timed out waiting for site confirmation")
@@ -69,47 +69,55 @@ def access_site(driver: webdriver.Chrome, url: str) -> bool:
         logging.error(f"❌ Error accessing {url}: {e}")
         return False
 
-def fetch_all_file_entries(driver,base_url: str) -> list:
+def fetch_all_file_entries(driver,base_url: str,config: dict) -> list:
     results = []
-    while not fetch_file_list(driver,base_url,results):
-        # If all rows in this page matched, try to click next page.
+    res = fetch_file_list(driver,base_url,results,config)
+    while not res:
         try:
-            current_page_li = driver.find_element(By.CSS_SELECTOR, "li.pagination-item.is-active")
-            next_page_li = current_page_li.find_element(By.XPATH, "following-sibling::li[1]")
-            next_page_link = next_page_li.find_element(By.TAG_NAME, "a")
-            next_href = next_page_link.get_attribute("href")
-            if next_href:
-                next_page_link.click()
-                WebDriverWait(driver, 10).until(EC.staleness_of(current_page_li))
-                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "table.table-striped")))
+            page_il = driver.find_element(By.CSS_SELECTOR, config["pagination_selector"])
+            if page_il:
+                page_il.click()
+                WebDriverWait(driver, 10).until(EC.staleness_of(driver.find_element(By.TAG_NAME, "table")))
             else:
                 break
         except Exception as e:
             logging.info("No next page found or error clicking next page; ending pagination.")
             break
-    return results  
+    return results
      
-def fetch_file_list(driver: webdriver.Chrome,base_url: str,results: list) -> bool:
-   
+def fetch_file_list(driver: webdriver.Chrome,base_url: str,results: list,config: dict) -> bool:
     try:
-        table = driver.find_element(By.CSS_SELECTOR, "table.table-striped")
-        tbody = table.find_element(By.TAG_NAME, "tbody")
-        rows = tbody.find_elements(By.TAG_NAME, "tr")
+        rows = driver.find_elements(By.CSS_SELECTOR, config["row_selector"])
         current_hour = datetime.now().hour
-        for row in rows:
-            cells = row.find_elements(By.TAG_NAME, "td")
-            spans = cells[0].find_elements(By.TAG_NAME, "span")
-            file_hour = int(spans[1].text.strip().split(":")[0])  # Extract the hour from the span text
+        for row in rows:            
+            timestamp = row.find_element(By.CSS_SELECTOR, config["timestamp_selector"])
+            file_hour = get_file_hour(timestamp.text)  
             if file_hour != current_hour:
-                return True  # Stop if the hour doesn't match the current hour.
-            download_link = cells[-1].find_element(By.TAG_NAME, "a").get_attribute("href")
+                return True
+            download_link = row.find_element(By.CSS_SELECTOR, config["link_config"]).get_attribute("href")
             if not download_link.startswith("http"):
                 download_link = base_url + download_link
             results.append(download_link)
     except Exception as e:
-        logging.error(f"❌ Error fetching file list: {e}")
-        return False
+         logging.error(f"❌ Error fetching file list: {e}")
+         return False
     return False
+
+def get_file_hour(timestamp_text: str) -> int:
+    
+    formats = [
+        "%H:%M",                      
+        "%m/%d/%Y %I:%M:%S %p"
+    ]
+    
+    for fmt in formats:
+        try:
+            dt = datetime.strptime(timestamp_text, fmt)
+            return dt.hour
+        except ValueError:
+            continue
+    raise ValueError(f"Unrecognized timestamp format: {timestamp_text}")
+
 
 def download_and_extract(file_links: list[str], session: requests.Session, user_xml_folder: str | Path):
     """Downloads GZ files, extracts them to XML in the user's folder, and removes the GZ."""
@@ -174,7 +182,7 @@ def main():
                 logging.error(f"Skipping {site_url} due to site access failure.")
                 continue
 
-            file_list_items = fetch_all_file_entries(driver,site_url)
+            file_list_items = fetch_all_file_entries(driver,site_url,user["config"])
 
             if file_list_items:
                 user_xml_folder_path = XML_FOLDER_PATH / user.get("username", "")
