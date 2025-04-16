@@ -6,9 +6,8 @@ import shutil
 import re
 import json
 import os
-from bs4 import BeautifulSoup
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime ,timedelta
 from requests.exceptions import RequestException
 
 # === CONFIG ===
@@ -58,7 +57,8 @@ def fetch_file_list_from_html(session: requests.Session, url: str) -> list[str] 
             return None
         
         date_str = datetime.now().strftime("%Y%m%d")
-        hour_str = datetime.now().strftime("%Y%m%d%H")
+        hour_str = (datetime.now() - timedelta(hours=1)).strftime("%Y%m%d%H")
+
         base_url = url.rstrip("/")
           # Filter the file list: only include those filenames that contain the current hour.
         filtered_files = [filename for filename in files_list if hour_str in filename]

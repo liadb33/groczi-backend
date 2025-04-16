@@ -84,7 +84,7 @@ def fetch_all_file_entries(driver: webdriver.Chrome,config: dict) -> None:
 def fetch_file_list(driver: webdriver.Chrome,config: dict) -> bool:
     try:
         rows = driver.find_elements(By.CSS_SELECTOR, config["row_selector"])   
-        current_hour = datetime.now().hour
+        current_hour = datetime.now().hour - 1 
         for row in rows:            
             timestamp = row.find_element(By.CSS_SELECTOR, config["timestamp_selector"])
             file_hour = get_file_hour(timestamp.text)  

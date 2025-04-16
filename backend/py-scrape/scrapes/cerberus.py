@@ -3,7 +3,7 @@ import json
 import gzip
 import shutil
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path 
 import logging 
 
@@ -273,7 +273,8 @@ def main():
             os.makedirs(user_xml_folder_path, exist_ok=True)
 
             # 5. Fetch File List
-            search_criteria = datetime.now().strftime("%Y%m%d%H") 
+            search_criteria = (datetime.now() - timedelta(hours=1)).strftime("%Y%m%d%H")
+ 
             
             file_list = fetch_file_list(session, token, search_criteria, folder)
 
