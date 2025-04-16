@@ -1,16 +1,6 @@
 {
   "users": [
     {
-      "username": "kingstore",
-      "url": "https://kingstore.binaprojects.com/Main.aspx",
-      "config": {
-        "row_selector": "table > tbody > tr",
-        "timestamp_selector": "td:nth-child(5)",
-        "link_config": "td:nth-child(6) > button",
-        "pagination_selector": "none"
-      }
-    },
-    {
       "username": "citymarket",
       "url": "https://www.citymarket-shops.co.il",
       "config": {

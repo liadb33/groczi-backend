@@ -14,7 +14,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
+import zipfile
 from requests.exceptions import RequestException
 
 # === PATHS AND CONSTANTS ===
@@ -64,9 +64,8 @@ def access_site(driver: webdriver.Chrome, url: str) -> bool:
         logging.error(f"❌ Error accessing {url}: {e}")
         return False
 
-def fetch_all_file_entries(driver,base_url: str,config: dict) -> list:
-    results = []
-    res = fetch_file_list(driver,base_url,results,config)
+def fetch_all_file_entries(driver: webdriver.Chrome,config: dict) -> None:
+    res = fetch_file_list(driver,config)
     while not res:
         try:
             page_il = driver.find_element(By.CSS_SELECTOR, config["pagination_selector"])
@@ -78,22 +77,19 @@ def fetch_all_file_entries(driver,base_url: str,config: dict) -> list:
         except Exception as e:
             logging.info("No next page found or error clicking next page; ending pagination.")
             break
-    return results
      
-def fetch_file_list(driver: webdriver.Chrome,base_url: str,results: list,config: dict) -> bool:
+def fetch_file_list(driver: webdriver.Chrome,config: dict) -> bool:
     try:
         rows = driver.find_elements(By.CSS_SELECTOR, config["row_selector"])
-        print("rows:",len(rows))
         current_hour = datetime.now().hour
         for row in rows:            
             timestamp = row.find_element(By.CSS_SELECTOR, config["timestamp_selector"])
             file_hour = get_file_hour(timestamp.text)  
             if file_hour != current_hour:
                 return True
-            download_link = row.find_element(By.CSS_SELECTOR, config["link_config"]).get_attribute("href")
-            if not download_link.startswith("http"):
-                download_link = base_url + download_link
-            results.append(download_link)
+            download_link = row.find_element(By.CSS_SELECTOR, config["link_config"])
+            download_link.click()
+            logging.info(f"⬇️ Downloading: {download_link.get_attribute('href')}")
     except Exception as e:
          logging.error(f"❌ Error fetching file list: {e}")
          return False
@@ -116,40 +112,44 @@ def get_file_hour(timestamp_text: str) -> int:
             continue
     raise ValueError(f"Unrecognized timestamp format: {timestamp_text}")
 
-def download_and_extract(file_links: list[str], session: requests.Session, user_xml_folder: str | Path):
-    """Downloads GZ files, extracts them to XML in the user's folder, and removes the GZ."""
-    
+def extract(user_xml_folder: str | Path):
+    """Extracts .gz or .zip files from GZ_FOLDER_PATH to the given folder."""
     os.makedirs(user_xml_folder, exist_ok=True)
-    os.makedirs(GZ_FOLDER_PATH, exist_ok=True) 
 
-    for file_link in file_links:
+    gz_files = list(Path(GZ_FOLDER_PATH).glob("*.gz"))
+    if not gz_files:
+        logging.warning("⚠️ No .gz files found to extract.")
+        return
+
+    for gz_path in gz_files:
         try:
-            file_name_gz = file_link.split("/")[-1].split("?")[0]  # Extract the file name from the URL
+            with open(gz_path, "rb") as f:
+                magic = f.read(2)
+                f.seek(0)  # Reset file pointer
 
-            gz_path = Path(GZ_FOLDER_PATH) / file_name_gz
-            file_name_xml = file_name_gz + ".xml" 
-            extracted_path = Path(user_xml_folder) / file_name_xml
-            logging.info(f"⬇️ Downloading: {file_link}")
-            response = session.get(file_link, stream=True)
-            response.raise_for_status() 
+                file_name_gz = gz_path.name
+                file_name_xml = file_name_gz + ".xml"
+                extracted_path = Path(user_xml_folder) / file_name_xml
 
-            with open(gz_path, "wb") as f:
-                shutil.copyfileobj(response.raw, f)
+                if magic == b'\x1f\x8b':  # GZIP magic number
+                    with gzip.open(f, "rb") as f_gzip, open(extracted_path, "wb") as f_xml:
+                        shutil.copyfileobj(f_gzip, f_xml)
 
-            logging.info(f"📦 Extracting:")
-            with gzip.open(gz_path, "rb") as f_gzip:
-                with open(extracted_path, "wb") as f_xml:
-                    shutil.copyfileobj(f_gzip, f_xml)
+                elif magic == b'PK':  # ZIP file magic number
+                    with zipfile.ZipFile(f) as z:
+                        for zipped_file in z.namelist():
+                            # Extract the first file in the zip
+                            with z.open(zipped_file) as zip_file, open(user_xml_folder / zipped_file, 'wb') as out_file:
+                                shutil.copyfileobj(zip_file, out_file)
 
-            os.remove(gz_path) 
-            logging.info(f"✅ Done & Cleaned: {file_name_gz}")
+                else:
+                    raise ValueError("Unknown file format")
 
-        except RequestException as e:
-            logging.error(f"❌ Download failed for {file_link}: {e}")
-        except OSError as e:
-            logging.error(f"❌ File/Extract error for {file_name_gz} (Link: {file_link}): {e}")
+            os.remove(gz_path)
+            logging.info(f"✅ Extracted & removed: {file_name_gz}")
+
         except Exception as e:
-            logging.error(f"❌ Unexpected error processing {file_link}: {type(e).__name__} - {e}")
+            logging.error(f"❌ Failed to extract {gz_path}: {type(e).__name__} - {e}")
 
 # === MAIN FLOW ===
 def main():
@@ -164,6 +164,14 @@ def main():
         logging.info("Initializing WebDriver")
         options = Options()
         options.add_argument("--headless")
+        os.makedirs(GZ_FOLDER_PATH, exist_ok=True) 
+        prefs = {
+            "download.default_directory": str(GZ_FOLDER_PATH),  # Set the default download directory
+            "download.prompt_for_download": False,  # disables the "Save As" dialog
+            "download.directory_upgrade": True,
+            "safebrowsing.enabled": True  # avoid security prompts
+        }
+        options.add_experimental_option("prefs", prefs) 
         driver = webdriver.Chrome(options=options)
         logging.info("WebDriver initialized.")
         session = requests.Session()
@@ -179,14 +187,13 @@ def main():
                 logging.error(f"Skipping {site_url} due to site access failure.")
                 continue
 
-            file_list_items = fetch_all_file_entries(driver,site_url,user["config"])
+            fetch_all_file_entries(driver,user["config"])
 
-            if file_list_items:
-                user_xml_folder_path = XML_FOLDER_PATH / user.get("username", "")
-                os.makedirs(user_xml_folder_path, exist_ok=True) # Ensure folder exists here
-                download_and_extract(file_list_items, session,user_xml_folder_path)
-            else:
-                logging.info("No downloadable files found for this site in the current hour.")
+        
+            user_xml_folder_path = XML_FOLDER_PATH / user.get("username", "")
+            os.makedirs(user_xml_folder_path, exist_ok=True) # Ensure folder exists here
+            extract(user_xml_folder_path)
+
             logging.info(f"===== FINISHED: {site_url} =====")
     except Exception as e:
         logging.critical(f"An unexpected error occurred in main: {e}", exc_info=True)
