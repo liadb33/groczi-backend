@@ -31,12 +31,9 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%d/%m/%Y %H:%M'
 )
-logging.info(f"Looking for JSON file at: {SHOPS_JSON_FILE.resolve()}")
 
 # === HELPER FUNCTIONS ===
-
 def load_config(file_path: str | Path) -> dict:
-    """Loads and returns the configuration JSON."""
     try:
         with open(file_path, "r", encoding='utf-8') as f:
             return json.load(f)
@@ -51,9 +48,7 @@ def load_config(file_path: str | Path) -> dict:
         raise
 
 def access_site(driver: webdriver.Chrome, url: str) -> bool:
-  
     logging.info(f"Accessing site: {url}")
-    
     try:
         driver.get(url)
         WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CSS_SELECTOR, "table")))
@@ -88,6 +83,7 @@ def fetch_all_file_entries(driver,base_url: str,config: dict) -> list:
 def fetch_file_list(driver: webdriver.Chrome,base_url: str,results: list,config: dict) -> bool:
     try:
         rows = driver.find_elements(By.CSS_SELECTOR, config["row_selector"])
+        print("rows:",len(rows))
         current_hour = datetime.now().hour
         for row in rows:            
             timestamp = row.find_element(By.CSS_SELECTOR, config["timestamp_selector"])
@@ -104,10 +100,12 @@ def fetch_file_list(driver: webdriver.Chrome,base_url: str,results: list,config:
     return False
 
 def get_file_hour(timestamp_text: str) -> int:
-    
     formats = [
         "%H:%M",                      
-        "%m/%d/%Y %I:%M:%S %p"
+        "%m/%d/%Y %I:%M:%S %p",
+        "%Y-%m-%d %H:%M:%S",
+        "%d/%m/%Y %H:%M:%S",
+        "%H:%M %d/%m/%Y",
     ]
     
     for fmt in formats:
@@ -117,7 +115,6 @@ def get_file_hour(timestamp_text: str) -> int:
         except ValueError:
             continue
     raise ValueError(f"Unrecognized timestamp format: {timestamp_text}")
-
 
 def download_and_extract(file_links: list[str], session: requests.Session, user_xml_folder: str | Path):
     """Downloads GZ files, extracts them to XML in the user's folder, and removes the GZ."""

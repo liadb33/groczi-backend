@@ -1,39 +1,64 @@
 {
-    "users": [
-      { "username":"citymarket","url":"https://www.citymarket-shops.co.il" , 
-      "config":{
-        "row_selector": "table.table-striped > tbody > tr",        
+  "users": [
+    {
+      "username": "kingstore",
+      "url": "https://kingstore.binaprojects.com/Main.aspx",
+      "config": {
+        "row_selector": "table > tbody > tr",
+        "timestamp_selector": "td:nth-child(5)",
+        "link_config": "td:nth-child(6) > button",
+        "pagination_selector": "none"
+      }
+    },
+    {
+      "username": "citymarket",
+      "url": "https://www.citymarket-shops.co.il",
+      "config": {
+        "row_selector": "table.table-striped > tbody > tr",
         "timestamp_selector": "td:nth-child(1) > span:nth-child(2)",
         "link_config": "td:nth-child(7) > a",
         "pagination_selector": "li.pagination-item.is-active + li a.pagination-link"
-    }},
-      { "username":"hazi-hinam","url":"https://shop.hazi-hinam.co.il/Prices" ,
-      "config":{ 
-        "row_selector": "table.table-striped > tbody > tr",     
-        "timestamp_selector":"td:nth-child(1) > span:nth-child(2)",
+      }
+    },
+    {
+      "username": "hazi-hinam",
+      "url": "https://shop.hazi-hinam.co.il/Prices",
+      "config": {
+        "row_selector": "table.table-striped > tbody > tr",
+        "timestamp_selector": "td:nth-child(1) > span:nth-child(2)",
         "link_config": "td:nth-child(6) > a",
-        "pagination_selector": "li.pagination-item.is-active + li a.pagination-link"        
-    }},
-    { "username":"shufersal","url":"https://prices.shufersal.co.il/" ,
-      "config":{ 
-        "row_selector": "table.webgrid > tbody > tr",     
-        "timestamp_selector":"td:nth-child(2)",
+        "pagination_selector": "li.pagination-item.is-active + li a.pagination-link"
+      }
+    },
+    {
+      "username": "shufersal",
+      "url": "https://prices.shufersal.co.il/",
+      "config": {
+        "row_selector": "table.webgrid > tbody > tr",
+        "timestamp_selector": "td:nth-child(2)",
         "link_config": "td:nth-child(1) > a",
-        "pagination_selector": "tfoot a:nth-last-of-type(2)"        
-    }},
-    { "username":"super-pharm","url":"https://prices.super-pharm.co.il/" ,
-      "config":{ 
-        "row_selector": "table.flat-table > tr:not(:first-child)",     
-        "timestamp_selector":"td:nth-child(3)",
+        "pagination_selector": "tfoot a:nth-last-of-type(2)"
+      }
+    },
+    {
+      "username": "super-pharm",
+      "url": "https://prices.super-pharm.co.il/",
+      "config": {
+        "row_selector": "table.flat-table > tbody> tr:not(:first-child)",
+        "timestamp_selector": "td:nth-child(3)",
         "link_config": "td:nth-child(6) > a",
-        "pagination_selector": "div.pager > div.page_link:nth-child(2) a"        
-    }},
-    { "username":"laibcatalog","url":"https://laibcatalog.co.il/" ,
-      "config":{ 
-        "row_selector": "table > tr:not(:first-child)",     
-        "timestamp_selector":"td:nth-child(7)",
+        "pagination_selector": "div.pager > div.page_link:nth-child(2) a"
+      }
+    },
+    {
+      "username": "laibcatalog",
+      "url": "https://laibcatalog.co.il/",
+      "config": {
+        "row_selector": "table > tbody > tr:not(:first-child)",
+        "timestamp_selector": "td:nth-child(7)",
         "link_config": "td:nth-child(8) > a",
-        "pagination_selector": "none"        
-    }}
-    ]
-  } 
+        "pagination_selector": "none"
+      }
+    }
+  ]
+}
