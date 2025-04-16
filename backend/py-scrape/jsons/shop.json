@@ -4,6 +4,7 @@
       "username": "citymarket",
       "url": "https://www.citymarket-shops.co.il",
       "config": {
+        "wait_for_selector": "table",
         "row_selector": "table.table-striped > tbody > tr",
         "timestamp_selector": "td:nth-child(1) > span:nth-child(2)",
         "link_config": "td:nth-child(7) > a",
@@ -14,6 +15,7 @@
       "username": "hazi-hinam",
       "url": "https://shop.hazi-hinam.co.il/Prices",
       "config": {
+        "wait_for_selector": "table",
         "row_selector": "table.table-striped > tbody > tr",
         "timestamp_selector": "td:nth-child(1) > span:nth-child(2)",
         "link_config": "td:nth-child(6) > a",
@@ -24,6 +26,7 @@
       "username": "shufersal",
       "url": "https://prices.shufersal.co.il/",
       "config": {
+        "wait_for_selector": "table",
         "row_selector": "table.webgrid > tbody > tr",
         "timestamp_selector": "td:nth-child(2)",
         "link_config": "td:nth-child(1) > a",
@@ -34,6 +37,7 @@
       "username": "super-pharm",
       "url": "https://prices.super-pharm.co.il/",
       "config": {
+        "wait_for_selector": "table",
         "row_selector": "table.flat-table > tbody> tr:not(:first-child)",
         "timestamp_selector": "td:nth-child(3)",
         "link_config": "td:nth-child(6) > a",
@@ -44,9 +48,153 @@
       "username": "laibcatalog",
       "url": "https://laibcatalog.co.il/",
       "config": {
+        "wait_for_selector": "table",
         "row_selector": "table > tbody > tr:not(:first-child)",
         "timestamp_selector": "td:nth-child(7)",
         "link_config": "td:nth-child(8) > a",
+        "pagination_selector": "none"
+      }
+    },
+    {
+      "username": "Barchel",
+      "url": "http://141.226.203.152/",
+      "config": {
+        "wait_for_selector": "table",
+        "row_selector": "table > tbody > tr:not(:first-child)",
+        "timestamp_selector": "td:nth-child(7)",
+        "link_config": "td:nth-child(8) > a",
+        "pagination_selector": "none"
+      }
+    },
+    {
+      "username": "chp-kt",
+      "url": "https://chp-kt.pages.dev/",
+      "config": {
+        "wait_for_selector": ".tabulator-row",
+        "row_selector": "div.tabulator-row",
+        "timestamp_selector": "div.tabulator-cell[tabulator-field='date']",
+        "link_config": "div.tabulator-cell[tabulator-field='url'] > a",
+        "pagination_selector": "none"
+      }
+    },
+    {
+      "username": "kingstore",
+      "url": "https://kingstore.binaprojects.com/Main.aspx",
+      "config": {
+        "wait_for_selector": "#myTable tr[id^='tr']",
+        "row_selector": "table#myTable > tbody > tr:not(:first-child)",
+        "timestamp_selector": "td:nth-child(5)",
+        "link_config": "td:nth-child(6) > button",
+        "pagination_selector": "none"
+      }
+    },
+    {
+      "username": "maayan2000",
+      "url": "https://maayan2000.binaprojects.com/Main.aspx",
+      "config": {
+        "wait_for_selector": "#myTable tr[id^='tr']",
+        "row_selector": "table#myTable > tbody > tr:not(:first-child)",
+        "timestamp_selector": "td:nth-child(5)",
+        "link_config": "td:nth-child(6) > button",
+        "pagination_selector": "none"
+      }
+    },
+    {
+      "username": "goodpharm",
+      "url": "https://goodpharm.binaprojects.com/Main.aspx",
+      "config": {
+        "wait_for_selector": "#myTable tr[id^='tr']",
+        "row_selector": "table#myTable > tbody > tr:not(:first-child)",
+        "timestamp_selector": "td:nth-child(5)",
+        "link_config": "td:nth-child(6) > button",
+        "pagination_selector": "none"
+      }
+    },
+    {
+      "username": "supersapir",
+      "url": "https://supersapir.binaprojects.com/Main.aspx",
+      "config": {
+        "wait_for_selector": "#myTable tr[id^='tr']",
+        "row_selector": "table#myTable > tbody > tr:not(:first-child)",
+        "timestamp_selector": "td:nth-child(6)",
+        "link_config": "td:nth-child(7) > button",
+        "pagination_selector": "none"
+      }
+    },
+    {
+      "username": "superbareket",
+      "url": "https://superbareket.binaprojects.com/Main.aspx",
+      "config": {
+        "wait_for_selector": "#myTable tr[id^='tr']",
+        "row_selector": "table#myTable > tbody > tr:not(:first-child)",
+        "timestamp_selector": "td:nth-child(5)",
+        "link_config": "td:nth-child(6) > button",
+        "pagination_selector": "none"
+      }
+    },
+    {
+      "username": "shuk-hayir",
+      "url": "https://shuk-hayir.binaprojects.com/Main.aspx",
+      "config": {
+        "wait_for_selector": "#myTable tr[id^='tr']",
+        "row_selector": "table#myTable > tbody > tr:not(:first-child)",
+        "timestamp_selector": "td:nth-child(5)",
+        "link_config": "td:nth-child(6) > button",
+        "pagination_selector": "none"
+      }
+    },
+    {
+      "username": "shefabirkathashem",
+      "url": "https://shefabirkathashem.binaprojects.com/Main.aspx",
+      "config": {
+        "wait_for_selector": "#myTable tr[id^='tr']",
+        "row_selector": "table#myTable > tbody > tr:not(:first-child)",
+        "timestamp_selector": "td:nth-child(5)",
+        "link_config": "td:nth-child(6) > button",
+        "pagination_selector": "none"
+      }
+    },
+    {
+      "username": "zolvebegadol",
+      "url": "https://zolvebegadol.binaprojects.com/Main.aspx",
+      "config": {
+        "wait_for_selector": "#myTable tr[id^='tr']",
+        "row_selector": "table#myTable > tbody > tr:not(:first-child)",
+        "timestamp_selector": "td:nth-child(5)",
+        "link_config": "td:nth-child(6) > button",
+        "pagination_selector": "none"
+      }
+    },
+    {
+      "username": "citymarketkiryatgat",
+      "url": "https://citymarketkiryatgat.binaprojects.com/Main.aspx",
+      "config": {
+        "wait_for_selector": "#myTable tr[id^='tr']",
+        "row_selector": "table#myTable > tbody > tr:not(:first-child)",
+        "timestamp_selector": "td:nth-child(5)",
+        "link_config": "td:nth-child(6) > button",
+        "pagination_selector": "none"
+      }
+    },
+    {
+      "username": "citymarketgivatayim",
+      "url": "https://citymarketgivatayim.binaprojects.com/Main.aspx",
+      "config": {
+        "wait_for_selector": "#myTable tr[id^='tr']",
+        "row_selector": "table#myTable > tbody > tr:not(:first-child)",
+        "timestamp_selector": "td:nth-child(5)",
+        "link_config": "td:nth-child(6) > button",
+        "pagination_selector": "none"
+      }
+    },
+    {
+      "username": "ktshivuk",
+      "url": "https://ktshivuk.binaprojects.com/Main.aspx",
+      "config": {
+        "wait_for_selector": "#myTable tr[id^='tr']",
+        "row_selector": "table#myTable > tbody > tr:not(:first-child)",
+        "timestamp_selector": "td:nth-child(5)",
+        "link_config": "td:nth-child(6) > button",
         "pagination_selector": "none"
       }
     }

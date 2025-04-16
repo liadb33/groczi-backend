@@ -3,8 +3,8 @@ import json
 import shutil
 import logging
 from pathlib import Path
-import requests
 import gzip
+import time
 from datetime import datetime
 from urllib.parse import urlparse
 from selenium.common.exceptions import WebDriverException, TimeoutException
@@ -47,11 +47,14 @@ def load_config(file_path: str | Path) -> dict:
         logging.error(f"❌ Failed to load config '{file_path}': {type(e).name} - {e}")
         raise
 
-def access_site(driver: webdriver.Chrome, url: str) -> bool:
+def access_site(driver: webdriver.Chrome, url: str,config: dict) -> bool:
     logging.info(f"Accessing site: {url}")
     try:
         driver.get(url)
-        WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CSS_SELECTOR, "table")))
+        WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, config["wait_for_selector"]))
+        )
+
         logging.info(f"✅ Found table.")
         return True
     except TimeoutException:
@@ -80,7 +83,7 @@ def fetch_all_file_entries(driver: webdriver.Chrome,config: dict) -> None:
      
 def fetch_file_list(driver: webdriver.Chrome,config: dict) -> bool:
     try:
-        rows = driver.find_elements(By.CSS_SELECTOR, config["row_selector"])
+        rows = driver.find_elements(By.CSS_SELECTOR, config["row_selector"])   
         current_hour = datetime.now().hour
         for row in rows:            
             timestamp = row.find_element(By.CSS_SELECTOR, config["timestamp_selector"])
@@ -89,11 +92,28 @@ def fetch_file_list(driver: webdriver.Chrome,config: dict) -> bool:
                 return True
             download_link = row.find_element(By.CSS_SELECTOR, config["link_config"])
             download_link.click()
-            logging.info(f"⬇️ Downloading: {download_link.get_attribute('href')}")
+            logging.info(f"⬇️ Downloading")
+            wait_for_download_complete(GZ_FOLDER_PATH)
     except Exception as e:
          logging.error(f"❌ Error fetching file list: {e}")
          return False
     return False
+
+import time
+
+def wait_for_download_complete(folder: Path, timeout: int = 60) -> bool:
+    logging.info("⏳ Waiting for download to complete...")
+    elapsed = 0
+    while elapsed < timeout:
+        files = list(folder.glob("*.crdownload"))
+        if not files:
+            logging.info("✅ Download finished.")
+            return True
+        time.sleep(1)
+        elapsed += 1
+    logging.warning("⚠️ Download may not have completed in time.")
+    return False
+
 
 def get_file_hour(timestamp_text: str) -> int:
     formats = [
@@ -115,7 +135,7 @@ def get_file_hour(timestamp_text: str) -> int:
 def extract(user_xml_folder: str | Path):
     """Extracts .gz or .zip files from GZ_FOLDER_PATH to the given folder."""
     os.makedirs(user_xml_folder, exist_ok=True)
-
+    os.makedirs(GZ_FOLDER_PATH, exist_ok=True)
     gz_files = list(Path(GZ_FOLDER_PATH).glob("*.gz"))
     if not gz_files:
         logging.warning("⚠️ No .gz files found to extract.")
@@ -145,9 +165,7 @@ def extract(user_xml_folder: str | Path):
                 else:
                     raise ValueError("Unknown file format")
 
-            os.remove(gz_path)
-            logging.info(f"✅ Extracted & removed: {file_name_gz}")
-
+            logging.info(f"✅ Extracted & removed: {file_name_gz}") 
         except Exception as e:
             logging.error(f"❌ Failed to extract {gz_path}: {type(e).__name__} - {e}")
 
@@ -163,8 +181,7 @@ def main():
     try:
         logging.info("Initializing WebDriver")
         options = Options()
-        options.add_argument("--headless")
-        os.makedirs(GZ_FOLDER_PATH, exist_ok=True) 
+        options.add_argument("--headless") 
         prefs = {
             "download.default_directory": str(GZ_FOLDER_PATH),  # Set the default download directory
             "download.prompt_for_download": False,  # disables the "Save As" dialog
@@ -174,26 +191,24 @@ def main():
         options.add_experimental_option("prefs", prefs) 
         driver = webdriver.Chrome(options=options)
         logging.info("WebDriver initialized.")
-        session = requests.Session()
         users = config.get("users", [])
-        for user in users:
+        for user in users[:2]:
             site_url = user.get("url", "").strip()
             if not site_url:
                 logging.warning("⚠️ No 'url' found in user entry; skipping.")
                 continue
 
             logging.info(f"\n===== PROCESSING: {site_url} =====")
-            if not access_site(driver, site_url):
+            if not access_site(driver, site_url, user["config"]):
                 logging.error(f"Skipping {site_url} due to site access failure.")
                 continue
 
             fetch_all_file_entries(driver,user["config"])
 
-        
             user_xml_folder_path = XML_FOLDER_PATH / user.get("username", "")
             os.makedirs(user_xml_folder_path, exist_ok=True) # Ensure folder exists here
             extract(user_xml_folder_path)
-
+            shutil.rmtree(GZ_FOLDER_PATH)
             logging.info(f"===== FINISHED: {site_url} =====")
     except Exception as e:
         logging.critical(f"An unexpected error occurred in main: {e}", exc_info=True)
