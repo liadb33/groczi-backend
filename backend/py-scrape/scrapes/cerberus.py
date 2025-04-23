@@ -275,7 +275,6 @@ def main():
             # 5. Fetch File List
             search_criteria = (datetime.now() - timedelta(hours=1)).strftime("%Y%m%d%H")
  
-            
             file_list = fetch_file_list(session, token, search_criteria, folder)
 
             # 6. Download and Extract if files found
@@ -294,14 +293,11 @@ def main():
             elif file_list is None: # Indicates an error during fetch
                  logging.error(f"Skipping download for {username} due to error fetching file list.")
 
-
             # 7. Logout (within the loop for this user)
             perform_logout(driver)
             # Clear cookies for the next user? Maybe not strictly necessary if login overwrites, but can be safer.
             session.cookies.clear()
             logging.info(f"===== Finished Processing User: {username} =====")
-
-
     except WebDriverException as e:
         logging.critical(f"WebDriver error occurred: {e}")
     except Exception as e:
