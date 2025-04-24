@@ -1,0 +1,239 @@
+<Root>
+  <ChainId>7290058266241</ChainId>
+  <ChainName>סיטי מרקט חברה ראשית</ChainName>
+  <LastUpdateDate>2025-04-23</LastUpdateDate>
+  <LastUpdateTime>10:24:07</LastUpdateTime>
+  <SubChains>
+    <SubChain>
+      <SubChainId>1</SubChainId>
+      <SubChainName>1</SubChainName>
+      <Stores>
+        <Store>
+          <StoreId>1</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>חברה ראשית</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>7</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>רש"י 33 רמת גן</StoreName>
+          <Address>רש"י 33</Address>
+          <City>רמת גן</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>8</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>קרניצקי 7 רמת גן</StoreName>
+          <Address>קרניצקי 7</Address>
+          <City>רמת גן</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>13</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>בן גוריון ראשלצ</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>13</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>בן גוריון</StoreName>
+          <Address>בן גוריון 4</Address>
+          <City>ראשון לציון</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>14</StoreId>
+          <BikoretNo>7</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>הרצל 31</StoreName>
+          <Address>הרצל 31</Address>
+          <City>ראשון לציון</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>18</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>סיטי מרקט טווינס לח"י</StoreName>
+          <Address>לחי 36</Address>
+          <City>תל אביב</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>19</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>סיטי מרקט פינסקר פתח תקווה</StoreName>
+          <Address>פינסקר 21</Address>
+          <City>פתח תקווה</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>19</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>פינסקר</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>21</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>הרצל 35 רחובות</StoreName>
+          <Address>הרצל 199</Address>
+          <City>רחובות</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>26</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>סיטי מרקט אצ"ל</StoreName>
+          <Address>לחי 36</Address>
+          <City>תל אביב</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>30</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>סיטי מרקט כפר סבא הנשר</StoreName>
+          <Address>הנשר 0</Address>
+          <City>כפר סבא</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>32</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>ציונה צרפת</StoreName>
+          <Address>ציונה צרפת 40</Address>
+          <City>גדרה</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>33</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>צהלה</StoreName>
+          <Address>צהלה 44</Address>
+          <City>גדרה</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>34</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>ראשי</StoreName>
+          <Address>מח"ל 16</Address>
+          <City>תל אביב</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>35</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>הנשיאים</StoreName>
+          <Address>הנשיאים 45</Address>
+          <City>פתח תקווה</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>36</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>היבנר</StoreName>
+          <Address>היבנר 25</Address>
+          <City>פתח תקווה</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>45</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>קרית אונו</StoreName>
+          <Address>לוי אשכול 121</Address>
+          <City>קריית אונו</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>46</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>רמלה יעקב דורי</StoreName>
+          <Address>יעקב דורי 2</Address>
+          <City>רמלה</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>58</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>סיטי מרקט בלפור בת ים</StoreName>
+          <Address>בלפור 110</Address>
+          <City>בת ים</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>58</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>בלפור</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>59</StoreId>
+          <BikoretNo>1</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>סיטי מרקט כרמי גת</StoreName>
+          <Address>שדרות לכיש 181</Address>
+          <City>קריית גת</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>71</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>רפאל שלמה חי שיווק</StoreName>
+          <Address>לוי אשכול 100</Address>
+          <City>מודיעין</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>72</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>נחל קדרון 15 באר שבע</StoreName>
+          <Address>נחל קדרון 15</Address>
+          <City>באר שבע</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>73</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>נחל פרת 25 באר שבע</StoreName>
+          <Address>נחל פרת 25</Address>
+          <City>באר שבע</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+      </Stores>
+    </SubChain>
+  </SubChains>
+</Root>

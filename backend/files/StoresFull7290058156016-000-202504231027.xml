@@ -1,0 +1,527 @@
+<Root>
+  <ChainId>7290058156016</ChainId>
+  <ChainName>סופר ספיר בע"מ</ChainName>
+  <LastUpdateDate>2025-04-23</LastUpdateDate>
+  <LastUpdateTime>10:28:03</LastUpdateTime>
+  <SubChains>
+    <SubChain>
+      <SubChainId>1</SubChainId>
+      <SubChainName>סופר ספיר</SubChainName>
+      <Stores>
+        <Store>
+          <StoreId>6</StoreId>
+          <BikoretNo>8</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>קרית יובל</StoreName>
+          <Address>שמריהו לוין 59</Address>
+          <City>ירושלים</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>13</StoreId>
+          <BikoretNo>3</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>פרדס חנה</StoreName>
+          <Address>המעלה 5</Address>
+          <City>פרדס חנה-כרכור</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>20</StoreId>
+          <BikoretNo>6</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>צפת</StoreName>
+          <Address>ויצמן 10</Address>
+          <City>צפת</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>21</StoreId>
+          <BikoretNo>2</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>חצור</StoreName>
+          <Address>תל חי 1</Address>
+          <City>חצור</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>22</StoreId>
+          <BikoretNo>1</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>קרית שמונה</StoreName>
+          <Address>א.התעשיה הדרומי 0</Address>
+          <City>קרית שמונה</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>27</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>טירת הכרמל</StoreName>
+          <Address>הרצל 1</Address>
+          <City>טירת הכרמל</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>46</StoreId>
+          <BikoretNo>7</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>פרדס חנה סיטי</StoreName>
+          <Address>התחיה 4</Address>
+          <City>פרדס חנה-כרכור</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>47</StoreId>
+          <BikoretNo>1</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>חדרה סיטי</StoreName>
+          <Address>חטיבת הנחל 4</Address>
+          <City>חדרה</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>53</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>עפולה סופר ספיר*</StoreName>
+          <Address>ברזילי יוסף 3</Address>
+          <City>עפולה</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>76</StoreId>
+          <BikoretNo>6</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>אריאל א סופר ספיר*</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>81</StoreId>
+          <BikoretNo>1</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>סופר ספיר בית אל*</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+      </Stores>
+    </SubChain>
+    <SubChain>
+      <SubChainId>2</SubChainId>
+      <SubChainName>ספיר בשכונה</SubChainName>
+      <Stores>
+        <Store>
+          <StoreId>2</StoreId>
+          <BikoretNo>5</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>צומת פת</StoreName>
+          <Address>הרצוג 1</Address>
+          <City>ירושלים</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>17</StoreId>
+          <BikoretNo>8</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>שוק אלנבי</StoreName>
+          <Address>אלנבי 117</Address>
+          <City>חיפה</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>26</StoreId>
+          <BikoretNo>3</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>בית הנציב ירושלים</StoreName>
+          <Address>דרך חברון 101</Address>
+          <City>ירושלים</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>38</StoreId>
+          <BikoretNo>3</BikoretNo>
+          <StoreType>3</StoreType>
+          <StoreName>ראש פינה</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>39</StoreId>
+          <BikoretNo>8</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>בר גיורא</StoreName>
+          <Address>מושב בר גיורה 0</Address>
+          <City>בר גיורא</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>42</StoreId>
+          <BikoretNo>5</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>סופר ספיר משמר הירדן</StoreName>
+          <Address>מרכז מסחרי 0</Address>
+          <City>משמר הירדן</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>44</StoreId>
+          <BikoretNo>8</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>יובל אורוגוואי</StoreName>
+          <Address>אורוגוואי 1</Address>
+          <City>ירושלים</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>50</StoreId>
+          <BikoretNo>1</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>צור הדסה</StoreName>
+          <Address>הר כתרון פינת הדרים 8</Address>
+          <City>צור הדסה</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>60</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>קדימה</StoreName>
+          <Address>שדרות יצחק בן צבי 71</Address>
+          <City>קדימה</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>61</StoreId>
+          <BikoretNo>5</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>בית הפירות גילה</StoreName>
+          <Address>הרוזמרין 33</Address>
+          <City>ירושלים</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>66</StoreId>
+          <BikoretNo>2</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>סופר ספיר אזור</StoreName>
+          <Address>המצודה 8</Address>
+          <City>אזור</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>67</StoreId>
+          <BikoretNo>9</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>סופר ספיר ראשל"צ</StoreName>
+          <Address>ז'בוטינסקי 18</Address>
+          <City>ראשון לציון</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>70</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>בת ים</StoreName>
+          <Address>בלפור 127</Address>
+          <City>בת ים</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>71</StoreId>
+          <BikoretNo>7</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>יהוד  העצמאות</StoreName>
+          <Address>דרך העצמאות 16</Address>
+          <City>יהוד</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+      </Stores>
+    </SubChain>
+    <SubChain>
+      <SubChainId>3</SubChainId>
+      <SubChainName>נטו חיסכון</SubChainName>
+      <Stores>
+        <Store>
+          <StoreId>40</StoreId>
+          <BikoretNo>6</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>נטו חיסכון ביתר עלית*</StoreName>
+          <Address>שלום שבזי 16</Address>
+          <City>ביתר עילית</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>49</StoreId>
+          <BikoretNo>3</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>נטו חיסכון אשדוד*</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>51</StoreId>
+          <BikoretNo>8</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>קרית ספר נטו מודיעין עלית*</StoreName>
+          <Address>רש"י פינת רמב"ן 0</Address>
+          <City>מודיעין עילית</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>52</StoreId>
+          <BikoretNo>4</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>נטו חיסכון טלזסטון*</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>54</StoreId>
+          <BikoretNo>4</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>נטו חיסכון רמות*</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>83</StoreId>
+          <BikoretNo>5</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>נטו חיסכון מרכז רימון אלעד*</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>94</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>צפת נטו חיסכון</StoreName>
+          <Address>דרך השוקולד 8</Address>
+          <City>צפת</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+      </Stores>
+    </SubChain>
+    <SubChain>
+      <SubChainId>4</SubChainId>
+      <SubChainName>ד.מ.</SubChainName>
+      <Stores>
+        <Store>
+          <StoreId>29</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>אליהו קורן י_ם</StoreName>
+          <Address>אליהו קורן 25</Address>
+          <City>ירושלים</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>151</StoreId>
+          <BikoretNo>7</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>המכולת גני תקוה זכיין</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>152</StoreId>
+          <BikoretNo>4</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>המכולת בת ים זכיין גל אלקנטי</StoreName>
+          <Address>הים 2</Address>
+          <City>בת ים</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>155</StoreId>
+          <BikoretNo>5</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>המכולת גדרה</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>156</StoreId>
+          <BikoretNo>2</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>המכולת רמת השרון זכיין</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>157</StoreId>
+          <BikoretNo>9</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>המכולת אפקה זכיין</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>158</StoreId>
+          <BikoretNo>6</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>המכולת פיכמן זכיין אושרה בן אבו</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>159</StoreId>
+          <BikoretNo>3</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>המכולת כפר סבא זכיין</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>160</StoreId>
+          <BikoretNo>9</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>המכולת חולון</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>161</StoreId>
+          <BikoretNo>6</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>זכיין המכולת נורדיה</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>162</StoreId>
+          <BikoretNo>3</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>המכולת שורש זכיין</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>163</StoreId>
+          <BikoretNo>5</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>המכולת כרמל חיפה</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>210</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>סופר ספיר חדרה - זכיין</StoreName>
+          <Address>הרברט סמואל 57</Address>
+          <City>חדרה</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>260</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>שדרות</StoreName>
+          <Address>הרב עובדיה יוסף 55</Address>
+          <City>שדרות</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+      </Stores>
+    </SubChain>
+    <SubChain>
+      <SubChainId>8</SubChainId>
+      <SubChainName>זכיין סופר ספיר</SubChainName>
+      <Stores>
+        <Store>
+          <StoreId>48</StoreId>
+          <BikoretNo>4</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>מודיעין סיטי</StoreName>
+          <Address>עמק האלה 80</Address>
+          <City>מודיעין</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>72</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>- קרית ים</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>261</StoreId>
+          <BikoretNo>7</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>זכיין - סופר זול מהדרין אלעד נטו*</StoreName>
+          <Address>שמעיה 19</Address>
+          <City>אלעד</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>262</StoreId>
+          <BikoretNo>4</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>זכיין אופקים</StoreName>
+          <Address>קהילת מטרו ווסט 33</Address>
+          <City>אופקים</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>264</StoreId>
+          <BikoretNo>3</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>קרית ים גאולה זכיין</StoreName>
+          <Address>גאולה כהן 4</Address>
+          <City>קרית ים</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+      </Stores>
+    </SubChain>
+    <SubChain>
+      <SubChainId>9</SubChainId>
+      <SubChainName>זכיין ספיר בשכונה</SubChainName>
+      <Stores>
+        <Store>
+          <StoreId>69</StoreId>
+          <BikoretNo>9</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>זכיין - נהריה</StoreName>
+          <Address>הגעתון 10</Address>
+          <City>נהריה</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+      </Stores>
+    </SubChain>
+    <SubChain>
+      <SubChainId>10</SubChainId>
+      <SubChainName>נטו בשכונה</SubChainName>
+      <Stores>
+        <Store>
+          <StoreId>43</StoreId>
+          <BikoretNo>2</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>נטו חיסכון מעלות*</StoreName>
+          <Address>החרושת 8</Address>
+          <City>מעלות תרשיחא</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+      </Stores>
+    </SubChain>
+  </SubChains>
+</Root>
