@@ -1,12 +1,12 @@
 import fs from "fs-extra";
 import path from "path";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
-import { XMLParser } from "fast-xml-parser";
 import iconv from "iconv-lite";
 import jschardet from "jschardet";
 
-// ✅ פתרון לבעיה של __dirname ב-ESM
+import { dirname } from "path";
+import { XMLParser } from "fast-xml-parser";
+import { fileURLToPath } from "url";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -54,9 +54,10 @@ async function parseStoreXmlFile(filePath: string): Promise<StoreData[]> {
   const cleanXml =
     xmlContent.charCodeAt(0) === 0xfeff ? xmlContent.slice(1) : xmlContent;
   const json = parser.parse(cleanXml);
+  if (!json) return [];
 
   // סוג 1: <asx:abap><asx:values>
-  if (json?.["asx:abap"]?.["asx:values"]?.STORES?.STORE) {
+  if (json["asx:abap"]?.["asx:values"]?.STORES?.STORE) {
     const stores = json["asx:abap"]["asx:values"].STORES.STORE;
     const list = Array.isArray(stores) ? stores : [stores];
     return list.map((s) => ({
@@ -75,7 +76,7 @@ async function parseStoreXmlFile(filePath: string): Promise<StoreData[]> {
   }
 
   // סוג 2: <Store><Branches><Branch>
-  if (json?.Store?.Branches?.Branch) {
+  if (json.Store?.Branches?.Branch) {
     const branches = json.Store.Branches.Branch;
     const list = Array.isArray(branches) ? branches : [branches];
     return list.map((b) => ({
@@ -94,7 +95,7 @@ async function parseStoreXmlFile(filePath: string): Promise<StoreData[]> {
   }
 
   // סוג 3: <root><row><_Root_>
-  if (json?.root?.row && Array.isArray(json.root.row)) {
+  if (json.root?.row && Array.isArray(json.root.row)) {
     const stores: StoreData[] = [];
     let current: Partial<StoreData> = {};
     for (const row of json.root.row) {
@@ -135,7 +136,7 @@ async function parseStoreXmlFile(filePath: string): Promise<StoreData[]> {
   }
 
   // סוג 5: <OrderXml>
-  if (json?.OrderXml?.Envelope) {
+  if (json.OrderXml?.Envelope) {
     const env = json.OrderXml.Envelope;
     const lines = Array.isArray(env.Header.Details.Line)
       ? env.Header.Details.Line
@@ -158,7 +159,7 @@ async function parseStoreXmlFile(filePath: string): Promise<StoreData[]> {
   }
 
   // סוג 6: <root><SubChains>
-  if (json?.root?.SubChains?.SubChainsXMLObject?.SubChain) {
+  if (json.root?.SubChains?.SubChainsXMLObject?.SubChain) {
     const root = json.root;
     const cid = root.ChainId || root.ChainID || "";
     const cname = root.ChainName || "";
@@ -194,7 +195,7 @@ async function parseStoreXmlFile(filePath: string): Promise<StoreData[]> {
   }
 
   // סוג 4: יוכננוף
-  if (json?.Root?.SubChains) {
+  if (json.Root?.SubChains) {
     const root = json.Root;
     const cid = root.ChainId || root.ChainID || "";
     const cname = root.ChainName || "";
@@ -231,20 +232,43 @@ async function parseStoreXmlFile(filePath: string): Promise<StoreData[]> {
   return [];
 }
 
+async function getAllStoresXmlFiles(dir: string): Promise<string[]> {
+  let results: string[] = [];
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      const subFiles = await getAllStoresXmlFiles(fullPath);
+      results = results.concat(subFiles);
+    } else if (
+      entry.isFile() &&
+      entry.name.toLowerCase().startsWith("stores") &&
+      fullPath.endsWith(".xml")
+    ) {
+      results.push(fullPath);
+    }
+  }
+
+  return results;
+}
+
 async function run() {
-  const basePath = path.join(__dirname, "..", "..", "files");
-  const entries = await fs.readdir(basePath);
-  const xmlFiles = entries.filter((f) => f.endsWith(".xml"));
+  const basePath = path.join(__dirname, "..", "..", "py-scrape", "files");
+  console.log("🔍 Looking in:", basePath);
+  const xmlFiles = await getAllStoresXmlFiles(basePath);
+  //const entries = await fs.readdir(basePath);
+  //const xmlFiles = entries.filter((f) => f.endsWith(".xml"));
 
   let total = 0;
   let success = 0;
 
   for (const file of xmlFiles) {
-    const fullPath = path.join(basePath, file);
-    const stores = await parseStoreXmlFile(fullPath);
+    const stores = await parseStoreXmlFile(file);
 
     console.log(`📄 ${file}: ${stores.length} stores`);
-    console.table(stores.slice(0, 3));
+    console.log(stores);
 
     if (stores.length) {
       success++;
