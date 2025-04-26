@@ -7,25 +7,12 @@ import { dirname } from "path";
 import { XMLParser } from "fast-xml-parser";
 import { fileURLToPath } from "url";
 import { PrismaClient } from "@prisma/client";
+import { StoreData } from "./stores/store.entity";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const prisma = new PrismaClient();
-
-interface StoreData {
-  ChainId?: string;
-  SubChainId?: string;
-  StoreId: string;
-  StoreName: string;
-  Address: string;
-  City: string;
-  ZipCode: string;
-  BikoretNo?: string;
-  StoreType?: string;
-  ChainName?: string;
-  SubChainName?: string;
-}
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -318,6 +305,13 @@ async function saveStoresToDatabase(stores: StoreData[]) {
 
 async function run() {
   try {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      console.log("✅ Connected to database!");
+    } catch (dbError) {
+      console.error("❌ Failed to connect to database:", dbError);
+      return;
+    }
     const basePath = path.join(__dirname, "..", "..", "py-scrape", "files");
     const xmlFiles = await getAllStoresXmlFiles(basePath);
 
@@ -348,5 +342,7 @@ async function run() {
     await run();
   } catch (err) {
     console.error("❌ Caught error:", err);
+  } finally {
+    await prisma.$disconnect();
   }
 })();
