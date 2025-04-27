@@ -1,4 +1,4 @@
-export interface StoreData {
+export interface StoreType {
   ChainId?: string;
   SubChainId?: string;
   StoreId: string;

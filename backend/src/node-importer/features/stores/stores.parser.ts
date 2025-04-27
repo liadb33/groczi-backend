@@ -1,22 +1,12 @@
 import fs from "fs-extra";
-import path from "path";
 import iconv from "iconv-lite";
 import jschardet from "jschardet";
-
-import { dirname } from "path";
 import { XMLParser } from "fast-xml-parser";
-import { fileURLToPath } from "url";
-import { PrismaClient } from "@prisma/client";
-import { StoreData } from "./stores/store.entity";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const prisma = new PrismaClient();
+import { StoreType } from "./store.entity.js";
 
 const parser = new XMLParser({
   ignoreAttributes: false,
-  isArray: (name, jpath) => {
+  isArray: (jpath: string) => {
     const arrayPaths = [
       "Root.SubChains.SubChain",
       "SubChain.Stores.Store",
@@ -39,7 +29,9 @@ async function readFileWithEncoding(filePath: string): Promise<string> {
   return buffer.toString("utf-8");
 }
 
-async function parseStoreXmlFile(filePath: string): Promise<StoreData[]> {
+export async function parseStoreXmlFile(
+  filePath: string
+): Promise<StoreType[]> {
   const xmlContent = await readFileWithEncoding(filePath);
   const cleanXml =
     xmlContent.charCodeAt(0) === 0xfeff ? xmlContent.slice(1) : xmlContent;
@@ -86,14 +78,14 @@ async function parseStoreXmlFile(filePath: string): Promise<StoreData[]> {
 
   // סוג 3: <root><row><_Root_>
   if (json.root?.row && Array.isArray(json.root.row)) {
-    const stores: StoreData[] = [];
-    let current: Partial<StoreData> = {};
+    const stores: StoreType[] = [];
+    let current: Partial<StoreType> = {};
     for (const row of json.root.row) {
       const raw = row._Root_;
       if (!raw) continue;
       for (const [, key, value] of raw.matchAll(/<(\w+)>(.*?)<\/\1>/g)) {
         if (key === "StoreId" && Object.keys(current).length) {
-          stores.push(current as StoreData);
+          stores.push(current as StoreType);
           current = {};
         }
         switch (key) {
@@ -121,7 +113,7 @@ async function parseStoreXmlFile(filePath: string): Promise<StoreData[]> {
         }
       }
     }
-    if (Object.keys(current).length) stores.push(current as StoreData);
+    if (Object.keys(current).length) stores.push(current as StoreType);
     return stores;
   }
 
@@ -156,7 +148,7 @@ async function parseStoreXmlFile(filePath: string): Promise<StoreData[]> {
     const subArr = Array.isArray(root.SubChains.SubChainsXMLObject.SubChain)
       ? root.SubChains.SubChainsXMLObject.SubChain
       : [root.SubChains.SubChainsXMLObject.SubChain];
-    const stores: StoreData[] = [];
+    const stores: StoreType[] = [];
     for (const sc of subArr) {
       const scid = sc.SubChainId || sc.SubChainID || "";
       const scname = sc.SubChainName || "";
@@ -192,7 +184,7 @@ async function parseStoreXmlFile(filePath: string): Promise<StoreData[]> {
     const arr = Array.isArray(root.SubChains.SubChain)
       ? root.SubChains.SubChain
       : [root.SubChains.SubChain];
-    const stores: StoreData[] = [];
+    const stores: StoreType[] = [];
     for (const sc of arr) {
       if (!sc.Stores?.Store) continue;
       const scid = sc.SubChainId || sc.SubChainID || "";
@@ -221,128 +213,3 @@ async function parseStoreXmlFile(filePath: string): Promise<StoreData[]> {
 
   return [];
 }
-
-async function getAllStoresXmlFiles(dir: string): Promise<string[]> {
-  let results: string[] = [];
-  const entries = await fs.readdir(dir, { withFileTypes: true });
-
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
-
-    if (entry.isDirectory()) {
-      const subFiles = await getAllStoresXmlFiles(fullPath);
-      results = results.concat(subFiles);
-    } else if (
-      entry.isFile() &&
-      entry.name.toLowerCase().startsWith("stores") &&
-      fullPath.endsWith(".xml")
-    ) {
-      results.push(fullPath);
-    }
-  }
-  return results;
-}
-
-async function saveStoresToDatabase(stores: StoreData[]) {
-  for (const store of stores) {
-    if (!store.ChainId || !store.StoreId) continue;
-
-    const chainId = parseInt(store.ChainId);
-    const subChainId = store.SubChainId ? parseInt(store.SubChainId) : null;
-    const storeId = parseInt(store.StoreId);
-
-    // 1. Upsert Chain
-    await prisma.chains.upsert({
-      where: { ChainId: chainId },
-      update: {
-        ChainName: store.ChainName || undefined,
-      },
-      create: {
-        ChainId: chainId,
-        ChainName: store.ChainName || "",
-      },
-    });
-
-    // 2. Upsert SubChain
-    if (subChainId !== null) {
-      await prisma.subChains.upsert({
-        where: { SubChainId: subChainId },
-        update: {
-          SubChainName: String(store.SubChainName) || undefined,
-          ChainId: chainId,
-        },
-        create: {
-          SubChainId: subChainId,
-          ChainId: chainId,
-          SubChainName: String(store.SubChainName) || "",
-        },
-      });
-    }
-
-    // // 3. Upsert Store
-    await prisma.stores.upsert({
-      where: { StoreId: storeId },
-      update: {
-        SubChainId: subChainId ?? undefined,
-        StoreName: store.StoreName || undefined,
-        Address: store.Address || undefined,
-        City: String(store.City) || undefined,
-        ZipCode: String(store.ZipCode) || undefined,
-        StoreType: store.StoreType ? parseInt(store.StoreType) : undefined,
-      },
-      create: {
-        StoreId: storeId,
-        SubChainId: subChainId ?? undefined,
-        StoreName: store.StoreName || "",
-        Address: store.Address || "",
-        City: String(store.City) || "",
-        ZipCode: String(store.ZipCode) || "",
-        StoreType: store.StoreType ? parseInt(store.StoreType) : undefined,
-      },
-    });
-  }
-}
-
-async function run() {
-  try {
-    try {
-      await prisma.$queryRaw`SELECT 1`;
-      console.log("✅ Connected to database!");
-    } catch (dbError) {
-      console.error("❌ Failed to connect to database:", dbError);
-      return;
-    }
-    const basePath = path.join(__dirname, "..", "..", "py-scrape", "files");
-    const xmlFiles = await getAllStoresXmlFiles(basePath);
-
-    let total = 0;
-    let success = 0;
-
-    for (const file of xmlFiles) {
-      const stores = await parseStoreXmlFile(file);
-
-      if (stores.length) {
-        await saveStoresToDatabase(stores);
-        success++;
-        total += stores.length;
-      }
-    }
-
-    console.log(
-      `Processed ${success}/${xmlFiles.length} files, total ${total} stores`
-    );
-  } catch (err) {
-    console.error("❌ Error inside run():", err);
-    throw err;
-  }
-}
-
-(async () => {
-  try {
-    await run();
-  } catch (err) {
-    console.error("❌ Caught error:", err);
-  } finally {
-    await prisma.$disconnect();
-  }
-})();
