@@ -1,25 +1,22 @@
-export interface GroceryItem {
-  itemCode: string;
+export interface Grocery {
+  itemCode: string; //primary key
   itemType: number;
   itemName: string;
   manufacturerName: string;
   manufactureCountry: string;
   manufacturerItemDescription: string;
   unitQty: string;
-  quantity: number;
   unitOfMeasure: string;
   isWeighted: boolean;
   qtyInPackage: number;
-  itemPrice: number;
   unitOfMeasurePrice: number;
-  allowDiscount: boolean;
-  itemStatus: number;
-  itemId: number;
+  quantity: number;
 }
 
-export interface GroceryData {
-  chainId: number;
-  subChainId: number;
-  storeId: number;
-  items: GroceryItem[];
+export interface GroceryReference {
+  itemCode: string; //references the itemCode to grocery table
+  storeId: number; //references the storeId to stores table
+  itemPrice: number;
+  allowDiscount: boolean;
+  items: Grocery[];
 }

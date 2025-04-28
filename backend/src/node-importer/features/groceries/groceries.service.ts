@@ -1,4 +1,5 @@
-import { getAllGroceriesXmlFiles } from "./Groceries.reader";
+import { parseGroceryXmlFile } from "./groceries.parser.js";
+import { getAllGroceriesXmlFiles } from "./groceries.reader.js";
 
 export async function processAllGroceriesFiles(basePath: string) {
   const files = await getAllGroceriesXmlFiles(basePath);
@@ -7,17 +8,17 @@ export async function processAllGroceriesFiles(basePath: string) {
   let success = 0;
 
   for (const file of files) {
-    const stores = await parseGroceryXmlFile(file);
+    const groceries = await parseGroceryXmlFile(file);
 
-    if (!stores.length) continue;
+    if (!groceries.length) continue;
 
-    for (const store of stores) await saveGrocery(store);
-
+    //for (const grocery of groceries) await saveGrocery(grocery);
+    console.log(groceries);
     success++;
-    total += stores.length;
+    total += groceries.length;
   }
 
   console.log(
-    `Processed ${success}/${files.length} files, total ${total} stores`
+    `Processed ${success}/${files.length} files, total ${total} groceries`
   );
 }

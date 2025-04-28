@@ -1,8 +1,6 @@
-import fs from "fs-extra";
-import iconv from "iconv-lite";
-import jschardet from "jschardet";
 import { XMLParser } from "fast-xml-parser";
 import { StoreType } from "./store.entity.js";
+import { readFileWithEncoding } from "../utils/encoding.js";
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -17,17 +15,6 @@ const parser = new XMLParser({
     return arrayPaths.includes(jpath);
   },
 });
-
-// Helper function to detect and convert file encoding
-async function readFileWithEncoding(filePath: string): Promise<string> {
-  const buffer = await fs.readFile(filePath);
-  const detected = jschardet.detect(buffer);
-  const encoding = detected.encoding || "utf-8";
-  if (encoding.startsWith("UTF-16")) {
-    return iconv.decode(buffer, encoding);
-  }
-  return buffer.toString("utf-8");
-}
 
 export async function parseStoreXmlFile(
   filePath: string
