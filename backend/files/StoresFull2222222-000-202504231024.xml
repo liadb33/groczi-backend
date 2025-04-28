@@ -1,0 +1,50 @@
+<Root>
+  <ChainId>2222222</ChainId>
+  <ChainName>קי טי יבוא ושווק בע"מ</ChainName>
+  <LastUpdateDate>2025-04-23</LastUpdateDate>
+  <LastUpdateTime>10:24:07</LastUpdateTime>
+  <SubChains>
+    <SubChain>
+      <SubChainId>1</SubChainId>
+      <SubChainName>1</SubChainName>
+      <Stores>
+        <Store>
+          <StoreId>1</StoreId>
+          <BikoretNo>2</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>קי טי מרקט האמוראים 14 בית שמש</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>2</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>רב חנן 3 בית שמש</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>3</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>ריש לקיש 5 בית שמש</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+        <Store>
+          <StoreId>4</StoreId>
+          <BikoretNo>0</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>קיי טיי מרקט חריש</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+      </Stores>
+    </SubChain>
+  </SubChains>
+</Root>

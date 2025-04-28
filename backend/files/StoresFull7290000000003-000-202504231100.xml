@@ -1,0 +1,668 @@
+<root>
+  <ChainId>7290000000003</ChainId>
+  <ChainName>סיטי מרקט</ChainName>
+  <LastUpdateDate>2025-04-23</LastUpdateDate>
+  <LastUpdateTime>08:00:00</LastUpdateTime>
+  <SubChains>
+    <SubChainsXMLObject>
+      <SubChain>
+        <SubChainId>1</SubChainId>
+        <SubChainName>סיטי מרקט</SubChainName>
+        <Stores>
+          <SubChainStoresXMLObject>
+            <Store>
+              <SubChainStoreXMLObject>
+                <StoreId>027</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName> סיטי מרקט אגמים בע"מ , עמק האלה 47 אשקלון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>067</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>כ.פ.ד בינ"ו אחזקות בע"מ, הרצל 39 פתח תקווה</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>010</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>מתוק בעצמאות (סיטי מרקט)(זכיינות), העצמאות 35 אור יהודה</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>041</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>מתוק בשוק הכרמל בע"מ חנות אינטרנטית, לפין 1 תל אביב</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>031</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>מתוק בשוק הכרמל בע"מ, דניאל 25 תל אביב</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>040</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>מתוק בשוק הכרמל בע"מ, קלישר 3 תל אביב</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>039</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>מתוק שוק הוד השרון, סוקולוב 40 הוד השרון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>042</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>מתוק שוק צ'יינה טאון, רח' הכרמל 26 ת"א</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>062</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>מתוק שוק ראשון לציון בע"מ, הרצל 70 ראשל"צ</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>068</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט  רפאל שלמה חי שיווק בע"מ, לוי אשכול 100 מודיעין</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>015</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט "השדרה" חולון, סיטי מרקט "השדרה" חולון בע"מ</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>000</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט - חנויות כללי</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>071</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט kendy market, נאות שמיר רמלה</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>038</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט ארגמן חולון, אילת 36 חולון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>030</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט אשדוד, י"ג 2 אשדוד</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>058</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט באודם על הפארק 1 ב"ש, נחל פרת 25</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>059</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט באודם על הפארק 2 ב"ש, נחל חבר 15</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>035</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט בכיכר חולון, חנקין 95 חולון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>061</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט בלפור בת ים, בלפור 110 בת ים</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>005</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט ברכאל חולון בע"מ,  יוסף אהרונוביץ' 92 חולון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>049</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט גבעתיים בע"מ, כ"ג 2 גבעתיים</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>037</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט דב הוז, דב הוז 45 חולון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>036</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט דב הוז, דב הוז 56 חולון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>022</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט דרך האילנות גדרה בע"מ, צהלה 44 גדרה</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>021</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט דרך האילנות גדרה בע"מ, ציונה צרפת 40 גדרה</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>016</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט האצ"ל פינת ההגנה, סיטי מרקט אצ"ל בע"מ</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>026</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט הוד השרון בע"מ, סוקולוב 15 הוד השרון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>025</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט הוד השרון בע"מ, סוקולוב 37 הוד השרון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>055</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט היבנר, היבנר 25 פתח תקווה</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>054</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט הנשיאים, הנשיאים 45 פתח תקווה</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>012</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט הפשפשים , עולי ציון 22 ת"א</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>060</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט הרצוג גבעתיים, הרצוג 23 גבעתיים</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>066</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט וייצמן כפר סבא, וייצמן 55</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>034</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט ולנטינו חולון, אהרונוביץ 2 חולון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>002</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט חולון, ויצמן 45 חולון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>001</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט חולון, שנקר 25 חולון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>013</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט חנקין, חנקין 95 חולון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>008</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט טאוור בע"מ, משה דיין 2 תל אביב</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>009</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט טווינס לח"י בע"מ, לח"י 36 תל אביב</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>007</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט י.ח.ר הסתדרות חולון בע"מ, ההסתדרות 106 חולון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>011</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט י.י.נ.ג.ב רחובות בע"מ, הרצל 35 רחובות</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>050</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט י.נ.ג.ב ראשל"צ בע"מ, בן גוריון 4 ראש"לצ</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>051</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט י.נ.ג.ב ראשל"צ בע"מ, הרצל 31 ראש"לצ</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>006</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט יוסי&amp;גבי בע"מ, המצודה 24 חולון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>053</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט כ"ס, רח' הנשר כ"ס</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>063</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט כיכר המדינה, רח' ה' באייר 50 תל אביב</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>070</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט כרמי גת, שד' לכיש 181 ק.גת</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>014</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט מונסון יהוד, סיטי מרקט לוגאנו האיטלקית בע"מ</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>023</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט מח"ל, מח"ל 16 תל אביב</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>018</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט נגבה בע"מ , דוידקא 1 תל אביב</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>019</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט סוקולוב חולון , רח' סוקולוב 75 חולון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>028</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט סוקולוב חולון - סניף 2, סוקולוב 63</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>057</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט סטרומה חולון, סוקולוב 3 חולון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>033</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט עדן טאוור, הקוממיות 2 בת ים</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>029</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט עין גנים, עין גנים 65 פתח תקווה</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>052</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט פ.פ.ת בע"מ, פינסקר 21 פ"ת</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>003</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט פינה מתוקה חולון בע"מ, הלוחמים 37 חולון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>004</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט פינה מתוקה חולון בע"מ, רבינוביץ' 58 חולון </StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>024</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט פרדס חנה כרכור בע"מ, הדקלים 102 פרדס חנה</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>032</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט פרימיום, רח רוטשילד 57 ראשל"צ</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>064</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט קינמון אשקלון, שלמה כהן 1 אשקלון</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>069</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט קרית אונו, לוי אשכול 121 קרת אונו</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>017</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט רוטשילד בע"מ, הרצל 199 רחובות</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>056</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט רמלה, יעקב דורי 2 רמלה</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>020</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>סיטי מרקט תל כביר בע"מ, רח'  גרינבויים 41 ת"א</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>046</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>ענק הממתקים בע"מ, דרך שלמה 118 ת"א</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>045</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>ענק הממתקים בע"מ, הר ציון 45 תל אביב</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>043</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>ענק הממתקים בע"מ, לוינסקי 76 תל אביב</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>044</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>ענק הממתקים בע"מ, לוינסקי 99 תל אביב</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>065</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>רפאל עופר שיווק ושרות בעמ, ששת הימים 19 חדרה</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>048</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>שוורץ ושיש אינווסמנט בע"מ, קריניצי 7 רמת גן</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+              <SubChainStoreXMLObject>
+                <StoreId>047</StoreId>
+                <BikoretNo>1</BikoretNo>
+                <StoreType>1</StoreType>
+                <StoreName>שוורץ ושיש אינווסמנט בע"מ, רש"י 33 רמת גן</StoreName>
+                <Address>unknown</Address>
+                <City>unknown</City>
+                <ZipCode>unknown</ZipCode>
+              </SubChainStoreXMLObject>
+            </Store>
+          </SubChainStoresXMLObject>
+        </Stores>
+      </SubChain>
+    </SubChainsXMLObject>
+  </SubChains>
+</root>

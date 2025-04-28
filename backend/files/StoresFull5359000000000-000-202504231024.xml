@@ -1,0 +1,23 @@
+<Root>
+  <ChainId>5359000000000</ChainId>
+  <ChainName>סיטי מרקט גבעתיים בע"מ</ChainName>
+  <LastUpdateDate>2025-04-23</LastUpdateDate>
+  <LastUpdateTime>10:24:27</LastUpdateTime>
+  <SubChains>
+    <SubChain>
+      <SubChainId>1</SubChainId>
+      <SubChainName>1</SubChainName>
+      <Stores>
+        <Store>
+          <StoreId>1</StoreId>
+          <BikoretNo>4</BikoretNo>
+          <StoreType>1</StoreType>
+          <StoreName>הוד השרון</StoreName>
+          <Address>unknown</Address>
+          <City>unknown</City>
+          <ZipCode>0000000</ZipCode>
+        </Store>
+      </Stores>
+    </SubChain>
+  </SubChains>
+</Root>

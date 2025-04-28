@@ -1,0 +1,7 @@
+{
+    "users": [
+        { "username":"quik","url":"https://prices.quik.co.il/" },
+        { "username":"mega","url":"https://prices.mega.co.il/" },
+        { "username":"ybitan","url":"https://prices.ybitan.co.il/" }
+    ]
+}

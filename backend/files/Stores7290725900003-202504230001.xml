@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+  <row>
+    <_Root_>&lt;ChainId&gt;7290725900003&lt;/ChainId&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;ChainName&gt;יינות ביתן&lt;/ChainName&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;XmlDocVersion&gt;00000&lt;/XmlDocVersion&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;LastUpdateDate&gt;2025-04-23&lt;/LastUpdateDate&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;LastUpdateTime&gt;00:01:00&lt;/LastUpdateTime&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;SubChains&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;SubChain&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;SubChainId&gt;1&lt;/SubChainId&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;SubChainName&gt;1&lt;/SubChainName&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;Stores&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;Store&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;StoreId&gt;14&lt;/StoreId&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;BikoretNo&gt;6&lt;/BikoretNo&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;StoreType&gt;1&lt;/StoreType&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;StoreName&gt;אלפי מנשה&lt;/StoreName&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;Address&gt;חלוצי התעשיה 9&lt;/Address&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;City&gt;אלפי מנשה&lt;/City&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;ZipCode&gt;4485100&lt;/ZipCode&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;/Store&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;Store&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;StoreId&gt;77&lt;/StoreId&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;BikoretNo&gt;5&lt;/BikoretNo&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;StoreType&gt;1&lt;/StoreType&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;StoreName&gt;כוכב יעקוב מהדרין&lt;/StoreName&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;Address&gt;הכסף 1&lt;/Address&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;City&gt;כוכב יעקב&lt;/City&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;ZipCode&gt;9062200&lt;/ZipCode&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;/Store&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;Store&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;StoreId&gt;2560&lt;/StoreId&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;BikoretNo&gt;4&lt;/BikoretNo&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;StoreType&gt;1&lt;/StoreType&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;StoreName&gt;ש. מודיעין עלית&lt;/StoreName&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;Address&gt;שד יחזקאל 2 קרית ספר&lt;/Address&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;City&gt;מודיעין&lt;/City&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;ZipCode&gt;7183402&lt;/ZipCode&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;/Store&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;Store&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;StoreId&gt;3010&lt;/StoreId&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;BikoretNo&gt;1&lt;/BikoretNo&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;StoreType&gt;1&lt;/StoreType&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;StoreName&gt;אריאל ב&lt;/StoreName&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;Address&gt;הציונות 78&lt;/Address&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;City&gt;אריאל&lt;/City&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;ZipCode&gt;4076436&lt;/ZipCode&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;/Store&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;Store&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;StoreId&gt;9032&lt;/StoreId&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;BikoretNo&gt;5&lt;/BikoretNo&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;StoreType&gt;2&lt;/StoreType&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;StoreName&gt;ביתן אונליין&lt;/StoreName&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;Address&gt;כורזין 1 גבעתיים&lt;/Address&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;City&gt;גבעתיים&lt;/City&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;ZipCode&gt;5358301&lt;/ZipCode&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;/Store&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;Store&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;StoreId&gt;9061&lt;/StoreId&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;BikoretNo&gt;7&lt;/BikoretNo&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;StoreType&gt;1&lt;/StoreType&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;StoreName&gt;שוק מהדרין אונליין&lt;/StoreName&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;Address&gt;דרך מנחם בגין 96</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;City&gt;פתח תקוה&lt;/City&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;ZipCode&gt;4973295&lt;/ZipCode&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;/Store&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;/Stores&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;/SubChain&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;/SubChains&gt;</_Root_>
+  </row>
+  <row>
+    <_Root_>&lt;/Root&gt;</_Root_>
+  </row>
+</root>

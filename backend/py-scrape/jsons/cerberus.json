@@ -1,0 +1,23 @@
+{
+  "settings": {
+    "login_url": "https://url.publishedprices.co.il/login",
+    "logout_url": "https://url.publishedprices.co.il/logout",
+    "post_url": "https://url.publishedprices.co.il/file/json/dir",
+    "download_base_url": "https://url.publishedprices.co.il/file/d"
+  },
+  "users": [
+    { "username": "doralon", "password": null },
+    { "username": "TivTaam", "password": null },
+    { "username": "yohananof", "password": null },
+    { "username": "osherad", "password": null },
+    { "username": "politzer", "password": null },
+    { "username": "Keshet", "password": null },
+    { "username": "RamiLevi", "password": null },
+    { "username": "freshmarket", "password": null },
+    { "username": "SuperCofixApp", "password": null },
+    { "username": "Stop_Market", "password": null },
+    { "username": "SalachD", "password": "12345" },
+    { "username": "Paz_bo", "password": "paz468" },
+    { "username": "yuda_ho", "password": "Yud@147","folder": "/Yuda" }
+  ]
+}
