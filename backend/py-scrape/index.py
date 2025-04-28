@@ -1,7 +1,10 @@
 import schedule
 import time
-from multiprocessing import Process
+import subprocess
 import importlib
+
+from multiprocessing import Process
+
 
 def run_script(script_name):
     module = importlib.import_module(f"scrapes.{script_name}")
@@ -21,6 +24,21 @@ def run_all_scripts():
 
     for p in processes:
         p.join()
+    
+    print("✅ All Python scripts finished. Now running stores.ts...")
+    run_stores_ts()
+
+def run_stores_ts():
+    try:
+        # זה הפקודה שאתה מריץ: node --loader ts-node/esm src/node-importer/stores.ts
+        subprocess.run([
+            "node", 
+            "--loader", "ts-node/esm", 
+            "./src/node-importer/stores.ts"
+        ], check=True)
+        print("✅ stores.ts finished successfully!")
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Failed to run stores.ts: {e}")
 
 schedule.every().hour.at(":00").do(run_all_scripts)
 
