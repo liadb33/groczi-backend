@@ -4,9 +4,6 @@ import { readFileWithEncoding } from "../utils/encoding.js";
 
 const parser = new XMLParser({
   ignoreAttributes: false,
-  isArray: (jpath: string) => {
-    return jpath === "root.Items.Item";
-  },
 });
 
 export async function parseGroceryXmlFile(
@@ -15,43 +12,48 @@ export async function parseGroceryXmlFile(
   const xmlContent = await readFileWithEncoding(filePath);
   const cleanXml =
     xmlContent.charCodeAt(0) === 0xfeff ? xmlContent.slice(1) : xmlContent;
+
   const json = parser.parse(cleanXml);
-  if (!json?.root) return [];
+  if (!json) return [];
 
-  const root = json.root;
-  const storeId = Number(root.StoreId);
+  const dataRoot: any = json.root ?? json.Root;
+  if (!dataRoot) return [];
 
-  const rawItems = Array.isArray(root.Items.Item)
-    ? root.Items.Item
-    : [root.Items.Item];
+  const itemsContainer = dataRoot.Items;
+  if (!itemsContainer || !itemsContainer.Item) return [];
 
-  const groceries: Grocery[] = rawItems.map((it: any) => ({
-    itemCode: it.ItemCode,
-    itemType: Number(it.ItemType),
-    itemName: it.ItemName,
-    manufacturerName: it.ManufacturerName,
-    manufactureCountry: it.ManufactureCountry || "",
-    manufacturerItemDescription: it.ManufacturerItemDescription,
-    unitQty: it.UnitQty,
-    unitOfMeasure: it.UnitOfMeasure,
-    isWeighted: it.bIsWeighted === "1" || it.bIsWeighted === 1,
-    qtyInPackage: Number(it.QtyInPackage),
-    unitOfMeasurePrice: Number(it.UnitOfMeasurePrice),
-    quantity: Number(it.Quantity),
-  }));
+  const rawItems = Array.isArray(itemsContainer.Item)
+    ? itemsContainer.Item
+    : [itemsContainer.Item];
 
-  return rawItems.map((it: any) => {
-    const itemCode = it.ItemCode;
-    const itemPrice = Number(it.ItemPrice);
-    const allowDiscount = it.AllowDiscount === "1" || it.AllowDiscount === 1;
+  const storeId = Number(dataRoot.StoreId) || 0;
+  const refs: GroceryReference[] = [];
+
+  for (const it of rawItems) {
+    const grocery: Grocery = {
+      itemCode: String(it.ItemCode) || "",
+      itemType: Number(it.ItemType) || 0,
+      itemName: String(it.ItemName) || "",
+      manufacturerName: it.ManufacturerName || "",
+      manufactureCountry: String(it.ManufactureCountry) ?? "",
+      manufacturerItemDescription: String(it.ManufacturerItemDescription) || "",
+      unitQty: String(it.UnitQty) || "",
+      unitOfMeasure: String(it.UnitOfMeasure) || "",
+      isWeighted: it.bIsWeighted === "1" || it.bIsWeighted === 1,
+      qtyInPackage: Number(it.QtyInPackage) || 0,
+      unitOfMeasurePrice: Number(it.UnitOfMeasurePrice) || 0,
+      quantity: Number(it.Quantity) || 0,
+    };
 
     const ref: GroceryReference = {
-      itemCode,
+      itemCode: String(it.ItemCode) || "",
       storeId,
-      itemPrice,
-      allowDiscount,
-      items: groceries,
+      itemPrice: Number(it.ItemPrice) || 0,
+      allowDiscount: it.AllowDiscount === "1" || it.AllowDiscount === 1,
+      item: grocery,
     };
-    return ref;
-  });
+
+    refs.push(ref);
+  }
+  return refs;
 }

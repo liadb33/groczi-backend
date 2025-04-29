@@ -18,5 +18,5 @@ export interface GroceryReference {
   storeId: number; //references the storeId to stores table
   itemPrice: number;
   allowDiscount: boolean;
-  items: Grocery[];
+  item: Grocery;
 }
