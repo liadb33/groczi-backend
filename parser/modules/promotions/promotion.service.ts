@@ -1,4 +1,5 @@
-import { getXmlDirFiles } from "../../utils/read-dir.utils";
+import { getXmlDirFiles } from "../../utils/read-dir.utils.js";
+import { parsePromotionXmlFile } from "./promotion.parser.js";
 
 
 export async function processAllPromotionsFiles(basePath: string) {
@@ -8,17 +9,18 @@ export async function processAllPromotionsFiles(basePath: string) {
   let success = 0;
 
   for (const file of files) {
-    //const groceries = await parseGroceryXmlFile(file);
-    //console.log(groceries);
-    // success++;
-    // if (!groceries.length) continue;
+    const promotions = await parsePromotionXmlFile(file);
+    console.log(file)
+    console.log(promotions);
+    success++;
+    if (!promotions.length) continue;
 
     // for (const grocery of groceries) await saveGrocery(grocery);
-    // console.log("Saved", groceries.length, "groceries from", file);
-    // total += groceries.length;
+    console.log("Saved", promotions.length, "promotions from", file);
+    total += promotions.length;
   }
 
-//   console.log(
-//     `Processed ${success}/${files.length} files, total ${total} groceries`
-//   );
+  console.log(
+    `Processed ${success}/${files.length} files, total ${total} groceries`
+  );
 }
