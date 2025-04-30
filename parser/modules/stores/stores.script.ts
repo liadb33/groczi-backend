@@ -1,8 +1,7 @@
 import path from "path";
-import prisma from "../database/prismaClient.js";
-
 import { fileURLToPath } from "url";
-import { processAllGroceriesFiles } from "../features/groceries/groceries.service.js";
+import { processAllStoresFiles } from "./stores.service.js";
+import prisma from "../../database/prismaClient.js";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -16,11 +15,11 @@ async function run() {
       "..",
       "..",
       "..",
-      "py-scrape",
-      "files",
-      "groceries"
+      "scraper-engine",
+      "output",
+      "stores"
     );
-    await processAllGroceriesFiles(basePath);
+    await processAllStoresFiles(basePath);
   } catch (error) {
     console.error("❌ Error:", error);
   } finally {

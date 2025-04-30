@@ -2,9 +2,10 @@ import os
 import json
 import shutil
 import logging
-from pathlib import Path
 import gzip
+import zipfile
 import time
+from pathlib import Path
 from datetime import datetime
 from urllib.parse import urlparse
 from selenium.common.exceptions import WebDriverException, TimeoutException
@@ -14,16 +15,17 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import zipfile
+
 from requests.exceptions import RequestException
 
 # === PATHS AND CONSTANTS ===
 SCRIPT_DIR = Path(__file__).parent.resolve()
-SHOPS_JSON_FILE = SCRIPT_DIR.parent / "jsons" / "shop.json"
-GZ_FOLDER_PATH = SCRIPT_DIR.parent / "files" / "gzFiles"
-
-# Define the two extraction folders that will be used.
-XML_FOLDER_PATH = SCRIPT_DIR.parent / "files" / "xmlFiles"
+SHOPS_JSON_FILE = SCRIPT_DIR.parent / "configs" / "shop.json"
+GZ_FOLDER_PATH = SCRIPT_DIR.parent / "output" / "gzFiles"
+XML_FOLDER_GROCERY_PATH = SCRIPT_DIR.parent / "output" / "groceries"
+XML_FOLDER_STORE_PATH = SCRIPT_DIR.parent / "output" / "stores"
+XML_FOLDER_PROMOTION_PATH = SCRIPT_DIR.parent / "output" / "promotions"
+XML_OTHERS_FOLDER_PATH = SCRIPT_DIR.parent / "output" / "others"
 
 # Logging Setup
 logging.basicConfig(
@@ -99,8 +101,6 @@ def fetch_file_list(driver: webdriver.Chrome,config: dict) -> bool:
          return False
     return False
 
-import time
-
 def wait_for_download_complete(folder: Path, timeout: int = 60) -> bool:
     logging.info("⏳ Waiting for download to complete...")
     elapsed = 0
@@ -132,15 +132,14 @@ def get_file_hour(timestamp_text: str) -> int:
             continue
     raise ValueError(f"Unrecognized timestamp format: {timestamp_text}")
 
-def extract(user_xml_folder: str | Path):
+def extract(username: str) -> None:
     """Extracts .gz or .zip files from GZ_FOLDER_PATH to the given folder."""
-    os.makedirs(user_xml_folder, exist_ok=True)
-    os.makedirs(GZ_FOLDER_PATH, exist_ok=True)
+    
     gz_files = list(Path(GZ_FOLDER_PATH).glob("*.gz"))
     if not gz_files:
         logging.warning("⚠️ No .gz files found to extract.")
         return
-
+    
     for gz_path in gz_files:
         try:
             with open(gz_path, "rb") as f:
@@ -148,8 +147,17 @@ def extract(user_xml_folder: str | Path):
                 f.seek(0)  # Reset file pointer
 
                 file_name_gz = gz_path.name
+                
+                user_xml_folder = (
+                    XML_FOLDER_GROCERY_PATH if "price" in file_name_gz.lower() else
+                    XML_FOLDER_STORE_PATH if "store" in file_name_gz.lower() else
+                    XML_FOLDER_PROMOTION_PATH if "promo" in file_name_gz.lower() else
+                    XML_OTHERS_FOLDER_PATH
+                )
+
                 file_name_xml = file_name_gz + ".xml"
-                extracted_path = Path(user_xml_folder) / file_name_xml
+                extracted_path = user_xml_folder / username / file_name_xml
+                extracted_path.parent.mkdir(parents=True, exist_ok=True)
 
                 if magic == b'\x1f\x8b':  # GZIP magic number
                     with gzip.open(f, "rb") as f_gzip, open(extracted_path, "wb") as f_xml:
@@ -159,7 +167,7 @@ def extract(user_xml_folder: str | Path):
                     with zipfile.ZipFile(f) as z:
                         for zipped_file in z.namelist():
                             # Extract the first file in the zip
-                            with z.open(zipped_file) as zip_file, open(user_xml_folder / zipped_file, 'wb') as out_file:
+                            with z.open(zipped_file) as zip_file, open(extracted_path, 'wb') as out_file:
                                 shutil.copyfileobj(zip_file, out_file)
 
                 else:
@@ -176,7 +184,7 @@ def main():
     except Exception:
         logging.critical("Failed to load configuration. Exiting.")
         return
-    
+    os.makedirs(GZ_FOLDER_PATH, exist_ok=True)
     driver = None
     try:
         logging.info("Initializing WebDriver")
@@ -192,7 +200,7 @@ def main():
         driver = webdriver.Chrome(options=options)
         logging.info("WebDriver initialized.")
         users = config.get("users", [])
-        for user in users:
+        for user in users[6:]:
             site_url = user.get("url", "").strip()
             if not site_url:
                 logging.warning("⚠️ No 'url' found in user entry; skipping.")
@@ -205,10 +213,8 @@ def main():
 
             fetch_all_file_entries(driver,user["config"])
 
-            user_xml_folder_path = XML_FOLDER_PATH / user.get("username", "")
-            os.makedirs(user_xml_folder_path, exist_ok=True) # Ensure folder exists here
-            extract(user_xml_folder_path)
-            shutil.rmtree(GZ_FOLDER_PATH)
+            extract(user.get("username", ""))
+            
             logging.info(f"===== FINISHED: {site_url} =====")
     except Exception as e:
         logging.critical(f"An unexpected error occurred in main: {e}", exc_info=True)

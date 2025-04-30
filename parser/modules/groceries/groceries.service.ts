@@ -1,6 +1,6 @@
 import { parseGroceryXmlFile } from "./groceries.parser.js";
 import { getAllGroceriesXmlFiles } from "./groceries.reader.js";
-import { saveGrocery } from "../../database/repositories/groceries.repository.js";
+import { saveGrocery } from "../../repositories/groceries.repository.js";
 
 export async function processAllGroceriesFiles(basePath: string) {
   const files = await getAllGroceriesXmlFiles(basePath);

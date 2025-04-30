@@ -1,12 +1,11 @@
 export interface Store {
-  ChainId?: string;
-  SubChainId?: string;
-  StoreId: string;
+  ChainId?: number;
+  SubChainId: number;
+  StoreId: number;
   StoreName: string;
   Address: string;
   City?: string;
-  ZipCode?: string;
-  BikoretNo?: string;
+  ZipCode: number;
   StoreType?: number;
   ChainName?: string;
   SubChainName?: string;

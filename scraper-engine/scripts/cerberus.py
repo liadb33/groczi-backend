@@ -19,9 +19,12 @@ from selenium.common.exceptions import WebDriverException
 # === CONFIG ===
 SCRIPT_DIR = Path(__file__).parent.resolve()
 # paths relative to the script's directory
-JSON_FILE_PATH = SCRIPT_DIR.parent / "jsons" / "cerberus.json"
-GZ_FOLDER_PATH = SCRIPT_DIR.parent / "files" / "gzFiles"
-XML_FOLDER_PATH = SCRIPT_DIR.parent / "files" / "xmlFilesCerberus"
+JSON_FILE_PATH = SCRIPT_DIR.parent / "configs" / "cerberus.json"
+GZ_FOLDER_PATH = SCRIPT_DIR.parent / "output" / "gzFiles"
+XML_FOLDER_GROCERY_PATH = SCRIPT_DIR.parent / "output" / "groceries"
+XML_FOLDER_STORE_PATH = SCRIPT_DIR.parent / "output" / "stores"
+XML_FOLDER_PROMOTION_PATH = SCRIPT_DIR.parent / "output" / "promotions"
+XML_OTHERS_FOLDER_PATH = SCRIPT_DIR.parent / "output" / "others"
 
 LOGIN_URL = None
 LOGOUT_URL = None
@@ -46,12 +49,9 @@ logging.basicConfig(
 )
 
 # === FILE DOWNLOAD AND EXTRACTION ===
-def download_and_extract(file_links: list[str], session: requests.Session, user_xml_folder: str | Path):
+def download_and_extract(file_links: list[str], session: requests.Session, username: str):
     """Downloads GZ files, extracts them to XML in the user's folder, and removes the GZ."""
     
-    os.makedirs(user_xml_folder, exist_ok=True)
-    os.makedirs(GZ_FOLDER_PATH, exist_ok=True) 
-
     for file_link in file_links:
         try:
             file_name_gz = file_link.split("/")[-1].split("?")[0]
@@ -61,8 +61,16 @@ def download_and_extract(file_links: list[str], session: requests.Session, user_
 
             gz_path = Path(GZ_FOLDER_PATH) / file_name_gz
             file_name_xml = file_name_gz[:-3] + ".xml" 
-            extracted_path = Path(user_xml_folder) / file_name_xml
-
+            user_xml_folder = (
+                XML_FOLDER_GROCERY_PATH if "price" in file_name_gz.lower() else
+                XML_FOLDER_STORE_PATH if "store" in file_name_gz.lower() else
+                XML_FOLDER_PROMOTION_PATH if "promo" in file_name_gz.lower() else
+                XML_OTHERS_FOLDER_PATH
+            )
+        
+            extracted_path = user_xml_folder / username / file_name_xml
+            extracted_path.parent.mkdir(parents=True, exist_ok=True)
+            
             logging.info(f"⬇️ Downloading: {file_name_gz} to {gz_path}")
             response = session.get(file_link, stream=True, timeout=DOWNLOAD_TIMEOUT_SECONDS)
             response.raise_for_status() 
@@ -198,7 +206,7 @@ def perform_logout(driver: webdriver.Chrome):
         logging.warning(f"⚠️ Logout navigation/check failed: {e}")
         return False
 
-
+ 
 # === MAIN ORCHESTRATION ===
 def main():
     """Main script execution flow."""
@@ -218,6 +226,12 @@ def main():
     POST_URL = settings.get("post_url")
     DOWNLOAD_URL = settings.get("download_base_url") 
     
+    os.makedirs(XML_FOLDER_GROCERY_PATH, exist_ok=True)
+    os.makedirs(XML_FOLDER_STORE_PATH, exist_ok=True)
+    os.makedirs(XML_FOLDER_PROMOTION_PATH, exist_ok=True)
+    os.makedirs(GZ_FOLDER_PATH, exist_ok=True)
+    os.makedirs(XML_OTHERS_FOLDER_PATH, exist_ok=True)
+
     if not all([LOGIN_URL, LOGOUT_URL, POST_URL, DOWNLOAD_URL]):
         logging.critical("ERROR: Essential URLs not found in the 'settings' section of the configuration file.")
         return 
@@ -268,10 +282,6 @@ def main():
                  perform_logout(driver)
                  continue
 
-            # 4. Prepare Folders
-            user_xml_folder_path = Path(XML_FOLDER_PATH) / username
-            os.makedirs(user_xml_folder_path, exist_ok=True)
-
             # 5. Fetch File List
             search_criteria = (datetime.now() - timedelta(hours=1)).strftime("%Y%m%d%H")
  
@@ -287,7 +297,7 @@ def main():
                 if gz_files_to_download:
                     file_links = [f"{base_download_url}{item['fname']}" for item in gz_files_to_download]
                     logging.info(f"Found {len(file_links)} '.gz' files to download for {username}.")
-                    download_and_extract(file_links, session, user_xml_folder_path)
+                    download_and_extract(file_links, session, username)
                 else:
                     logging.info(f"No '.gz' files found in the list for {username}.")
             elif file_list is None: # Indicates an error during fetch
@@ -309,6 +319,7 @@ def main():
             logging.info("Quitting WebDriver...")
             driver.quit()
             logging.info("WebDriver quit.")
+        os.remove(GZ_FOLDER_PATH)
 
 
 # === LAUNCH ===

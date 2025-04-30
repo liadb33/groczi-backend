@@ -1,8 +1,8 @@
-import prisma from "../prismaClient.js";
-import { GroceryReference } from "../../features/groceries/grocery.entity.js";
+import prisma from "../database/prismaClient.js";
+import { GroceryReference } from "../modules/groceries/grocery.entity.js";
 
 export async function saveGrocery(ref: GroceryReference) {
-  if (!ref.itemCode || !ref.storeId) return;
+  if (!ref.itemCode || !ref.StoreId) return;
   // 1. Upsert the Grocery master record
   await prisma.grocery.upsert({
     where: { itemCode: ref.itemCode },
@@ -35,13 +35,13 @@ export async function saveGrocery(ref: GroceryReference) {
     },
   });
 
-  // 2. Upsert the GroceryReferences join record
-  await prisma.groceryReferences.upsert({
+  //2. Upsert the GroceryReferences join record
+  await prisma.store_grocery.upsert({
     where: {
       // composite PK
-      itemCode_storeId: {
+      itemCode_StoreId: {
         itemCode: ref.itemCode,
-        storeId: ref.storeId,
+        StoreId: ref.StoreId,
       },
     },
     update: {
@@ -50,7 +50,7 @@ export async function saveGrocery(ref: GroceryReference) {
     },
     create: {
       itemCode: ref.itemCode,
-      storeId: ref.storeId,
+      StoreId: ref.StoreId,
       itemPrice: ref.itemPrice,
       allowDiscount: ref.allowDiscount,
     },

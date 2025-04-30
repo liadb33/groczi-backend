@@ -1,5 +1,5 @@
 export interface Grocery {
-  itemCode: string; //primary key
+  itemCode: number; //primary key
   itemType: number;
   itemName: string;
   manufacturerName: string;
@@ -14,8 +14,8 @@ export interface Grocery {
 }
 
 export interface GroceryReference {
-  itemCode: string; //references the itemCode to grocery table
-  storeId: number; //references the storeId to stores table
+  itemCode: number; //references the itemCode to grocery table
+  StoreId: number; //references the storeId to stores table
   itemPrice: number;
   allowDiscount: boolean;
   item: Grocery;
