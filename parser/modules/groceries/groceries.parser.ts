@@ -1,6 +1,6 @@
 import { XMLParser } from "fast-xml-parser";
 import { Grocery, GroceryReference } from "./grocery.entity.js";
-import { readFileWithEncoding } from "../../utils/encoding.js";
+import { readFileWithEncoding } from "../../utils/encoding.utils.js";
 
 export function mapToGroceryAndReference(
   item: Record<string, any>,

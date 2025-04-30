@@ -1,6 +1,6 @@
 import { XMLParser } from "fast-xml-parser";
 import { Store } from "./store.entity.js";
-import { readFileWithEncoding } from "../../utils/encoding.js";
+import { readFileWithEncoding } from "../../utils/encoding.utils.js";
 
 const storeKeys: (keyof Store)[] = [
   "ChainId",

@@ -1,7 +1,7 @@
 import fs from "fs-extra";
 import path from "path";
 
-export async function getAllGroceriesXmlFiles(dir: string): Promise<string[]> {
+export async function getXmlDirFiles(dir: string): Promise<string[]> {
   let results: string[] = [];
   const entries = await fs.readdir(dir, { withFileTypes: true });
 
@@ -9,7 +9,7 @@ export async function getAllGroceriesXmlFiles(dir: string): Promise<string[]> {
     const fullPath = path.join(dir, entry.name);
 
     if (entry.isDirectory()) {
-      const subFiles = await getAllGroceriesXmlFiles(fullPath);
+      const subFiles = await getXmlDirFiles(fullPath);
       results = results.concat(subFiles);
     } else if (entry.isFile() && fullPath.endsWith(".xml")) {
       results.push(fullPath);

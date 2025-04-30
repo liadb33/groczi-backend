@@ -1,9 +1,9 @@
-import { getAllStoresXmlFiles } from "./stores.reader.js";
 import { parseStoreXmlFile } from "./stores.parser.js";
-import { saveStore } from "../../repositories/stores.repository.js";
+import { saveStore } from "./stores.repository.js";
+import { getXmlDirFiles } from "../../utils/read-dir.utils.js";
 
 export async function processAllStoresFiles(basePath: string) {
-  const files = await getAllStoresXmlFiles(basePath);
+  const files = await getXmlDirFiles(basePath);
   let total = 0;
   let success = 0;
   for (const file of files) {

@@ -1,5 +1,5 @@
-import prisma from "../database/prismaClient.js";
-import { Store } from "../modules/stores/store.entity.js";
+import prisma from "../../database/prismaClient.js";
+import { Store } from "./store.entity.js";
 
 export async function saveStore(store: Store) {
   if (!store.ChainId || !store.StoreId) return;

@@ -184,7 +184,7 @@ def main():
     except Exception:
         logging.critical("Failed to load configuration. Exiting.")
         return
-    os.makedirs(GZ_FOLDER_PATH, exist_ok=True)
+    
     driver = None
     try:
         logging.info("Initializing WebDriver")
@@ -200,7 +200,8 @@ def main():
         driver = webdriver.Chrome(options=options)
         logging.info("WebDriver initialized.")
         users = config.get("users", [])
-        for user in users[6:]:
+        for user in users:
+            os.makedirs(GZ_FOLDER_PATH, exist_ok=True)
             site_url = user.get("url", "").strip()
             if not site_url:
                 logging.warning("⚠️ No 'url' found in user entry; skipping.")
@@ -214,7 +215,7 @@ def main():
             fetch_all_file_entries(driver,user["config"])
 
             extract(user.get("username", ""))
-            
+            os.shutil.rmtree(GZ_FOLDER_PATH)
             logging.info(f"===== FINISHED: {site_url} =====")
     except Exception as e:
         logging.critical(f"An unexpected error occurred in main: {e}", exc_info=True)
