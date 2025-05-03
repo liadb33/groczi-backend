@@ -1,46 +1,80 @@
 import prisma from "../../database/prismaClient.js";
 import { Store } from "./store.entity.js";
 
+export async function findStoreByChainIdAndStoreId(
+  chainId: number,
+  storeId: number
+): Promise<{ SubChainId: number } | null> {
+  return prisma.stores.findFirst({
+    where: { ChainId: chainId, StoreId: storeId },
+    select: { SubChainId: true },
+  });
+}
+
 export async function saveStore(store: Store) {
-  if (!store.ChainId || !store.StoreId) return;
+  const {
+    ChainId,
+    ChainName,
+    SubChainId,
+    SubChainName,
+    StoreId,
+    StoreName,
+    Address,
+    City,
+    ZipCode,
+    StoreType,
+  } = store;
 
+  if (!ChainId || !SubChainId || !StoreId) return;
+
+  // 1. upsert ל־chains (PK: ChainId)
   await prisma.chains.upsert({
-    where: { ChainId: store.ChainId },
-    update: { ChainName: store.ChainName },
-    create: { ChainId: store.ChainId, ChainName: store.ChainName },
+    where: { ChainId },
+    update: { ChainName },
+    create: { ChainId, ChainName },
   });
 
+  // 2. upsert ל־subchains (COMPOSITE PK: ChainId + SubChainId)
   await prisma.subchains.upsert({
-    where: { SubChainId: store.SubChainId },
-    update: {
-      SubChainName: store.SubChainName,
-      ChainId: store.ChainId,
+    where: {
+      ChainId_SubChainId: {
+        ChainId,
+        SubChainId,
+      },
     },
+    update: { SubChainName },
     create: {
-      SubChainId: store.SubChainId,
-      ChainId: store.ChainId,
-      SubChainName: store.SubChainName,
+      ChainId,
+      SubChainId,
+      SubChainName,
     },
   });
 
+  // 3. upsert ל־stores (COMPOSITE PK: ChainId + SubChainId + StoreId)
   await prisma.stores.upsert({
-    where: { StoreId: store.StoreId },
+    where: {
+      ChainId_SubChainId_StoreId: {
+        ChainId,
+        SubChainId,
+        StoreId,
+      },
+    },
     update: {
-      SubChainId: store.SubChainId,
-      StoreName: store.StoreName,
-      Address: store.Address,
-      City: store.City,
-      ZipCode: store.ZipCode,
-      StoreType: store.StoreType,
+      StoreName,
+      Address,
+      City,
+      ZipCode,
+      StoreType,
     },
     create: {
-      StoreId: store.StoreId,
-      SubChainId: store.SubChainId,
-      StoreName: store.StoreName,
-      Address: store.Address,
-      City: store.City,
-      ZipCode: store.ZipCode,
-      StoreType: store.StoreType,
+      ChainId,
+      SubChainId,
+      StoreId,
+      StoreName,
+      Address,
+      City,
+      ZipCode,
+      StoreType,
     },
   });
 }

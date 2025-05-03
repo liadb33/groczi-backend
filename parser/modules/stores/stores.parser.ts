@@ -19,7 +19,6 @@ const numberKeys: (keyof Store)[] = [
   "ChainId",
   "SubChainId",
   "StoreId",
-  "ZipCode",
   "StoreType",
 ];
 
@@ -56,6 +55,10 @@ export function mapToStore(input: Record<string, any>): Store {
     } else {
       result[key as keyof Store] = String(value).trim() as any;
     }
+  }
+  const scn = result.SubChainName?.trim() ?? "";
+  if (!scn || /^\d+$/.test(scn)) {
+    result.SubChainName = result.ChainName;
   }
 
   return result as Store;

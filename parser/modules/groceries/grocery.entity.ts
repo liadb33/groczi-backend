@@ -14,8 +14,10 @@ export interface Grocery {
 }
 
 export interface GroceryReference {
-  itemCode: number; //references the itemCode to grocery table
-  StoreId: number; //references the storeId to stores table
+  itemCode: number; // references grocery.itemCode
+  ChainId: bigint; // references stores(ChainId)
+  SubChainId: number; // references stores(SubChainId)
+  StoreId: number; // references stores(StoreId)
   itemPrice: number;
   allowDiscount: boolean;
   item: Grocery;

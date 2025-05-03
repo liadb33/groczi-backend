@@ -2,56 +2,70 @@ import prisma from "../../database/prismaClient.js";
 import { GroceryReference } from "./grocery.entity.js";
 
 export async function saveGrocery(ref: GroceryReference) {
-  if (!ref.itemCode || !ref.StoreId) return;
-  // 1. Upsert the Grocery master record
+  const {
+    itemCode,
+    ChainId,
+    SubChainId,
+    StoreId,
+    itemPrice,
+    allowDiscount,
+    item,
+  } = ref;
+  if (!itemCode || !StoreId) return;
+
+  // 1. Upsert the Grocery master record (unchanged)
   await prisma.grocery.upsert({
-    where: { itemCode: ref.itemCode },
+    where: { itemCode },
     update: {
-      itemType: ref.item.itemType,
-      itemName: ref.item.itemName,
-      manufacturerName: ref.item.manufacturerName,
-      manufactureCountry: ref.item.manufactureCountry,
-      manufacturerItemDescription: ref.item.manufacturerItemDescription,
-      unitQty: ref.item.unitQty,
-      unitOfMeasure: ref.item.unitOfMeasure,
-      isWeighted: ref.item.isWeighted,
-      qtyInPackage: ref.item.qtyInPackage,
-      unitOfMeasurePrice: ref.item.unitOfMeasurePrice,
-      quantity: ref.item.quantity,
+      itemType: item.itemType,
+      itemName: item.itemName,
+      manufacturerName: item.manufacturerName,
+      manufactureCountry: item.manufactureCountry,
+      manufacturerItemDescription: item.manufacturerItemDescription,
+      unitQty: item.unitQty,
+      unitOfMeasure: item.unitOfMeasure,
+      isWeighted: item.isWeighted,
+      qtyInPackage: item.qtyInPackage,
+      unitOfMeasurePrice: item.unitOfMeasurePrice,
+      quantity: item.quantity,
     },
     create: {
-      itemCode: ref.itemCode,
-      itemType: ref.item.itemType,
-      itemName: ref.item.itemName,
-      manufacturerName: ref.item.manufacturerName,
-      manufactureCountry: ref.item.manufactureCountry,
-      manufacturerItemDescription: ref.item.manufacturerItemDescription,
-      unitQty: ref.item.unitQty,
-      unitOfMeasure: ref.item.unitOfMeasure,
-      isWeighted: ref.item.isWeighted,
-      qtyInPackage: ref.item.qtyInPackage,
-      unitOfMeasurePrice: ref.item.unitOfMeasurePrice,
-      quantity: ref.item.quantity,
+      itemCode,
+      itemType: item.itemType,
+      itemName: item.itemName,
+      manufacturerName: item.manufacturerName,
+      manufactureCountry: item.manufactureCountry,
+      manufacturerItemDescription: item.manufacturerItemDescription,
+      unitQty: item.unitQty,
+      unitOfMeasure: item.unitOfMeasure,
+      isWeighted: item.isWeighted,
+      qtyInPackage: item.qtyInPackage,
+      unitOfMeasurePrice: item.unitOfMeasurePrice,
+      quantity: item.quantity,
     },
   });
 
-  //2. Upsert the GroceryReferences join record
+  // 2. Upsert ל־store_grocery עם ה־Composite PK החדש
   await prisma.store_grocery.upsert({
     where: {
-      itemCode_StoreId: {
-        itemCode: ref.itemCode,
-        StoreId: ref.StoreId,
+      itemCode_ChainId_SubChainId_StoreId: {
+        itemCode,
+        ChainId,
+        SubChainId,
+        StoreId,
       },
     },
     update: {
-      itemPrice: ref.itemPrice,
-      allowDiscount: ref.allowDiscount,
+      itemPrice,
+      allowDiscount,
     },
     create: {
-      itemCode: ref.itemCode,
-      StoreId: ref.StoreId,
-      itemPrice: ref.itemPrice,
-      allowDiscount: ref.allowDiscount,
+      itemCode,
+      ChainId,
+      SubChainId,
+      StoreId,
+      itemPrice,
+      allowDiscount,
     },
   });
 }

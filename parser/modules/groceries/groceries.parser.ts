@@ -3,33 +3,39 @@ import { Grocery, GroceryReference } from "./grocery.entity.js";
 import { readFileWithEncoding } from "../../utils/encoding.utils.js";
 
 export function mapToGroceryAndReference(
-  item: Record<string, any>,
-  StoreId: number
+  raw: Record<string, any>,
+  chainId: number,
+  subChainId: number,
+  storeId: number
 ): GroceryReference {
   const grocery: Grocery = {
-    itemCode: Number(item.ItemCode || 0),
-    itemType: Number(item.ItemType || 0),
-    itemName: String(item.ItemName || ""),
-    manufacturerName: String(item.ManufacturerName || ""),
-    manufactureCountry: String(item.ManufactureCountry ?? ""),
-    manufacturerItemDescription: String(item.ManufacturerItemDescription || ""),
-    unitQty: String(item.UnitQty || ""),
-    unitOfMeasure: String(item.UnitOfMeasure || ""),
-    isWeighted: item.bIsWeighted === "1" || item.bIsWeighted === 1,
-    qtyInPackage: Number(item.QtyInPackage || 0),
-    unitOfMeasurePrice: Number(item.UnitOfMeasurePrice || 0),
-    quantity: Number(item.Quantity || 0),
+    itemCode: Number(raw.ItemCode || 0),
+    itemType: Number(raw.ItemType || 0),
+    itemName: String(raw.ItemName || "").trim(),
+    manufacturerName: String(raw.ManufacturerName || "").trim(),
+    manufactureCountry: String(raw.ManufactureCountry || "").trim(),
+    manufacturerItemDescription: String(
+      raw.ManufacturerItemDescription || ""
+    ).trim(),
+    unitQty: String(raw.UnitQty || "").trim(),
+    unitOfMeasure: String(raw.UnitOfMeasure || "").trim(),
+    isWeighted: raw.bIsWeighted === "1" || raw.bIsWeighted === 1,
+    qtyInPackage: Number(raw.QtyInPackage || 0),
+    unitOfMeasurePrice: Number(raw.UnitOfMeasurePrice || 0),
+    quantity: Number(raw.Quantity || 0),
   };
 
-  const ref: GroceryReference = {
-    itemCode: Number(item.ItemCode || 0),
-    StoreId,
-    itemPrice: Number(item.ItemPrice || 0),
-    allowDiscount: item.AllowDiscount === "1" || item.AllowDiscount === 1,
+  const reference: GroceryReference = {
+    itemCode: grocery.itemCode,
+    ChainId: chainId,
+    SubChainId: subChainId,
+    StoreId: storeId,
+    itemPrice: Number(raw.ItemPrice || 0),
+    allowDiscount: raw.AllowDiscount === "1" || raw.AllowDiscount === 1,
     item: grocery,
   };
 
-  return ref;
+  return reference;
 }
 
 const parser = new XMLParser({
@@ -42,21 +48,24 @@ export async function parseGroceryXmlFile(
   const xmlContent = await readFileWithEncoding(filePath);
   const cleanXml =
     xmlContent.charCodeAt(0) === 0xfeff ? xmlContent.slice(1) : xmlContent;
-
   const json = parser.parse(cleanXml);
   if (!json) return [];
 
   const dataRoot: any = json.root ?? json.Root;
   if (!dataRoot) return [];
 
-  const itemsContainer = dataRoot.Items;
-  if (!itemsContainer || !itemsContainer.Item) return [];
+  // השליפת ChainId ו-SubChainId
+  const chainId = Number(dataRoot.ChainId ?? (dataRoot.ChainID || 0));
+  const subChainId = Number(dataRoot.SubChainId ?? (dataRoot.SubChainID || 0));
+  const storeId = Number(dataRoot.StoreId ?? 0);
 
-  const rawItems = Array.isArray(itemsContainer.Item)
-    ? itemsContainer.Item
-    : [itemsContainer.Item];
+  const items = dataRoot.Items?.Item
+    ? Array.isArray(dataRoot.Items.Item)
+      ? dataRoot.Items.Item
+      : [dataRoot.Items.Item]
+    : [];
 
-  const storeId = Number(dataRoot.StoreId) || 0;
-
-  return rawItems.map((item: any) => mapToGroceryAndReference(item, storeId));
+  return items.map((item: any) =>
+    mapToGroceryAndReference(item, chainId, subChainId, storeId)
+  );
 }
