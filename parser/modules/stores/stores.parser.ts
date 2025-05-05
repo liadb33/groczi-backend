@@ -1,6 +1,5 @@
-import { XMLParser } from "fast-xml-parser";
 import { Store } from "./store.entity.js";
-import { readFileWithEncoding } from "../../utils/encoding.utils.js";
+import { createParser, parseXmlFile, readFileWithEncoding } from "../../utils/xml-parser.utils.js";
 
 const storeKeys: (keyof Store)[] = [
   "ChainId",
@@ -22,19 +21,7 @@ const numberKeys: (keyof Store)[] = [
   "StoreType",
 ];
 
-const parser = new XMLParser({
-  ignoreAttributes: false,
-  isArray: (jpath: string) => {
-    const arrayPaths = [
-      "Root.SubChains.SubChain",
-      "SubChain.Stores.Store",
-      "asx:values.STORES.STORE",
-      "Store.Branches.Branch",
-      "root.row",
-    ];
-    return arrayPaths.includes(jpath);
-  },
-});
+const parser = createParser("stores");
 
 export function mapToStore(input: Record<string, any>): Store {
   const result: Partial<Store> = {};
@@ -65,10 +52,7 @@ export function mapToStore(input: Record<string, any>): Store {
 }
 
 export async function parseStoreXmlFile(filePath: string): Promise<Store[]> {
-  const xmlContent = await readFileWithEncoding(filePath);
-  const cleanXml =
-    xmlContent.charCodeAt(0) === 0xfeff ? xmlContent.slice(1) : xmlContent;
-  const json = parser.parse(cleanXml);
+  const json = await parseXmlFile(filePath, parser);
   if (!json) return [];
 
   // סוג 1: <asx:abap><asx:values>
@@ -195,5 +179,6 @@ export async function parseStoreXmlFile(filePath: string): Promise<Store[]> {
     return stores;
   }
 
+  console.log("No stores found in:", filePath,"check the file format");
   return [];
 }
