@@ -1,5 +1,6 @@
 export interface Promotion {
   chainId: bigint;
+  SubChainId: number;
   StoreId: number;
   PromotionId: number;
   PromotionName?: string;
