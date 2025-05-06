@@ -1,29 +1,29 @@
 import { XMLParser } from "fast-xml-parser";
-import { Grocery, GroceryReference } from "./grocery.entity.js";
-import { parseXmlFile, readFileWithEncoding } from "../../utils/xml-parser.utils.js";
+import { GroceryReference } from "./grocery.entity.js";
+import { parseXmlFile } from "../../utils/xml-parser.utils.js";
 import { mapToGroceryAndReference } from "./groceries.mapper.js";
+import { logUnrecognizedFormat, processItems } from "../../utils/general.utils.js";
+import { log } from "console";
 
-
-const parser = new XMLParser({ ignoreAttributes: false,});
+const parser = new XMLParser({ ignoreAttributes: false});
 
 export async function parseGroceryXmlFile(filePath: string): Promise<GroceryReference[]> {
   const json = await parseXmlFile(filePath, parser);
-  if (!json) return [];
+  if (!json) {
+    console.log("Error in groceries : parsing file:", filePath);
+    return [];
+  }
 
   const dataRoot: any = json.root ?? json.Root;
   if (!dataRoot) return [];
 
-  const chainId = Number(dataRoot.ChainId ?? (dataRoot.ChainID || 0));
-  const subChainId = Number(dataRoot.SubChainId ?? (dataRoot.SubChainID || 0));
-  const storeId = Number(dataRoot.StoreId ?? 0);
+  const chainId = Number(dataRoot.ChainId ?? dataRoot.ChainID ?? null);
+  const subChainId = Number(dataRoot.SubChainId ?? dataRoot.SubChainID ?? null);
+  const storeId = Number(dataRoot.StoreId ?? null);
 
-  const items = dataRoot.Items?.Item
-    ? Array.isArray(dataRoot.Items.Item)
-      ? dataRoot.Items.Item
-      : [dataRoot.Items.Item]
-    : [];
-
-  return items.map((item: any) =>
-    mapToGroceryAndReference(item, chainId, subChainId, storeId)
-  );
+  const items = processItems(dataRoot.Items?.Item, chainId, subChainId, storeId, mapToGroceryAndReference);
+  if(!items) 
+    return logUnrecognizedFormat(filePath,"groceries.parser.ts");;
+  
+  return items;
 }

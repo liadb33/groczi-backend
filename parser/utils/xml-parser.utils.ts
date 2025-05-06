@@ -22,7 +22,6 @@ export async function parseXmlFile(filePath: string, parser: XMLParser): Promise
 }
 
 
-
 export function createParser(type: "stores" | "promotions"): XMLParser {
 
   const storeArrayPaths = [

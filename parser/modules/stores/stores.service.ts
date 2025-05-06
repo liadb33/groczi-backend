@@ -8,9 +8,12 @@ export async function processAllStoresFiles(basePath: string) {
   let success = 0;
   for (const file of files) {
     const stores = await parseStoreXmlFile(file);
-    if (!stores.length) continue;
+
+    if (!stores.length) 
+      continue;
     console.log(`Processing ${file}...`);
-    for (const store of stores) await saveStore(store);
+    for (const store of stores) 
+      await saveStore(store);
     success++;
     total += stores.length;
   }

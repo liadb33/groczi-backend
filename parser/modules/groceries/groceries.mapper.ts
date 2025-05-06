@@ -12,9 +12,7 @@ export function mapToGroceryAndReference(
     itemName: String(raw.ItemName || "").trim(),
     manufacturerName: String(raw.ManufacturerName || "").trim(),
     manufactureCountry: String(raw.ManufactureCountry || "").trim(),
-    manufacturerItemDescription: String(
-      raw.ManufacturerItemDescription || ""
-    ).trim(),
+    manufacturerItemDescription: String( raw.ManufacturerItemDescription || "").trim(),
     unitQty: String(raw.UnitQty || "").trim(),
     unitOfMeasure: String(raw.UnitOfMeasure || "").trim(),
     isWeighted: raw.bIsWeighted === "1" || raw.bIsWeighted === 1,
