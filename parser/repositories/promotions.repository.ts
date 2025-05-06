@@ -1,6 +1,6 @@
 // src/node-importer/features/promotions/promotions.repository.ts
-import prisma from "../../database/prismaClient.js";
-import { Promotion } from "./promotion.entity.js";
+import prisma from "../prisma-client/prismaClient.js";
+import { Promotion } from "../modules/promotions/promotion.entity.js";
 
 export async function savePromotion(promo: Promotion) {
   // nothing to do if we don't have the full PK

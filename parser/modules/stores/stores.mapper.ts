@@ -41,9 +41,9 @@ export function mapToStore(input: Record<string, any>): Store {
     }
   }
   const scn = result.SubChainName?.trim() ?? "";
-  if (!scn || /^\d+$/.test(scn)) {
+  if (!scn || /^\d+$/.test(scn)) 
     result.SubChainName = result.ChainName;
-  }
+  
 
   return result as Store;
 }

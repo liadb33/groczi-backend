@@ -1,5 +1,5 @@
-import prisma from "../../database/prismaClient.js";
-import { GroceryReference } from "./grocery.entity.js";
+import prisma from "../prisma-client/prismaClient.js";
+import { GroceryReference } from "../modules/groceries/grocery.entity.js";
 
 export async function saveGrocery(ref: GroceryReference) {
   const {

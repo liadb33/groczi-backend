@@ -1,6 +1,6 @@
 import { Promotion } from "./promotion.entity.js";
 import { createParser, parseXmlFile } from "../../utils/xml-parser.utils.js";
-import { findStoreByChainIdAndStoreId } from "../stores/stores.repository.js";
+import { findStoreByChainIdAndStoreId } from "../../repositories/stores.repository.js";
 import { mapPromotion } from "./promotion.mapper.js";
 import { getIdsFromRoot, logUnrecognizedFormat, processItems } from "../../utils/general.utils.js";
 

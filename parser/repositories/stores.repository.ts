@@ -1,5 +1,5 @@
-import prisma from "../../database/prismaClient.js";
-import { Store } from "./store.entity.js";
+import prisma from "../prisma-client/prismaClient.js";
+import { Store } from "../modules/stores/store.entity.js";
 
 export async function findStoreByChainIdAndStoreId(
   chainId: number,

@@ -1,4 +1,4 @@
-import { logUnrecognizedFormat } from "../../utils/general.utils.js";
+import { ensureArray, logUnrecognizedFormat } from "../../utils/general.utils.js";
 import { createParser, parseXmlFile } from "../../utils/xml-parser.utils.js";
 import { Store } from "./store.entity.js";
 import { mapToStore } from "./stores.mapper.js";
@@ -26,7 +26,7 @@ export async function parseStoreXmlFile(filePath: string): Promise<Store[]> {
 function parseAsxValues(json: any): Store[] | null {
   const stores = json["asx:abap"]?.["asx:values"]?.STORES?.STORE;
   if (!stores) return null;
-  const list = Array.isArray(stores) ? stores : [stores];
+  const list = ensureArray(stores);
   return list.map(mapToStore);
 }
 
@@ -34,7 +34,7 @@ function parseAsxValues(json: any): Store[] | null {
 function parseStoreBranches(json: any): Store[] | null {
   const branches = json.Store?.Branches?.Branch;
   if (!branches) return null;
-  const list = Array.isArray(branches) ? branches : [branches];
+  const list = ensureArray(branches);
   return list.map(mapToStore);
 }
 
@@ -65,9 +65,7 @@ function parseOrderXml(json: any): Store[] | null {
   const env = json.OrderXml?.Envelope;
   if (!env?.Header?.Details?.Line) return null;
 
-  const lines = Array.isArray(env.Header.Details.Line)
-    ? env.Header.Details.Line
-    : [env.Header.Details.Line];
+  const lines = ensureArray(env.Header.Details.Line);
 
   const context = {
     ChainId: env.ChainId || env.ChainID,
@@ -86,7 +84,7 @@ function parseRootSubChains(json: any): Store[] | null {
   const cid = root.ChainId || root.ChainID;
   const cname = root.ChainName;
 
-  const arr = Array.isArray(subchains) ? subchains : [subchains];
+  const arr = ensureArray(subchains);
   const stores: Store[] = [];
 
   for (const sc of arr) {
@@ -96,9 +94,7 @@ function parseRootSubChains(json: any): Store[] | null {
     const storeBlock = sc.Stores?.SubChainStoresXMLObject?.Store;
     if (!storeBlock) continue;
 
-    const items = Array.isArray(storeBlock.SubChainStoreXMLObject)
-      ? storeBlock.SubChainStoreXMLObject
-      : [storeBlock.SubChainStoreXMLObject];
+    const items = ensureArray(storeBlock.SubChainStoreXMLObject);
 
     for (const it of items) {
       stores.push(
@@ -125,14 +121,14 @@ function parseRootUppercaseSubChains(json: any): Store[] | null {
   const cid = root.ChainId || root.ChainID;
   const cname = root.ChainName;
 
-  const arr = Array.isArray(subchains) ? subchains : [subchains];
+  const arr = ensureArray(subchains);
   const stores: Store[] = [];
 
   for (const sc of arr) {
     const scid = sc.SubChainId || sc.SubChainID;
     const scname = sc.SubChainName;
 
-    const lst = Array.isArray(sc.Stores?.Store) ? sc.Stores.Store : [sc.Stores.Store];
+    const lst = ensureArray(sc.Stores?.Store);
     for (const s of lst) {
       stores.push(
         mapToStore({

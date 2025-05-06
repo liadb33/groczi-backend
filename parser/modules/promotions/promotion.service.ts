@@ -1,6 +1,6 @@
-import { getXmlDirFiles } from "../../utils/read-dir.utils.js";
+import { getXmlDirFiles } from "../../utils/file-system.utils.js";
 import { parsePromotionXmlFile } from "./promotion.parser.js";
-import { savePromotion } from "./promotions.repository.js";
+import { savePromotion } from "../../repositories/promotions.repository.js";
 
 export async function processAllPromotionsFiles(basePath: string) {
   const files = await getXmlDirFiles(basePath);

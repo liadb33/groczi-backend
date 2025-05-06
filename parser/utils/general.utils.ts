@@ -1,4 +1,3 @@
-import { Store } from "../modules/stores/store.entity.js";
 import { extractIdsFromFilename } from "./extract-ids.utils.js";
 
 
@@ -6,7 +5,6 @@ export function ensureArray<T>(value: T | T[]): T[] {
     return Array.isArray(value) ? value : value ? [value] : [];
 }
 
-// Utility function to extract chain, store, and sub-chain ID
 export function getIdsFromRoot(root: any, filePath: string) {
   const xmlChain = Number(root.ChainId ?? root.ChainID ?? null);
   const xmlSub = Number(root.SubChainId ?? root.SubChainID ?? null);
@@ -29,5 +27,5 @@ export function processItems<T>(items: any, chainId: number, subChainId: number,
 export function logUnrecognizedFormat(filePath: string,type:string): [] {
     console.log("No Items found in:",type,":", filePath, "check the file format");
     return [];
-  }
+}
   
