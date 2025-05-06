@@ -8,5 +8,5 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["./backend/src", "./parser"],
+  "include": ["./backend", "./parser"],
 }

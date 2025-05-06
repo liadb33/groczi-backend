@@ -1,43 +1,28 @@
-import Fastify from 'fastify';
-import sensible from '@fastify/sensible';
-import groceryRoutes from './features/groceries/routes/groceries.routes';
-// Import other feature routes here as they are created
+import express, { Request, Response, NextFunction } from 'express';
+import groceriesRoute from './features/groceries/routes/groceries.routes.js';
+import cors from 'cors';
+import storesRoute from './features/stores/routes/stores.routes.js';
 
-// Instantiate Fastify
-const server = Fastify({
-  logger: true, // Enable logging (options: true, false, { level: 'info' })
+// Create Express app
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
+
+// Request logger middleware
+app.use((req: Request, res: Response, next: NextFunction) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
 });
 
-async function main() {
-  // Register sensible plugin (adds sensible defaults and utilities)
-  await server.register(sensible);
+// Routes
+app.use('/api/v1/groceries', groceriesRoute);
+app.use('/api/v1/stores', storesRoute);
 
-  // Register feature route plugins
-  // Prefix all grocery routes with /api/v1/groceries
-  await server.register(groceryRoutes, { prefix: '/api/v1/groceries' });
-
-  // Register other feature routes with their prefixes
-  // await server.register(storeRoutes, { prefix: '/api/v1/stores' });
-  // ... etc.
-
-  // Basic root route
-  server.get('/', async (request, reply) => {
-    return { message: 'Groczi API is running!' };
-  });
-
-  // Start the server
-  try {
-    const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
-    const HOST = process.env.HOST || '0.0.0.0';
-    await server.listen({ port: PORT, host: HOST });
-
-    server.log.info(`Server listening at http://${HOST}:${PORT}`);
-    server.log.info(`API documentation might be available at /documentation if swagger is setup`); // Placeholder info
-
-  } catch (err) {
-    server.log.error(err);
-    process.exit(1);
-  }
-}
-
-main(); 
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server listening at http://localhost:${PORT}`);
+}); 
