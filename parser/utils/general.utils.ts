@@ -1,5 +1,5 @@
-import { Store } from "../modules/stores/store.entity";
-import { extractIdsFromFilename } from "./extract-ids.utils";
+import { Store } from "../modules/stores/store.entity.js";
+import { extractIdsFromFilename } from "./extract-ids.utils.js";
 
 
 export function ensureArray<T>(value: T | T[]): T[] {

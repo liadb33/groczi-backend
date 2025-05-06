@@ -1,6 +1,6 @@
-import { logUnrecognizedFormat } from "../../utils/general.utils";
-import { createParser, parseXmlFile } from "../../utils/xml-parser.utils";
-import { Store } from "./store.entity";
+import { logUnrecognizedFormat } from "../../utils/general.utils.js";
+import { createParser, parseXmlFile } from "../../utils/xml-parser.utils.js";
+import { Store } from "./store.entity.js";
 import { mapToStore } from "./stores.mapper.js";
 
 // Entry function: tries each parser in order until one returns results
