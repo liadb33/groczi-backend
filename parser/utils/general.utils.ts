@@ -5,17 +5,21 @@ export function ensureArray<T>(value: T | T[]): T[] {
 }
 
 export function getIdsFromRoot(root: any, filePath: string) {
-  const xmlChain = root.ChainId ?? root.ChainID ?? "";
-  const xmlSub = root.SubChainId ?? root.SubChainID ?? "";
-  const xmlStore = root.StoreId ?? root.StoreID ?? "";
+  const xmlChainRaw = root.ChainId ?? root.ChainID ?? "";
+  const xmlSubRaw = root.SubChainId ?? root.SubChainID ?? "";
+  const xmlStoreRaw = root.StoreId ?? root.StoreID ?? "";
+
+  const xmlChain = String(xmlChainRaw).trim();
+  const xmlSub = String(xmlSubRaw).trim();
+  const xmlStore = String(xmlStoreRaw).trim();
 
   const { chainId: fileChain, storeId: fileStore } =
     extractIdsFromFilename(filePath);
 
-  const chainId = xmlChain.trim() || fileChain;
-  const storeId = xmlStore.trim() || fileStore;
+  const chainId = xmlChain || fileChain;
+  const storeId = xmlStore || fileStore;
 
-  return { chainId, storeId, subChainId: xmlSub.trim() };
+  return { chainId, storeId, subChainId: xmlSub };
 }
 
 export function processItems<T>(

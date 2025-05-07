@@ -1,6 +1,6 @@
-import { getXmlDirFiles } from "../../utils/file-system.utils.js";
 import { parsePromotionXmlFile } from "./promotion.parser.js";
 import { savePromotion } from "../../repositories/promotions.repository.js";
+import { getXmlDirFiles } from "../../utils/file-system.utils.js";
 
 export async function processAllPromotionsFiles(basePath: string) {
   const files = await getXmlDirFiles(basePath);
@@ -10,7 +10,7 @@ export async function processAllPromotionsFiles(basePath: string) {
 
   for (const file of files) {
     const promotions = await parsePromotionXmlFile(file);
-    //console.log(promotions);
+    console.log(promotions);
     success++;
     if (!promotions.length) {
       console.log("No promotions found in", file);

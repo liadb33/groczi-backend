@@ -1,5 +1,5 @@
-import { ensureArray } from "../../utils/general.utils";
-import { GroceryItem, Promotion } from "./promotion.entity";
+import { ensureArray } from "../../utils/general.utils.js";
+import { GroceryItem, Promotion } from "./promotion.entity.js";
 
 export function mapPromotion(
   raw: any,
