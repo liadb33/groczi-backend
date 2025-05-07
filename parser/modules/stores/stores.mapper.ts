@@ -1,24 +1,21 @@
+import { normalizeKeys } from "../../utils/general.utils.js";
 import { Store } from "./store.entity.js";
 
 export function mapToStore(input: Record<string, any>): Store {
+  const data = normalizeKeys(input);
+
   const store: Store = {
-    ChainId: String(
-      input.ChainId || input.CHAINID || input.chainid || ""
-    ).trim(),
-    SubChainId: String(
-      input.SubChainId || input.SUBCHAINID || input.subchainid || ""
-    ).trim(),
-    StoreId: String(
-      input.StoreId || input.STOREID || input.storeid || ""
-    ).trim(),
-    StoreType: input.StoreType ? Number(input.StoreType) : undefined,
-    StoreName: input.StoreName ? String(input.StoreName).trim() : undefined,
-    Address: input.Address ? String(input.Address).trim() : undefined,
-    City: input.City ? String(input.City).trim() : undefined,
-    ZipCode: input.ZipCode ? String(input.ZipCode).trim() : undefined,
-    ChainName: input.ChainName ? String(input.ChainName).trim() : undefined,
-    SubChainName: input.SubChainName
-      ? String(input.SubChainName).trim()
+    ChainId: String(data["chainid"] ?? "").trim(),
+    SubChainId: String(data["subchainid"] ?? "").trim(),
+    StoreId: String(data["storeid"] ?? "").trim(),
+    StoreType: data["storetype"] ? Number(data["storetype"]) : undefined,
+    StoreName: data["storename"] ? String(data["storename"]).trim() : undefined,
+    Address: data["address"] ? String(data["address"]).trim() : undefined,
+    City: data["city"] ? String(data["city"]).trim() : undefined,
+    ZipCode: data["zipcode"] ? String(data["zipcode"]).trim() : undefined,
+    ChainName: data["chainname"] ? String(data["chainname"]).trim() : undefined,
+    SubChainName: data["subchainname"]
+      ? String(data["subchainname"]).trim()
       : undefined,
   };
 

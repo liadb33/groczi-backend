@@ -1,4 +1,7 @@
-import { ensureArray, logUnrecognizedFormat } from "../../utils/general.utils.js";
+import {
+  ensureArray,
+  logUnrecognizedFormat,
+} from "../../utils/general.utils.js";
 import { createParser, parseXmlFile } from "../../utils/xml-parser.utils.js";
 import { Store } from "./store.entity.js";
 import { mapToStore } from "./stores.mapper.js";
@@ -18,7 +21,7 @@ export async function parseStoreXmlFile(filePath: string): Promise<Store[]> {
     parseOrderXml(json) ??
     parseRootSubChains(json) ??
     parseRootUppercaseSubChains(json) ??
-    logUnrecognizedFormat(filePath,"stores.parser.ts")
+    logUnrecognizedFormat(filePath, "stores.parser.ts")
   );
 }
 
@@ -27,7 +30,8 @@ function parseAsxValues(json: any): Store[] | null {
   const stores = json["asx:abap"]?.["asx:values"]?.STORES?.STORE;
   if (!stores) return null;
   const list = ensureArray(stores);
-  return list.map(mapToStore);
+  const chainId = json["asx:abap"]?.["asx:values"]?.CHAINID;
+  return list.map((store) => mapToStore({ ...store, CHAINID: chainId }));
 }
 
 // Format 2: <Store><Branches><Branch>
@@ -144,4 +148,3 @@ function parseRootUppercaseSubChains(json: any): Store[] | null {
 
   return stores;
 }
-

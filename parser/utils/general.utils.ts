@@ -49,3 +49,11 @@ export function logUnrecognizedFormat(filePath: string, type: string): [] {
   );
   return [];
 }
+
+export function normalizeKeys(input: Record<string, any>): Record<string, any> {
+  const result: Record<string, any> = {};
+  for (const key in input) {
+    result[key.toLowerCase()] = input[key];
+  }
+  return result;
+}
