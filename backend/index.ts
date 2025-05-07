@@ -19,7 +19,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 // Routes
-app.use('/api/v1/groceries', groceriesRoute);
+//app.use('/api/v1/groceries', groceriesRoute);
 app.use('/api/v1/stores', storesRoute);
 
 // Start the server

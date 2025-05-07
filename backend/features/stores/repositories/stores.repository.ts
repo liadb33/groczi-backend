@@ -3,68 +3,40 @@
  * In a real application, this would interact with a database through Prisma or other ORM.
  */
 
-// Type definition for store items
-export interface StoreItem {
-  storeId: string;
-  name: string;
-  address: string;
-  city: string;
-  chain: string;
-  distance?: number;
-}
-
-// Mock data (typically this would be in a database)
-const MOCK_STORES: StoreItem[] = [
-  {
-    storeId: 'STR-001',
-    name: 'Downtown Market',
-    address: '123 Main St',
-    city: 'Metropolis',
-    chain: 'Good Grocer'
-  },
-  {
-    storeId: 'STR-002',
-    name: 'Westside Supermarket',
-    address: '456 Oak Ave',
-    city: 'Metropolis',
-    chain: 'MegaMart'
-  },
-  {
-    storeId: 'STR-003',
-    name: 'North End Foods',
-    address: '789 Pine Rd',
-    city: 'Smallville',
-    chain: 'Farm Fresh Co.'
-  }
-];
+import { Store } from "../../shared/types/stores.type.js";
+import prisma from "../../shared/prisma-client/prisma-client.js";
 
 /**
  * Get all stores.
- * In a real application, this would query the database.
+ * Returns all stores.
  */
-export function findAllStores(): StoreItem[] {
-  return MOCK_STORES;
+export async function findAllStores(): Promise<Store[]> {
+
+  try {
+    const stores = await prisma.stores.findMany();
+    console.log(stores);
+    return stores;
+  } catch (error) {
+    console.error('Error fetching stores:', error);
+    throw error;
+  }
 }
 
 /**
  * Find a store by its ID.
- * In a real application, this would query the database.
- */
-export function findStoreById(storeId: string): StoreItem | undefined {
-  return MOCK_STORES.find(store => store.storeId === storeId);
-}
-
-/**
- * Find stores by chain name.
- * In a real application, this would query the database.
- */
-export function findStoresByChain(chain: string): StoreItem[] {
-  return MOCK_STORES.filter(store => store.chain === chain);
-}
-
-// Add more repository methods as needed:
-// - createStore
-// - updateStore
-// - deleteStore
-// - findStoresByCity
-// etc. 
+//  */
+// export async function findStoreById(storeId: number): Promise<Store | null> {
+//   return prisma.stores.findUnique({
+//     where: { StoreId: storeId },
+//     select: {
+//       ChainId: true,
+//       SubChainId: true,
+//       StoreId: true,
+//       StoreName: true,
+//       Address: true,
+//       City: true,
+//       ZipCode: true,
+//       StoreType: true,
+//     },
+//   });
+// }

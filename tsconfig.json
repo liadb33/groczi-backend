@@ -6,7 +6,10 @@
     "esModuleInterop": true,
     "moduleDetection": "force",
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "lib": ["ES2020", "DOM"],
+    "allowImportingTsExtensions": true,
+    "noEmit": true
   },
   "include": ["./backend", "./parser"],
 }
