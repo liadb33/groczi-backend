@@ -1,8 +1,8 @@
 export interface Promotion {
-  chainId: bigint;
-  SubChainId: number;
-  StoreId: number;
-  PromotionId: number;
+  ChainId: string;
+  SubChainId: string;
+  StoreId: string;
+  PromotionId: string;
   PromotionName?: string;
   StartDate?: Date;
   EndDate?: Date;
@@ -10,6 +10,6 @@ export interface Promotion {
 }
 
 export interface GroceryItem {
-  itemCode: bigint;
+  itemCode: string;
   DiscountPrice?: number;
 }

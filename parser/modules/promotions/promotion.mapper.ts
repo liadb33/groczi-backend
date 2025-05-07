@@ -3,22 +3,22 @@ import { GroceryItem, Promotion } from "./promotion.entity";
 
 export function mapPromotion(
   raw: any,
-  chainId: number,
-  subChainId: number,
-  storeId: number
+  chainId: string,
+  subChainId: string,
+  storeId: string
 ): Promotion {
   // ———————————————————————————————————————————————
   // 𝗡𝗲𝘄: handle <OrderXml>…<Line>…</Line> format
   if (raw.ItemCode != null && raw.PromotionDetails) {
     const d = raw.PromotionDetails;
     return {
-      PromotionId: Number(raw.PromotionId || raw.PromotionID),
-      chainId: BigInt(chainId),
+      PromotionId: String(raw.PromotionId || raw.PromotionID).trim(),
+      ChainId: chainId,
       SubChainId: subChainId,
       StoreId: storeId,
 
       // pull description & dates from PromotionDetails
-      PromotionName: d.PromotionDescription,
+      PromotionName: d.PromotionDescription?.trim(),
       StartDate: d.PromotionStartDate
         ? new Date(`${d.PromotionStartDate}T${d.PromotionStartHour}`)
         : undefined,
@@ -29,7 +29,7 @@ export function mapPromotion(
       // only one item per <Line> — use ItemCode + DiscountedPrice
       groceryItems: [
         {
-          itemCode: BigInt(raw.ItemCode),
+          itemCode: String(raw.ItemCode).trim(),
           DiscountPrice:
             d.DiscountedPrice != null
               ? parseFloat(d.DiscountedPrice)
@@ -40,17 +40,16 @@ export function mapPromotion(
   }
   // ———————————————————————————————————————————————
 
-  // 𝗢𝗹𝗱 𝗯𝗿𝗮𝗻𝗰𝗵: your existing logic for
   // grouped <Promotions><Promotion>…</Promotion> or
   // flat <Promos><Sale>…</Sale>
   const items = ensureArray(raw.PromotionItems?.Item);
 
   return {
-    PromotionId: Number(raw.PromotionId || raw.PromotionID),
-    chainId: BigInt(chainId),
+    PromotionId: String(raw.PromotionId || raw.PromotionID).trim(),
+    ChainId: chainId,
     SubChainId: subChainId,
     StoreId: storeId,
-    PromotionName: raw.PromotionDescription || raw.PromotionName,
+    PromotionName: (raw.PromotionDescription || raw.PromotionName)?.trim(),
     StartDate: raw.PromotionStartDate
       ? new Date(
           `${raw.PromotionStartDate}T${raw.PromotionStartHour ?? "00:00:00"}`
@@ -63,7 +62,7 @@ export function mapPromotion(
       : undefined,
     groceryItems: items.map(
       (it: any): GroceryItem => ({
-        itemCode: BigInt(it.ItemCode),
+        itemCode: String(it.ItemCode).trim(),
         DiscountPrice:
           it.DiscountedPrice != null
             ? parseFloat(it.DiscountedPrice)

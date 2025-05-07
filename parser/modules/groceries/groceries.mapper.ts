@@ -1,32 +1,42 @@
-import { Grocery, GroceryReference } from "./grocery.entity";
+import { Grocery, GroceryReference } from "./grocery.entity.js";
 
 export function mapToGroceryAndReference(
   raw: Record<string, any>,
-  chainId: number,
-  subChainId: number,
-  storeId: number
+  chainId: string,
+  subChainId: string,
+  storeId: string
 ): GroceryReference {
   const grocery: Grocery = {
-    itemCode: Number(raw.ItemCode || 0),
-    itemType: Number(raw.ItemType || 0),
-    itemName: String(raw.ItemName || "").trim(),
-    manufacturerName: String(raw.ManufacturerName || "").trim(),
-    manufactureCountry: String(raw.ManufactureCountry || "").trim(),
-    manufacturerItemDescription: String( raw.ManufacturerItemDescription || "").trim(),
-    unitQty: String(raw.UnitQty || "").trim(),
-    unitOfMeasure: String(raw.UnitOfMeasure || "").trim(),
+    itemCode: String(raw.ItemCode || "").trim(),
+    itemType: raw.ItemType ? Number(raw.ItemType) : undefined,
+    itemName: raw.ItemName ? String(raw.ItemName).trim() : undefined,
+    manufacturerName: raw.ManufacturerName
+      ? String(raw.ManufacturerName).trim()
+      : undefined,
+    manufactureCountry: raw.ManufactureCountry
+      ? String(raw.ManufactureCountry).trim()
+      : undefined,
+    manufacturerItemDescription: raw.ManufacturerItemDescription
+      ? String(raw.ManufacturerItemDescription).trim()
+      : undefined,
+    unitQty: raw.UnitQty ? String(raw.UnitQty).trim() : undefined,
+    unitOfMeasure: raw.UnitOfMeasure
+      ? String(raw.UnitOfMeasure).trim()
+      : undefined,
     isWeighted: raw.bIsWeighted === "1" || raw.bIsWeighted === 1,
-    qtyInPackage: Number(raw.QtyInPackage || 0),
-    unitOfMeasurePrice: Number(raw.UnitOfMeasurePrice || 0),
-    quantity: Number(raw.Quantity || 0),
+    qtyInPackage: raw.QtyInPackage ? Number(raw.QtyInPackage) : undefined,
+    unitOfMeasurePrice: raw.UnitOfMeasurePrice
+      ? Number(raw.UnitOfMeasurePrice)
+      : undefined,
+    quantity: raw.Quantity ? Number(raw.Quantity) : undefined,
   };
 
   const reference: GroceryReference = {
     itemCode: grocery.itemCode,
-    ChainId: BigInt(chainId),
+    ChainId: chainId,
     SubChainId: subChainId,
     StoreId: storeId,
-    itemPrice: Number(raw.ItemPrice || 0),
+    itemPrice: raw.ItemPrice ? Number(raw.ItemPrice) : undefined,
     allowDiscount: raw.AllowDiscount === "1" || raw.AllowDiscount === 1,
     item: grocery,
   };
