@@ -11,11 +11,13 @@ export async function processAllStoresFiles(basePath: string) {
 
     if (!stores.length) continue;
     console.log(`stores.service.ts: Processing ${file}...`);
-    
+
     for (const store of stores) await saveStore(store);
 
     success++;
     total += stores.length;
   }
-  console.log(`Processed ${success}/${files.length} files, total ${total} stores`);
+  console.log(
+    `Processed ${success}/${files.length} files, total ${total} stores`
+  );
 }

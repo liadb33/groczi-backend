@@ -1,49 +1,30 @@
-import { Store } from "./store.entity";
-
-const storeKeys: (keyof Store)[] = [
-  "ChainId",
-  "SubChainId",
-  "StoreId",
-  "StoreName",
-  "Address",
-  "City",
-  "ZipCode",
-  "StoreType",
-  "ChainName",
-  "SubChainName",
-];
-
-const numberKeys: (keyof Store)[] = [
-  "ChainId",
-  "SubChainId",
-  "StoreId",
-  "StoreType",
-];
+import { Store } from "./store.entity.js";
 
 export function mapToStore(input: Record<string, any>): Store {
-  const result: Partial<Store> = {};
+  const store: Store = {
+    ChainId: String(
+      input.ChainId || input.CHAINID || input.chainid || ""
+    ).trim(),
+    SubChainId: String(
+      input.SubChainId || input.SUBCHAINID || input.subchainid || ""
+    ).trim(),
+    StoreId: String(
+      input.StoreId || input.STOREID || input.storeid || ""
+    ).trim(),
+    StoreType: input.StoreType ? Number(input.StoreType) : undefined,
+    StoreName: input.StoreName ? String(input.StoreName).trim() : undefined,
+    Address: input.Address ? String(input.Address).trim() : undefined,
+    City: input.City ? String(input.City).trim() : undefined,
+    ZipCode: input.ZipCode ? String(input.ZipCode).trim() : undefined,
+    ChainName: input.ChainName ? String(input.ChainName).trim() : undefined,
+    SubChainName: input.SubChainName
+      ? String(input.SubChainName).trim()
+      : undefined,
+  };
 
-  for (const key of storeKeys) {
-    const rawKey = key as string;
-    let value =
-      input[rawKey] ??
-      input[rawKey.toUpperCase?.()] ??
-      input[rawKey.toLowerCase?.()] ??
-      0;
-
-    if (numberKeys.includes(key)) {
-      const num = parseInt(value);
-      if (!isNaN(num)) {
-        result[key as keyof Store] = num as any;
-      }
-    } else {
-      result[key as keyof Store] = String(value).trim() as any;
-    }
+  if (!store.SubChainName || /^\d+$/.test(store.SubChainName)) {
+    store.SubChainName = store.ChainName;
   }
-  const scn = result.SubChainName?.trim() ?? "";
-  if (!scn || /^\d+$/.test(scn)) 
-    result.SubChainName = result.ChainName;
-  
 
-  return result as Store;
+  return store;
 }

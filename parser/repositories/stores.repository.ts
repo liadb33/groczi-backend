@@ -2,9 +2,9 @@ import prisma from "../prisma-client/prismaClient.js";
 import { Store } from "../modules/stores/store.entity.js";
 
 export async function findStoreByChainIdAndStoreId(
-  chainId: number,
-  storeId: number
-): Promise<{ SubChainId: number } | null> {
+  chainId: string,
+  storeId: string
+): Promise<{ SubChainId: string } | null> {
   return prisma.stores.findFirst({
     where: { ChainId: chainId, StoreId: storeId },
     select: { SubChainId: true },
@@ -27,14 +27,14 @@ export async function saveStore(store: Store) {
 
   if (!ChainId || !SubChainId || !StoreId) return;
 
-  // 1. upsert ל־chains (PK: ChainId)
+  // 1. Upsert chains (PK: ChainId)
   await prisma.chains.upsert({
     where: { ChainId },
     update: { ChainName },
     create: { ChainId, ChainName },
   });
 
-  // 2. upsert ל־subchains (COMPOSITE PK: ChainId + SubChainId)
+  // 2. Upsert subchains (Composite PK: ChainId + SubChainId)
   await prisma.subchains.upsert({
     where: {
       ChainId_SubChainId: {
@@ -50,7 +50,7 @@ export async function saveStore(store: Store) {
     },
   });
 
-  // 3. upsert ל־stores (COMPOSITE PK: ChainId + SubChainId + StoreId)
+  // 3. Upsert stores (Composite PK: ChainId + SubChainId + StoreId)
   await prisma.stores.upsert({
     where: {
       ChainId_SubChainId_StoreId: {

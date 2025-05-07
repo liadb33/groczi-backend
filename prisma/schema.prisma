@@ -8,93 +8,31 @@ datasource db {
 }
 
 model chains {
-  ChainId   BigInt      @id
+  ChainId   String      @id @db.VarChar(255)
   ChainName String?     @db.VarChar(255)
   subchains subchains[]
 }
 
 model stores {
-  ChainId       BigInt
-  SubChainId    Int
-  StoreId       Int
-  StoreType     Int?
-  StoreName     String?         @db.VarChar(255)
-  Address       String?         @db.VarChar(255)
-  City          String?         @db.VarChar(255)
-  ZipCode       String?         @db.VarChar(10)
-  promotion     promotion[]
-  store_grocery store_grocery[]
-  subchains     subchains       @relation(fields: [ChainId, SubChainId], references: [ChainId, SubChainId], onDelete: NoAction, onUpdate: NoAction, map: "stores_ibfk_1")
+  ChainId    String    @db.VarChar(255)
+  SubChainId String    @db.VarChar(255)
+  StoreId    String    @db.VarChar(255)
+  StoreType  Int?
+  StoreName  String?   @db.VarChar(255)
+  Address    String?   @db.VarChar(255)
+  City       String?   @db.VarChar(255)
+  ZipCode    String?   @db.VarChar(10)
+  subchains  subchains @relation(fields: [ChainId, SubChainId], references: [ChainId, SubChainId], onDelete: NoAction, onUpdate: NoAction, map: "stores_ibfk_1")
 
   @@id([ChainId, SubChainId, StoreId])
 }
 
 model subchains {
-  ChainId      BigInt
-  SubChainId   Int
+  ChainId      String   @db.VarChar(255)
+  SubChainId   String   @db.VarChar(255)
   SubChainName String?  @db.VarChar(255)
   stores       stores[]
   chains       chains   @relation(fields: [ChainId], references: [ChainId], onDelete: NoAction, onUpdate: NoAction, map: "subchains_ibfk_1")
 
   @@id([ChainId, SubChainId])
-}
-
-model grocery {
-  itemCode                    BigInt              @id
-  itemType                    Int?
-  itemName                    String?             @db.VarChar(255)
-  manufacturerName            String?             @db.VarChar(255)
-  manufactureCountry          String?             @db.VarChar(100)
-  manufacturerItemDescription String?             @db.Text
-  unitQty                     String?             @db.VarChar(100)
-  unitOfMeasure               String?             @db.VarChar(50)
-  isWeighted                  Boolean?
-  qtyInPackage                Int?
-  unitOfMeasurePrice          Decimal?            @db.Decimal(12, 2)
-  quantity                    Decimal?            @db.Decimal(12, 2)
-  promotion_grocery           promotion_grocery[]
-  store_grocery               store_grocery[]
-}
-
-model store_grocery {
-  itemCode      BigInt
-  ChainId       BigInt
-  SubChainId    Int
-  StoreId       Int
-  itemPrice     Decimal? @db.Decimal(12, 2)
-  allowDiscount Boolean?
-  grocery       grocery  @relation(fields: [itemCode], references: [itemCode], onDelete: NoAction, onUpdate: NoAction, map: "store_grocery_ibfk_1")
-  stores        stores   @relation(fields: [ChainId, SubChainId, StoreId], references: [ChainId, SubChainId, StoreId], onDelete: NoAction, onUpdate: NoAction, map: "store_grocery_ibfk_2")
-
-  @@id([itemCode, ChainId, SubChainId, StoreId])
-  @@index([ChainId, SubChainId, StoreId], map: "ChainId")
-}
-
-model promotion {
-  PromotionId       Int
-  ChainId           BigInt
-  SubChainId        Int
-  StoreId           Int
-  PromotionName     String?             @db.VarChar(255)
-  StartDate         DateTime?           @db.DateTime(0)
-  EndDate           DateTime?           @db.DateTime(0)
-  stores            stores              @relation(fields: [ChainId, SubChainId, StoreId], references: [ChainId, SubChainId, StoreId], onDelete: NoAction, onUpdate: NoAction, map: "promotion_ibfk_1")
-  promotion_grocery promotion_grocery[]
-
-  @@id([PromotionId, ChainId, SubChainId, StoreId])
-  @@index([ChainId, SubChainId, StoreId], map: "ChainId")
-}
-
-model promotion_grocery {
-  PromotionId   Int
-  ChainId       BigInt
-  SubChainId    Int
-  StoreId       Int
-  itemCode      BigInt
-  DiscountPrice Decimal?  @db.Decimal(12, 2)
-  promotion     promotion @relation(fields: [PromotionId, ChainId, SubChainId, StoreId], references: [PromotionId, ChainId, SubChainId, StoreId], onDelete: NoAction, onUpdate: NoAction, map: "promotion_grocery_ibfk_1")
-  grocery       grocery   @relation(fields: [itemCode], references: [itemCode], onDelete: NoAction, onUpdate: NoAction, map: "promotion_grocery_ibfk_2")
-
-  @@id([PromotionId, ChainId, SubChainId, StoreId, itemCode])
-  @@index([itemCode], map: "itemCode")
 }
