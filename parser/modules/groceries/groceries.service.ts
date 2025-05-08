@@ -12,7 +12,6 @@ export async function processAllGroceriesFiles(basePath: string) {
     const groceries = await parseGroceryXmlFile(file);
     success++;
     if (!groceries.length) continue;
-    console.log(groceries);
     for (const grocery of groceries) await saveGrocery(grocery);
     //console.log("Saved", groceries.length, "groceries from", file);
     total += groceries.length;

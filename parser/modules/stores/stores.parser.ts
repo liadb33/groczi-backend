@@ -29,8 +29,10 @@ export async function parseStoreXmlFile(filePath: string): Promise<Store[]> {
 function parseAsxValues(json: any): Store[] | null {
   const stores = json["asx:abap"]?.["asx:values"]?.STORES?.STORE;
   if (!stores) return null;
-  const list = ensureArray(stores);
   const chainId = json["asx:abap"]?.["asx:values"]?.CHAINID;
+
+  const list = ensureArray(stores);
+
   return list.map((store) => mapToStore({ ...store, CHAINID: chainId }));
 }
 

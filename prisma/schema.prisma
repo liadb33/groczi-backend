@@ -21,7 +21,7 @@ model stores {
   StoreName     String?         @db.VarChar(255)
   Address       String?         @db.VarChar(255)
   City          String?         @db.VarChar(255)
-  ZipCode       String?         @db.VarChar(10)
+  ZipCode       String?         @db.VarChar(100)
   promotion     promotion[]
   store_grocery store_grocery[]
   subchains     subchains       @relation(fields: [ChainId, SubChainId], references: [ChainId, SubChainId], onDelete: NoAction, onUpdate: NoAction, map: "stores_ibfk_1")

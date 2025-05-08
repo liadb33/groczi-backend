@@ -22,21 +22,10 @@ export function getIdsFromRoot(root: any, filePath: string) {
   return { chainId, storeId, subChainId: xmlSub };
 }
 
-export function processItems<T>(
-  items: any,
-  chainId: string,
-  subChainId: string,
-  storeId: string,
-  mapFunction: (
-    raw: any,
-    chainId: string,
-    subChainId: string,
-    storeId: string
-  ) => T
-): T[] {
-  const arr = ensureArray(items);
-  return arr.map((raw) => mapFunction(raw, chainId, subChainId, storeId));
-}
+// export function processItems<T>(items: any, mapFunction: (raw: any) => T): T[] {
+//   const arr = ensureArray(items);
+//   return arr.map((raw) => mapFunction(raw));
+// }
 
 // Fallback function when no matching format is found
 export function logUnrecognizedFormat(filePath: string, type: string): [] {

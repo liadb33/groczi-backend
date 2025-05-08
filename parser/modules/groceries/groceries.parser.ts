@@ -3,8 +3,8 @@ import { GroceryReference } from "./grocery.entity.js";
 import { parseXmlFile } from "../../utils/xml-parser.utils.js";
 import { mapToGroceryAndReference } from "./groceries.mapper.js";
 import {
+  ensureArray,
   logUnrecognizedFormat,
-  processItems,
 } from "../../utils/general.utils.js";
 
 const parser = new XMLParser({ ignoreAttributes: false });
@@ -27,13 +27,12 @@ export async function parseGroceryXmlFile(
   ).trim();
   const storeId = String(dataRoot.StoreId ?? "").trim();
 
-  const items = processItems(
-    dataRoot.Items?.Item,
-    chainId,
-    subChainId,
-    storeId,
-    mapToGroceryAndReference
+  const arr = ensureArray(dataRoot.Items?.Item);
+
+  const items = arr.map((item) =>
+    mapToGroceryAndReference({ ...item, chainId, subChainId, storeId })
   );
+
   if (!items) return logUnrecognizedFormat(filePath, "groceries.parser.ts");
 
   return items;

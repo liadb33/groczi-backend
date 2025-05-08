@@ -1,43 +1,45 @@
+import { normalizeKeys } from "../../utils/general.utils.js";
 import { Grocery, GroceryReference } from "./grocery.entity.js";
 
 export function mapToGroceryAndReference(
-  raw: Record<string, any>,
-  chainId: string,
-  subChainId: string,
-  storeId: string
+  input: Record<string, any>
 ): GroceryReference {
+  const data = normalizeKeys(input);
+
   const grocery: Grocery = {
-    itemCode: String(raw.ItemCode || "").trim(),
-    itemType: raw.ItemType ? Number(raw.ItemType) : undefined,
-    itemName: raw.ItemName ? String(raw.ItemName).trim() : undefined,
-    manufacturerName: raw.ManufacturerName
-      ? String(raw.ManufacturerName).trim()
+    itemCode: String(data["itemcode"] ?? "").trim(),
+    itemType: data["itemtype"] ? Number(data["itemtype"]) : undefined,
+    itemName: data["itemname"] ? String(data["itemname"]).trim() : undefined,
+    manufacturerName: data["manufacturername"]
+      ? String(data["manufacturername"]).trim()
       : undefined,
-    manufactureCountry: raw.ManufactureCountry
-      ? String(raw.ManufactureCountry).trim()
+    manufactureCountry: data["manufacturecountry"]
+      ? String(data["manufacturecountry"]).trim()
       : undefined,
-    manufacturerItemDescription: raw.ManufacturerItemDescription
-      ? String(raw.ManufacturerItemDescription).trim()
+    manufacturerItemDescription: data["manufactureritemdescription"]
+      ? String(data["manufactureritemdescription"]).trim()
       : undefined,
-    unitQty: raw.UnitQty ? String(raw.UnitQty).trim() : undefined,
-    unitOfMeasure: raw.UnitOfMeasure
-      ? String(raw.UnitOfMeasure).trim()
+    unitQty: data["unitqty"] ? String(data["unitqty"]).trim() : undefined,
+    unitOfMeasure: data["unitofmeasure"]
+      ? String(data["unitofmeasure"]).trim()
       : undefined,
-    isWeighted: raw.bIsWeighted === "1" || raw.bIsWeighted === 1,
-    qtyInPackage: raw.QtyInPackage ? Number(raw.QtyInPackage) : undefined,
-    unitOfMeasurePrice: raw.UnitOfMeasurePrice
-      ? Number(raw.UnitOfMeasurePrice)
+    isWeighted: data["bisweighted"] === "1" || data["bisweighted"] === 1,
+    qtyInPackage: data["qtyinpackage"]
+      ? Number(data["qtyinpackage"])
       : undefined,
-    quantity: raw.Quantity ? Number(raw.Quantity) : undefined,
+    unitOfMeasurePrice: data["unitofmeasureprice"]
+      ? Number(data["unitofmeasureprice"])
+      : undefined,
+    quantity: data["quantity"] ? Number(data["quantity"]) : undefined,
   };
 
   const reference: GroceryReference = {
     itemCode: grocery.itemCode,
-    ChainId: chainId,
-    SubChainId: subChainId,
-    StoreId: storeId,
-    itemPrice: raw.ItemPrice ? Number(raw.ItemPrice) : undefined,
-    allowDiscount: raw.AllowDiscount === "1" || raw.AllowDiscount === 1,
+    ChainId: data["chainid"] ?? String(data["chainId"]).trim(),
+    SubChainId: data["subchainid"] ?? String(data["subChainId"]).trim(),
+    StoreId: data["storeid"] ?? String(data["storeId"]).trim(),
+    itemPrice: data["itemprice"] ? Number(data["itemprice"]) : undefined,
+    allowDiscount: data["allowdiscount"] === "1" || data["allowdiscount"] === 1,
     item: grocery,
   };
 
