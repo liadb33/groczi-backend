@@ -21,7 +21,7 @@ from requests.exceptions import RequestException
 # === PATHS AND CONSTANTS ===
 SCRIPT_DIR = Path(__file__).parent.resolve()
 SHOPS_JSON_FILE = SCRIPT_DIR.parent / "configs" / "shop.json"
-GZ_FOLDER_PATH = SCRIPT_DIR.parent / "output" / "gzFiles"
+GZ_FOLDER_PATH = SCRIPT_DIR.parent / "output" / "gz"
 XML_FOLDER_GROCERY_PATH = SCRIPT_DIR.parent / "output" / "groceries"
 XML_FOLDER_STORE_PATH = SCRIPT_DIR.parent / "output" / "stores"
 XML_FOLDER_PROMOTION_PATH = SCRIPT_DIR.parent / "output" / "promotions"
@@ -215,7 +215,8 @@ def main():
             fetch_all_file_entries(driver,user["config"])
 
             extract(user.get("username", ""))
-            os.shutil.rmtree(GZ_FOLDER_PATH)
+            shutil.rmtree(GZ_FOLDER_PATH)
+
             logging.info(f"===== FINISHED: {site_url} =====")
     except Exception as e:
         logging.critical(f"An unexpected error occurred in main: {e}", exc_info=True)

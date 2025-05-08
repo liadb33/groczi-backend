@@ -3,9 +3,9 @@ import { createParser, parseXmlFile } from "../../utils/xml-parser.utils.js";
 import { findStoreByChainIdAndStoreId } from "../../repositories/stores.repository.js";
 import { mapPromotion } from "./promotion.mapper.js";
 import {
+  ensureArray,
   getIdsFromRoot,
   logUnrecognizedFormat,
-  processItems,
 } from "../../utils/general.utils.js";
 
 const parser = createParser("promotions");
@@ -42,35 +42,29 @@ export async function parsePromotionXmlFile(
   if (!subChainId) return [];
 
   const orderLines = json.OrderXml?.Envelope?.Header?.Details?.Line;
-  if (orderLines)
-    return processItems(
-      orderLines,
-      String(chainId),
-      subChainId,
-      String(storeId),
-      mapPromotion
+  if (orderLines) {
+    const arr = ensureArray(orderLines);
+    return arr.map((item) =>
+      mapPromotion({ ...item, chainId, subChainId, storeId })
     );
+  }
 
   const grouped = root.Promotions?.Promotion || json.Promotions?.Promotion;
-  if (grouped)
-    return processItems(
-      grouped,
-      String(chainId),
-      subChainId,
-      String(storeId),
-      mapPromotion
+  if (grouped) {
+    const arr = ensureArray(grouped);
+    return arr.map((item) =>
+      mapPromotion({ ...item, chainId, subChainId, storeId })
     );
+  }
 
   const sales =
     root.Promos?.Sale || json.Promos?.Sales?.Sale || json.Promos?.Sale;
-  if (sales)
-    return processItems(
-      sales,
-      String(chainId),
-      subChainId,
-      String(storeId),
-      mapPromotion
+  if (sales) {
+    const arr = ensureArray(sales);
+    return arr.map((item) =>
+      mapPromotion({ ...item, chainId, subChainId, storeId })
     );
+  }
 
   return logUnrecognizedFormat(filePath, "promotions.parser.ts");
 }

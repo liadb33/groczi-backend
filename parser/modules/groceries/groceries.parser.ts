@@ -4,6 +4,7 @@ import { parseXmlFile } from "../../utils/xml-parser.utils.js";
 import { mapToGroceryAndReference } from "./groceries.mapper.js";
 import {
   ensureArray,
+  getIdsFromRoot,
   logUnrecognizedFormat,
 } from "../../utils/general.utils.js";
 
@@ -21,11 +22,7 @@ export async function parseGroceryXmlFile(
   const dataRoot: any = json.root ?? json.Root;
   if (!dataRoot) return [];
 
-  const chainId = String(dataRoot.ChainId ?? dataRoot.ChainID ?? "").trim();
-  const subChainId = String(
-    dataRoot.SubChainId ?? dataRoot.SubChainID ?? ""
-  ).trim();
-  const storeId = String(dataRoot.StoreId ?? "").trim();
+  const { chainId, storeId, subChainId } = getIdsFromRoot(dataRoot, filePath);
 
   const arr = ensureArray(dataRoot.Items?.Item);
 

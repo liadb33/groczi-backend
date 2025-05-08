@@ -14,26 +14,26 @@ async function run() {
     await prisma.$queryRaw`SELECT 1`;
 
     // Process stores
-    const storesPath = path.join(
-      dirname,
-      "..",
-      "scraper-engine",
-      "output",
-      "stores"
-    );
-    console.log("🚀 Processing stores...");
-    await processAllStoresFiles(storesPath);
-
-    // // Process groceries
-    // const groceriesPath = path.join(
+    // const storesPath = path.join(
     //   dirname,
     //   "..",
     //   "scraper-engine",
     //   "output",
-    //   "groceries"
+    //   "stores"
     // );
-    // console.log("🥬 Processing groceries...");
-    // await processAllGroceriesFiles(groceriesPath);
+    // console.log("🚀 Processing stores...");
+    // await processAllStoresFiles(storesPath);
+
+    // // Process groceries
+    const groceriesPath = path.join(
+      dirname,
+      "..",
+      "scraper-engine",
+      "output",
+      "groceries"
+    );
+    console.log("🥬 Processing groceries...");
+    await processAllGroceriesFiles(groceriesPath);
 
     // Process promotions
     // const promotionsPath = path.join(

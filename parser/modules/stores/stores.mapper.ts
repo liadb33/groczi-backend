@@ -12,7 +12,10 @@ export function mapToStore(input: Record<string, any>): Store {
     StoreName: data["storename"] ? String(data["storename"]).trim() : undefined,
     Address: data["address"] ? String(data["address"]).trim() : undefined,
     City: data["city"] ? String(data["city"]).trim() : undefined,
-    ZipCode: data["zipcode"] ? String(data["zipcode"]).trim() : undefined,
+    ZipCode:
+      !data["zipcode"] || String(data["zipcode"]).toLowerCase() === "unknown"
+        ? undefined
+        : String(data["zipcode"]).trim(),
     ChainName: data["chainname"] ? String(data["chainname"]).trim() : undefined,
     SubChainName: data["subchainname"]
       ? String(data["subchainname"]).trim()

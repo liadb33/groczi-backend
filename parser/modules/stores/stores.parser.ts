@@ -5,6 +5,7 @@ import {
 import { createParser, parseXmlFile } from "../../utils/xml-parser.utils.js";
 import { Store } from "./store.entity.js";
 import { mapToStore } from "./stores.mapper.js";
+import he from "he";
 
 // Entry function: tries each parser in order until one returns results
 export async function parseStoreXmlFile(filePath: string): Promise<Store[]> {
@@ -45,24 +46,50 @@ function parseStoreBranches(json: any): Store[] | null {
 }
 
 // Format 3: <root><row><_Root_> with inline XML as string content
+function fixHebrewEncoding(text: string): string {
+  return Buffer.from(text, "latin1").toString("utf8");
+}
+
 function parseRootRow(json: any): Store[] | null {
   const rows = json.root?.row;
   if (!Array.isArray(rows)) return null;
 
   const stores: Store[] = [];
   let current: Record<string, string> = {};
+  let currentChainId = "";
+  let currentSubChainId = "";
+
   for (const row of rows) {
     const raw = row._Root_;
     if (!raw) continue;
-    for (const [, key, value] of raw.matchAll(/<(\w+)>(.*?)<\/\1>/g)) {
-      if (key.toLowerCase() === "storeid" && Object.keys(current).length) {
+
+    const decoded = fixHebrewEncoding(he.decode(raw));
+
+    // אם זה סוף <Store> - נשמור את החנות
+    if (decoded.includes("</Store>")) {
+      current["ChainId"] = current["ChainId"] || currentChainId;
+      current["SubChainId"] = current["SubChainId"] || currentSubChainId;
+
+      if (current["StoreId"] && current["ChainId"] && current["SubChainId"]) {
         stores.push(mapToStore(current));
-        current = {};
+      } else {
+        console.warn(
+          `⚠️ Store not saved: missing ChainId, SubChainId or StoreId. ChainId: ${current["ChainId"]}, SubChainId: ${current["SubChainId"]}, StoreId: ${current["StoreId"]}`
+        );
       }
+
+      current = {};
+      continue;
+    }
+
+    for (const [, key, value] of decoded.matchAll(/<(\w+)>(.*?)<\/\1>/g)) {
+      if (key.toLowerCase() === "chainid") currentChainId = value;
+      if (key.toLowerCase() === "subchainid") currentSubChainId = value;
+
       current[key] = value;
     }
   }
-  if (Object.keys(current).length) stores.push(mapToStore(current));
+
   return stores;
 }
 
@@ -70,12 +97,11 @@ function parseRootRow(json: any): Store[] | null {
 function parseOrderXml(json: any): Store[] | null {
   const env = json.OrderXml?.Envelope;
   if (!env?.Header?.Details?.Line) return null;
-
   const lines = ensureArray(env.Header.Details.Line);
 
   const context = {
-    ChainId: env.ChainId || env.ChainID,
-    SubChainId: env.SubChainId || env.SubChainID,
+    ChainId: String(env.ChainId) || String(env.ChainID),
+    SubChainId: String(env.SubChainId) || String(env.SubChainID),
   };
 
   return lines.map((line: any) => mapToStore({ ...context, ...line }));

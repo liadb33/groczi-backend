@@ -25,7 +25,6 @@ export async function saveStore(store: Store) {
     StoreType,
   } = store;
 
-  if (!ChainId || !SubChainId || !StoreId) return;
   // 1. Upsert chains (PK: ChainId)
   await prisma.chains.upsert({
     where: { ChainId },

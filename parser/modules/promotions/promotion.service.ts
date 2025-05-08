@@ -10,16 +10,19 @@ export async function processAllPromotionsFiles(basePath: string) {
 
   for (const file of files) {
     const promotions = await parsePromotionXmlFile(file);
-    console.log(promotions);
+    //console.log(promotions);
     success++;
     if (!promotions.length) {
       console.log("No promotions found in", file);
       continue;
     }
-
+    console.log(
+      `Found ${promotions.length} promotions in ${file} (${file
+        .split("/")
+        .pop()})`
+    );
     //console.log("Saved", promotions.length, "promotions from", file);
-    //for (const grocery of promotions) //await savePromotion(grocery);
-
+    for (const grocery of promotions) await savePromotion(grocery);
     total += promotions.length;
   }
 

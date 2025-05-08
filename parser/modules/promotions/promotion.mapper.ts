@@ -1,21 +1,17 @@
-import { ensureArray } from "../../utils/general.utils.js";
+import { ensureArray, normalizeKeys } from "../../utils/general.utils.js";
 import { GroceryItem, Promotion } from "./promotion.entity.js";
 
-export function mapPromotion(
-  raw: any,
-  chainId: string,
-  subChainId: string,
-  storeId: string
-): Promotion {
+export function mapPromotion(raw: Record<string, any>): Promotion {
+  const data = normalizeKeys(raw);
   // ———————————————————————————————————————————————
   // 𝗡𝗲𝘄: handle <OrderXml>…<Line>…</Line> format
   if (raw.ItemCode != null && raw.PromotionDetails) {
     const d = raw.PromotionDetails;
     return {
-      PromotionId: String(raw.PromotionId || raw.PromotionID).trim(),
-      ChainId: chainId,
-      SubChainId: subChainId,
-      StoreId: storeId,
+      PromotionId: String(data["promotionid"]).trim(),
+      ChainId: String(data["chainid"] ?? "").trim(),
+      SubChainId: String(data["subchainid"] ?? "").trim(),
+      StoreId: String(data["storeid"] ?? "").trim(),
 
       // pull description & dates from PromotionDetails
       PromotionName: d.PromotionDescription?.trim(),
@@ -45,11 +41,13 @@ export function mapPromotion(
   const items = ensureArray(raw.PromotionItems?.Item);
 
   return {
-    PromotionId: String(raw.PromotionId || raw.PromotionID).trim(),
-    ChainId: chainId,
-    SubChainId: subChainId,
-    StoreId: storeId,
-    PromotionName: (raw.PromotionDescription || raw.PromotionName)?.trim(),
+    PromotionId: String(data["promotionid"]).trim(),
+    ChainId: String(data["chainid"] ?? "").trim(),
+    SubChainId: String(data["subchainid"] ?? "").trim(),
+    StoreId: String(data["storeid"] ?? "").trim(),
+    PromotionName: data["promotionname"]
+      ? String(data["promotionname"]).trim()
+      : undefined,
     StartDate: raw.PromotionStartDate
       ? new Date(
           `${raw.PromotionStartDate}T${raw.PromotionStartHour ?? "00:00:00"}`

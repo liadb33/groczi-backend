@@ -315,7 +315,7 @@ def main():
             logging.info("Quitting WebDriver...")
             driver.quit()
             logging.info("WebDriver quit.")
-        os.remove(GZ_FOLDER_PATH)
+        
 
 
 # === LAUNCH ===

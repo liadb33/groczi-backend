@@ -11,7 +11,6 @@ export async function saveGrocery(ref: GroceryReference) {
     allowDiscount,
     item,
   } = ref;
-  if (!itemCode || !StoreId) return;
 
   // 1. Upsert the Grocery master record (unchanged)
   await prisma.grocery.upsert({
@@ -45,6 +44,25 @@ export async function saveGrocery(ref: GroceryReference) {
     },
   });
 
+  const store = await prisma.stores.findFirst({
+    where: {
+      ChainId,
+      SubChainId,
+      StoreId,
+    },
+    select: {
+      StoreName: true,
+      Address: true,
+      City: true,
+      ZipCode: true,
+    },
+  });
+  if (!store) {
+    console.log(
+      `Store not found for ChainId: ${ChainId}, SubChainId: ${SubChainId}, StoreId: ${StoreId}`
+    );
+    return;
+  }
   // 2. Upsert ל־store_grocery עם ה־Composite PK החדש
   await prisma.store_grocery.upsert({
     where: {
