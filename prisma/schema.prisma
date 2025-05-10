@@ -8,28 +8,28 @@ datasource db {
 }
 
 model chains {
-  ChainId   String      @id
+  ChainId   String      @id @db.VarChar(255)
   ChainName String?     @db.VarChar(255)
   subchains subchains[]
 }
 
 model stores {
-  ChainId    String
-  SubChainId Int
-  StoreId    Int
+  ChainId    String    @db.VarChar(255)
+  SubChainId String    @db.VarChar(255)
+  StoreId    String    @db.VarChar(255)
   StoreType  Int?
   StoreName  String?   @db.VarChar(255)
   Address    String?   @db.VarChar(255)
   City       String?   @db.VarChar(255)
-  ZipCode    String?   @db.VarChar(10)
+  ZipCode    String?   @db.VarChar(100)
   subchains  subchains @relation(fields: [ChainId, SubChainId], references: [ChainId, SubChainId], onDelete: NoAction, onUpdate: NoAction, map: "stores_ibfk_1")
 
   @@id([ChainId, SubChainId, StoreId])
 }
 
 model subchains {
-  ChainId      String
-  SubChainId   Int
+  ChainId      String   @db.VarChar(255)
+  SubChainId   String   @db.VarChar(255)
   SubChainName String?  @db.VarChar(255)
   stores       stores[]
   chains       chains   @relation(fields: [ChainId], references: [ChainId], onDelete: NoAction, onUpdate: NoAction, map: "subchains_ibfk_1")
