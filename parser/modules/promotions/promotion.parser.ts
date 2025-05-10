@@ -7,8 +7,21 @@ import {
   getIdsFromRoot,
   logUnrecognizedFormat,
 } from "../../utils/general.utils.js";
+import { getSubChainId } from "../../utils/extract-ids.utils.js";
 
 const parser = createParser("promotions");
+
+function normalizeChainId(raw: string | number): string | null {
+  const id = String(raw).trim();
+
+  // Accept only 7 to 13 digit numeric strings
+  if (!/^\d{7,13}$/.test(id)) {
+    console.warn(`❌ Invalid chainId: ${id}`);
+    return null;
+  }
+
+  return id;
+}
 
 export async function parsePromotionXmlFile(
   filePath: string
@@ -28,12 +41,17 @@ export async function parsePromotionXmlFile(
     {};
 
   // Get chain, store, and sub-chain IDs from the root and filename
-  const {
+  let {
     chainId,
     storeId,
     subChainId: xmlSubChainId,
-  } = getIdsFromRoot(root, filePath);
+  } = await getIdsFromRoot(root, filePath);
+
   if (!chainId || !storeId) return [];
+
+  const normalizedChainId = normalizeChainId(chainId);
+  if (!normalizedChainId) return [];
+  chainId = normalizedChainId;
 
   // Determine subChainId
   const subChainId =
@@ -67,13 +85,4 @@ export async function parsePromotionXmlFile(
   }
 
   return logUnrecognizedFormat(filePath, "promotions.parser.ts");
-}
-
-// Helper function to get subChainId by querying the store repository
-async function getSubChainId(
-  chainId: string,
-  storeId: string
-): Promise<string | null> {
-  const storeRecord = await findStoreByChainIdAndStoreId(chainId, storeId);
-  return storeRecord?.SubChainId?.toString() ?? null;
 }

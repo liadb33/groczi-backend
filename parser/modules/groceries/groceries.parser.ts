@@ -22,7 +22,10 @@ export async function parseGroceryXmlFile(
   const dataRoot: any = json.root ?? json.Root;
   if (!dataRoot) return [];
 
-  const { chainId, storeId, subChainId } = getIdsFromRoot(dataRoot, filePath);
+  const { chainId, storeId, subChainId } = await getIdsFromRoot(
+    dataRoot,
+    filePath
+  );
 
   const arr = ensureArray(dataRoot.Items?.Item);
 
