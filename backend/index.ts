@@ -21,6 +21,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // Routes
 //app.use('/api/v1/groceries', groceriesRoute);
 app.use('/api/v1/stores', storesRoute);
+app.use('/api/v1/groceries', groceriesRoute);
 
 // Start the server
 app.listen(PORT, () => {
