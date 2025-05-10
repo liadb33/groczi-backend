@@ -6,15 +6,13 @@
 import { Store } from "../../shared/types/stores.type.js";
 import prisma from "../../shared/prisma-client/prisma-client.js";
 
-/**
- * Get all stores.
- * Returns all stores.
- */
+
+
+//find all stores
 export async function findAllStores(): Promise<Store[]> {
 
   try {
     const stores = await prisma.stores.findMany();
-    console.log(stores);
     return stores;
   } catch (error) {
     console.error('Error fetching stores:', error);
@@ -22,21 +20,15 @@ export async function findAllStores(): Promise<Store[]> {
   }
 }
 
-/**
- * Find a store by its ID.
-//  */
-// export async function findStoreById(storeId: number): Promise<Store | null> {
-//   return prisma.stores.findUnique({
-//     where: { StoreId: storeId },
-//     select: {
-//       ChainId: true,
-//       SubChainId: true,
-//       StoreId: true,
-//       StoreName: true,
-//       Address: true,
-//       City: true,
-//       ZipCode: true,
-//       StoreType: true,
-//     },
-//   });
-// }
+//find store by id
+export async function findStoreById(storeId: string): Promise<Store | null> {
+  try {
+    const store = await prisma.stores.findFirst({
+      where: { StoreId: storeId },
+    });
+    return store;
+  } catch (error) {
+    console.error("Error fetching store by ID:", error);
+    throw error;
+  }
+}
