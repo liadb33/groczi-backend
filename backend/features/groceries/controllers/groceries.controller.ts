@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { getAllGroceries, getGroceryByItemCode, getStoresByItemCode } from '../repositories/groceries.repository.js';
+import { getAllGroceries, getGroceryByItemCode, getStoresByItemCode, searchGroceries } from '../repositories/groceries.repository.js';
 
 /**
  * Handles the request to get the list of groceries.
@@ -16,7 +16,6 @@ export const getAllGroceriesController = async (req: Request, res: Response, nex
 };
 
 //get grocery by id
-
 export const getGroceryByItemCodeController = async (req: Request, res: Response) => {
   const { itemCode } = req.params;
 
@@ -58,3 +57,21 @@ export const getStoresByGroceryItemCodeController = async (
     next(error);
   }
 };
+
+// search groceries
+export const searchGroceriesController = async (req: Request, res: Response) => {
+  const query = req.query.q as string;
+
+  if (!query || query.trim() === "") {
+    return res.status(400).json({ message: "Missing query parameter" });
+  }
+
+  try {
+    const results = await searchGroceries(query);
+    res.json(results);
+  } catch (error) {
+    console.error("Autocomplete search failed:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+

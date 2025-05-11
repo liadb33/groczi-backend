@@ -22,3 +22,28 @@ export const getStoresByItemCode = async (itemCode: string) => {
     },
   });
 };
+
+
+// search groceries
+export const searchGroceries = async (query: string) => {
+  return await prisma.grocery.findMany({
+    where: {
+      OR: [
+        {
+          manufacturerItemDescription: {
+            startsWith: query,
+            not: null,
+          },
+        },
+        {
+          itemName: {
+            startsWith: query,
+            not: null,
+          },
+        },
+      ],
+    },
+    take: 5,
+  });
+};
+
