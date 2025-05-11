@@ -25,15 +25,15 @@ async function run() {
     // await processAllStoresFiles(storesPath);
 
     // // Process groceries
-    const groceriesPath = path.join(
-      dirname,
-      "..",
-      "scraper-engine",
-      "output",
-      "groceries"
-    );
-    console.log("🥬 Processing groceries...");
-    await processAllGroceriesFiles(groceriesPath);
+    // const groceriesPath = path.join(
+    //   dirname,
+    //   "..",
+    //   "scraper-engine",
+    //   "output",
+    //   "groceries"
+    // );
+    // console.log("🥬 Processing groceries...");
+    // await processAllGroceriesFiles(groceriesPath);
 
     // Process promotions
     const promotionsPath = path.join(

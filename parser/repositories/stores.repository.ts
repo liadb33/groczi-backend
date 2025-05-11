@@ -76,3 +76,40 @@ export async function saveStore(store: Store) {
     },
   });
 }
+export async function findStoreByIds(ids: {
+  ChainId: string;
+  SubChainId: string;
+  StoreId: string;
+}): Promise<{
+  StoreName: string | null;
+  Address: string | null;
+  City: string | null;
+  ZipCode: string | null;
+} | null> {
+  return await prisma.stores.findFirst({
+    where: {
+      ChainId: ids.ChainId,
+      SubChainId: ids.SubChainId,
+      StoreId: ids.StoreId,
+    },
+    select: {
+      StoreName: true,
+      Address: true,
+      City: true,
+      ZipCode: true,
+    },
+  });
+}
+
+export async function getSubchainsByChainId(chainId: string): Promise<
+  {
+    SubChainId: string;
+  }[]
+> {
+  return await prisma.subchains.findMany({
+    where: { ChainId: chainId },
+    select: {
+      SubChainId: true,
+    },
+  });
+}

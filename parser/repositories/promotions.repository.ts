@@ -1,6 +1,7 @@
 // src/node-importer/features/promotions/promotions.repository.ts
 import prisma from "../prisma-client/prismaClient.js";
 import { Promotion } from "../modules/promotions/promotion.entity.js";
+import { findStoreByIds } from "./stores.repository.js";
 
 export async function savePromotion(promo: Promotion) {
   // nothing to do if we don't have the full PK
@@ -12,19 +13,13 @@ export async function savePromotion(promo: Promotion) {
   ) {
     return;
   }
-  const store = await prisma.stores.findFirst({
-    where: {
-      ChainId: promo.ChainId,
-      SubChainId: promo.SubChainId,
-      StoreId: promo.StoreId,
-    },
-    select: {
-      StoreName: true,
-      Address: true,
-      City: true,
-      ZipCode: true,
-    },
+
+  const store = await findStoreByIds({
+    ChainId: promo.ChainId,
+    SubChainId: promo.SubChainId,
+    StoreId: promo.StoreId,
   });
+
   if (!store) {
     console.error(
       `Store not found for ChainId: ${promo.ChainId}, SubChainId: ${promo.SubChainId}, StoreId: ${promo.StoreId}`

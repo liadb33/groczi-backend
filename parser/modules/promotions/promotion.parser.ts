@@ -47,23 +47,17 @@ export async function parsePromotionXmlFile(
     subChainId: xmlSubChainId,
   } = await getIdsFromRoot(root, filePath);
 
-  if (!chainId || !storeId) return [];
+  if (!chainId || storeId == null || xmlSubChainId == null) return [];
 
   const normalizedChainId = normalizeChainId(chainId);
   if (!normalizedChainId) return [];
   chainId = normalizedChainId;
 
-  // Determine subChainId
-  const subChainId =
-    xmlSubChainId?.trim() ||
-    (await getSubChainId(String(chainId), String(storeId)));
-  if (!subChainId) return [];
-
   const orderLines = json.OrderXml?.Envelope?.Header?.Details?.Line;
   if (orderLines) {
     const arr = ensureArray(orderLines);
     return arr.map((item) =>
-      mapPromotion({ ...item, chainId, subChainId, storeId })
+      mapPromotion({ ...item, chainId, subChainId: xmlSubChainId, storeId })
     );
   }
 
@@ -71,7 +65,7 @@ export async function parsePromotionXmlFile(
   if (grouped) {
     const arr = ensureArray(grouped);
     return arr.map((item) =>
-      mapPromotion({ ...item, chainId, subChainId, storeId })
+      mapPromotion({ ...item, chainId, subChainId: xmlSubChainId, storeId })
     );
   }
 
@@ -80,7 +74,7 @@ export async function parsePromotionXmlFile(
   if (sales) {
     const arr = ensureArray(sales);
     return arr.map((item) =>
-      mapPromotion({ ...item, chainId, subChainId, storeId })
+      mapPromotion({ ...item, chainId, subChainId: xmlSubChainId, storeId })
     );
   }
 

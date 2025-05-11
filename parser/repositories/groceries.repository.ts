@@ -1,5 +1,6 @@
 import prisma from "../prisma-client/prismaClient.js";
 import { GroceryReference } from "../modules/groceries/grocery.entity.js";
+import { findStoreByIds } from "./stores.repository.js";
 
 export async function saveGrocery(ref: GroceryReference) {
   const {
@@ -44,19 +45,12 @@ export async function saveGrocery(ref: GroceryReference) {
     },
   });
 
-  const store = await prisma.stores.findFirst({
-    where: {
-      ChainId,
-      SubChainId,
-      StoreId,
-    },
-    select: {
-      StoreName: true,
-      Address: true,
-      City: true,
-      ZipCode: true,
-    },
+  const store = await findStoreByIds({
+    ChainId,
+    SubChainId,
+    StoreId,
   });
+
   if (!store) {
     console.log(
       `Store not found for ChainId: ${ChainId}, SubChainId: ${SubChainId}, StoreId: ${StoreId}`

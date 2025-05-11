@@ -1,3 +1,4 @@
+import { getSubchainsByChainId } from "../repositories/stores.repository.js";
 import { extractIdsFromFilename, getSubChainId } from "./extract-ids.utils.js";
 
 export function ensureArray<T>(value: T | T[]): T[] {
@@ -26,16 +27,39 @@ export async function getIdsFromRoot(
   const chainId = xmlChain || fileChain;
   const storeId = xmlStore || fileStore;
 
-  const subChainId =
+  let subChainId =
     xmlSub?.trim() || (await getSubChainId(String(chainId), String(storeId)));
+
+  if (chainId) {
+    const subChains = await getSubchainsByChainId(chainId);
+    const subChain = subChains.find((sub) => sub.SubChainId === xmlSub);
+    if (subChain) {
+      return { chainId, storeId, subChainId: xmlSub };
+    } else if (subChains.length === 0) {
+      console.log(
+        "No subchains found for chainId:",
+        chainId,
+        "and storeId:",
+        storeId
+      );
+      return { chainId, storeId, subChainId: null };
+    } else if (xmlSub && !subChain) {
+      console.log(
+        "No matching subchain found for chainId:",
+        chainId,
+        "and storeId:",
+        storeId
+      );
+      return {
+        chainId,
+        storeId,
+        subChainId: subChains.length === 1 ? subChains[0].SubChainId : null,
+      };
+    }
+  }
 
   return { chainId, storeId, subChainId };
 }
-
-// export function processItems<T>(items: any, mapFunction: (raw: any) => T): T[] {
-//   const arr = ensureArray(items);
-//   return arr.map((raw) => mapFunction(raw));
-// }
 
 // Fallback function when no matching format is found
 export function logUnrecognizedFormat(filePath: string, type: string): [] {

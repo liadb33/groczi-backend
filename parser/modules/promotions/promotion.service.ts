@@ -10,7 +10,7 @@ export async function processAllPromotionsFiles(basePath: string) {
 
   for (const file of files) {
     const promotions = await parsePromotionXmlFile(file);
-    //console.log(promotions);
+
     success++;
     if (!promotions.length) {
       console.log("No promotions found in", file);

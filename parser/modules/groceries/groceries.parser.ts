@@ -27,6 +27,8 @@ export async function parseGroceryXmlFile(
     filePath
   );
 
+  if (subChainId === null) return [];
+
   const arr = ensureArray(dataRoot.Items?.Item);
 
   const items = arr.map((item) =>
