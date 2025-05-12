@@ -30,7 +30,6 @@ def run_all_scripts():
 
 def run_stores_ts():
     try:
-        # זה הפקודה שאתה מריץ: node --loader ts-node/esm src/node-importer/stores.ts
         subprocess.run([
             "node", 
             "--loader", "ts-node/esm", 

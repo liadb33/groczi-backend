@@ -1,6 +1,6 @@
 import { parseStoreXmlFile } from "./stores.parser.js";
-import { saveStore } from "./stores.repository.js";
-import { getXmlDirFiles } from "../../utils/read-dir.utils.js";
+import { saveStore } from "../../repositories/stores.repository.js";
+import { getXmlDirFiles } from "../../utils/file-system.utils.js";
 
 export async function processAllStoresFiles(basePath: string) {
   const files = await getXmlDirFiles(basePath);
@@ -8,9 +8,13 @@ export async function processAllStoresFiles(basePath: string) {
   let success = 0;
   for (const file of files) {
     const stores = await parseStoreXmlFile(file);
+    //console.log(stores);
     if (!stores.length) continue;
-    console.log(`Processing ${file}...`);
+
+    console.log(`stores.service.ts: Processing ${file}...`);
+
     for (const store of stores) await saveStore(store);
+
     success++;
     total += stores.length;
   }

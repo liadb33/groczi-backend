@@ -20,7 +20,7 @@ from selenium.common.exceptions import WebDriverException
 SCRIPT_DIR = Path(__file__).parent.resolve()
 # paths relative to the script's directory
 JSON_FILE_PATH = SCRIPT_DIR.parent / "configs" / "cerberus.json"
-GZ_FOLDER_PATH = SCRIPT_DIR.parent / "output" / "gzFiles"
+GZ_FOLDER_PATH = SCRIPT_DIR.parent / "output" / "gz"
 XML_FOLDER_GROCERY_PATH = SCRIPT_DIR.parent / "output" / "groceries"
 XML_FOLDER_STORE_PATH = SCRIPT_DIR.parent / "output" / "stores"
 XML_FOLDER_PROMOTION_PATH = SCRIPT_DIR.parent / "output" / "promotions"
@@ -226,12 +226,8 @@ def main():
     POST_URL = settings.get("post_url")
     DOWNLOAD_URL = settings.get("download_base_url") 
     
-    os.makedirs(XML_FOLDER_GROCERY_PATH, exist_ok=True)
-    os.makedirs(XML_FOLDER_STORE_PATH, exist_ok=True)
-    os.makedirs(XML_FOLDER_PROMOTION_PATH, exist_ok=True)
     os.makedirs(GZ_FOLDER_PATH, exist_ok=True)
-    os.makedirs(XML_OTHERS_FOLDER_PATH, exist_ok=True)
-
+    
     if not all([LOGIN_URL, LOGOUT_URL, POST_URL, DOWNLOAD_URL]):
         logging.critical("ERROR: Essential URLs not found in the 'settings' section of the configuration file.")
         return 
@@ -319,7 +315,7 @@ def main():
             logging.info("Quitting WebDriver...")
             driver.quit()
             logging.info("WebDriver quit.")
-        os.remove(GZ_FOLDER_PATH)
+        
 
 
 # === LAUNCH ===

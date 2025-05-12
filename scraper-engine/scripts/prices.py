@@ -12,9 +12,13 @@ from requests.exceptions import RequestException
 
 # === CONFIG ===
 SCRIPT_DIR = Path(__file__).parent.resolve()
-JSON_FILE_PATH = SCRIPT_DIR.parent / "jsons" / "prices.json"
-GZ_FOLDER_PATH = SCRIPT_DIR.parent / "files" / "gzFiles"
-XML_FOLDER_PATH = SCRIPT_DIR.parent / "files" / "xmlFilesBitan"
+
+JSON_FILE_PATH = SCRIPT_DIR.parent / "configs" / "prices.json"
+GZ_FOLDER_PATH = SCRIPT_DIR.parent / "output" / "gz"
+XML_FOLDER_GROCERY_PATH = SCRIPT_DIR.parent / "output" / "groceries"
+XML_FOLDER_STORE_PATH = SCRIPT_DIR.parent / "output" / "stores"
+XML_FOLDER_PROMOTION_PATH = SCRIPT_DIR.parent / "output" / "promotions"
+XML_OTHERS_FOLDER_PATH = SCRIPT_DIR.parent / "output" / "others"
 
 # Setup logging
 logging.basicConfig(
@@ -78,14 +82,24 @@ def fetch_file_list_from_html(session: requests.Session, url: str) -> list[str] 
         return None
     return full_links
 
-def download_and_extract(file_links: list[str], session: requests.Session, user_xml_folder: Path) -> None:
+def download_and_extract(file_links: list[str], session: requests.Session, userFolder: str) -> None:
     """📥 Downloads and extracts .gz files to a specified folder."""
-    os.makedirs(user_xml_folder, exist_ok=True)
+
     os.makedirs(GZ_FOLDER_PATH, exist_ok=True)
     for file_link in file_links:
         try:
             file_name_gz = file_link.split("/")[-1]
 
+            user_xml_folder = (
+                XML_FOLDER_GROCERY_PATH if "price" in file_name_gz.lower() else
+                XML_FOLDER_STORE_PATH if "store" in file_name_gz.lower() else
+                XML_FOLDER_PROMOTION_PATH if "promo" in file_name_gz.lower() else
+                XML_OTHERS_FOLDER_PATH
+            )
+            
+            user_xml_folder = user_xml_folder/ userFolder 
+            os.makedirs(user_xml_folder, exist_ok=True)
+            
             gz_path = Path(GZ_FOLDER_PATH) / file_name_gz
             file_name_xml = file_name_gz + ".xml" 
             extracted_path = Path(user_xml_folder) / file_name_xml
@@ -130,8 +144,7 @@ def main():
         username = user["username"]
         file_links = fetch_file_list_from_html(session, url)
         if file_links:
-            user_folder = Path(XML_FOLDER_PATH) / username
-            download_and_extract(file_links, session, user_folder)
+            download_and_extract(file_links, session, username)
         else:
             logging.error(f"⚠️ No file links found for {username}")
 

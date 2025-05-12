@@ -1,6 +1,6 @@
 import path from "path";
 import { fileURLToPath } from "url";
-import prisma from "./database/prismaClient.js";
+import prisma from "./prisma-client/prismaClient.js";
 
 import { processAllGroceriesFiles } from "./modules/groceries/groceries.service.js";
 import { processAllPromotionsFiles } from "./modules/promotions/promotion.service.js";
@@ -14,17 +14,35 @@ async function run() {
     await prisma.$queryRaw`SELECT 1`;
 
     // Process stores
-    const storesPath = path.join(dirname, "..", "..", "..", "scraper-engine", "output", "stores");
-    console.log("🚀 Processing stores...");
-    await processAllStoresFiles(storesPath);
+    // const storesPath = path.join(
+    //   dirname,
+    //   "..",
+    //   "scraper-engine",
+    //   "output",
+    //   "stores"
+    // );
+    // console.log("🚀 Processing stores...");
+    // await processAllStoresFiles(storesPath);
 
-    // Process groceries
-    const groceriesPath = path.join(dirname, "..", "..", "..", "scraper-engine", "output", "groceries");
-    console.log("🥬 Processing groceries...");
-    await processAllGroceriesFiles(groceriesPath);
+    // // Process groceries
+    // const groceriesPath = path.join(
+    //   dirname,
+    //   "..",
+    //   "scraper-engine",
+    //   "output",
+    //   "groceries"
+    // );
+    // console.log("🥬 Processing groceries...");
+    // await processAllGroceriesFiles(groceriesPath);
 
     // Process promotions
-    const promotionsPath = path.join(dirname, "..", "..", "..", "scraper-engine", "output", "promotions");
+    const promotionsPath = path.join(
+      dirname,
+      "..",
+      "scraper-engine",
+      "output",
+      "promotions"
+    );
     console.log("💸 Processing promotions...");
     await processAllPromotionsFiles(promotionsPath);
 
