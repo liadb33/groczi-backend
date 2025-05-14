@@ -6,12 +6,21 @@ export const getCartItemsByDeviceId = async (deviceId: string) => {
   return await prisma.cartItem.findMany({
     where: { deviceId },
     include: {
-      grocery: true, // includes itemName, unitOfMeasurePrice, etc.
+      grocery: {
+        include: {
+          store_grocery: {
+            select: {
+              itemPrice: true,
+            },
+          },
+        },
+      },
     },
   });
 };
 
-// add or update cart item
+
+// add cart item
 export const upsertCartItem = async (
   deviceId: string,
   itemCode: string,

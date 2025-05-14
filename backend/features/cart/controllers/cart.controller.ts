@@ -1,30 +1,33 @@
 import { Request, Response, NextFunction } from "express";
 import { getCartItemsByDeviceId, upsertCartItem, removeCartItem, updateCartItemQuantity, incrementCartItemQuantity } from "../repositories/cart.repository.js";
 
-// Helper function to format cart items and calculate total
+
+// format cart response
 const formatCartResponse = (cartItems: any[]) => {
   const items = cartItems.map((item) => {
-    const price = item.grocery?.unitOfMeasurePrice ?? 0;
+    const prices =
+      item.grocery?.store_grocery
+        ?.map((p) => Number(p.itemPrice))
+        .filter(Boolean) ?? [];
+    const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
     const name =
       item.grocery?.itemName ||
       item.grocery?.manufacturerItemDescription ||
       "Unknown";
-    const subtotal = Number(price) * item.quantity;
+    const subtotal = minPrice * item.quantity;
 
     return {
       cartItemId: item.id,
       itemCode: item.itemCode,
       name,
       quantity: item.quantity,
-      price: Number(price).toFixed(2),
       subtotal: subtotal.toFixed(2),
     };
   });
 
-  const total = items.reduce((sum, item) => sum + parseFloat(item.subtotal), 0).toFixed(2);
-
-  return { items, total };
+  return { items };
 };
+
 
 // get cart items by device id
 export const getCartController = async (
