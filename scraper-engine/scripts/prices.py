@@ -1,46 +1,17 @@
+import os
 import json
-import logging
 import requests
 import gzip
 import shutil
 import re
 import json
-import os
 from pathlib import Path
 from datetime import datetime ,timedelta
 from requests.exceptions import RequestException
+from utils.json import load_config
+from utils.constants import *
 
-# === CONFIG ===
-SCRIPT_DIR = Path(__file__).parent.resolve()
-
-JSON_FILE_PATH = SCRIPT_DIR.parent / "configs" / "prices.json"
-GZ_FOLDER_PATH = SCRIPT_DIR.parent / "output" / "gz"
-XML_FOLDER_GROCERY_PATH = SCRIPT_DIR.parent / "output" / "groceries"
-XML_FOLDER_STORE_PATH = SCRIPT_DIR.parent / "output" / "stores"
-XML_FOLDER_PROMOTION_PATH = SCRIPT_DIR.parent / "output" / "promotions"
-XML_OTHERS_FOLDER_PATH = SCRIPT_DIR.parent / "output" / "others"
-
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    datefmt='%d/%m/%Y %H:%M'
-)
-
-def load_config(file_path: str | Path) -> dict:
-    """Loads and returns the configuration JSON."""
-    try:
-        with open(file_path, "r", encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        logging.error(f"❌ Configuration file not found: '{file_path}'")
-        raise
-    except json.JSONDecodeError as e:
-        logging.error(f"❌ Failed to decode JSON from '{file_path}': {e}")
-        raise
-    except Exception as e:
-        logging.error(f"❌ Failed to load config '{file_path}': {type(e).name} - {e}")
-        raise
+JSON_FILE_PATH = get_json_file_path("prices.json")
 
 def fetch_file_list_from_html(session: requests.Session, url: str) -> list[str] | None:
     """🌐 Parses the HTML page and returns a list of full download links for .gz files."""
@@ -125,8 +96,8 @@ def download_and_extract(file_links: list[str], session: requests.Session, userF
         except Exception as e:
             logging.error(f"❌ Unexpected error processing {file_link}: {type(e).name} - {e}")
 
+# === MAIN FLOW ===
 def main():
-    logging.info("🚀 Starting download and extract process...")
     try:
         config = load_config(JSON_FILE_PATH)
     except Exception:

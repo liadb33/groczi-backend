@@ -5,26 +5,16 @@ import shutil
 import requests
 from datetime import datetime, timedelta
 from pathlib import Path 
-import logging 
-
-from bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from requests.exceptions import RequestException 
 from selenium.common.exceptions import WebDriverException 
+from utils.selenium import perform_logout,perform_login,transfer_cookies
+from utils.json import load_config
+from utils.constants import *
+from utils.selenium import get_csrf_token_from_page
 
-# === CONFIG ===
-SCRIPT_DIR = Path(__file__).parent.resolve()
-# paths relative to the script's directory
-JSON_FILE_PATH = SCRIPT_DIR.parent / "configs" / "cerberus.json"
-GZ_FOLDER_PATH = SCRIPT_DIR.parent / "output" / "gz"
-XML_FOLDER_GROCERY_PATH = SCRIPT_DIR.parent / "output" / "groceries"
-XML_FOLDER_STORE_PATH = SCRIPT_DIR.parent / "output" / "stores"
-XML_FOLDER_PROMOTION_PATH = SCRIPT_DIR.parent / "output" / "promotions"
-XML_OTHERS_FOLDER_PATH = SCRIPT_DIR.parent / "output" / "others"
+JSON_FILE_PATH = get_json_file_path("cerberus.json")
 
 LOGIN_URL = None
 LOGOUT_URL = None
@@ -39,14 +29,6 @@ POST_REQUEST_HEADERS_BASE = {
     "X-Requested-With": "XMLHttpRequest",
     # X-CSRFToken added dynamically
 }
-DOWNLOAD_TIMEOUT_SECONDS = 60 
-
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    datefmt='%d/%m/%Y %H:%M'  
-)
 
 # === FILE DOWNLOAD AND EXTRACTION ===
 def download_and_extract(file_links: list[str], session: requests.Session, username: str):
@@ -72,7 +54,7 @@ def download_and_extract(file_links: list[str], session: requests.Session, usern
             extracted_path.parent.mkdir(parents=True, exist_ok=True)
             
             logging.info(f"⬇️ Downloading: {file_name_gz} to {gz_path}")
-            response = session.get(file_link, stream=True, timeout=DOWNLOAD_TIMEOUT_SECONDS)
+            response = session.get(file_link, stream=True, timeout=60)
             response.raise_for_status() 
 
             with open(gz_path, "wb") as f_gz:
@@ -92,62 +74,6 @@ def download_and_extract(file_links: list[str], session: requests.Session, usern
             logging.error(f"❌ File/Extract error for {file_name_gz} (Link: {file_link}): {e}")
         except Exception as e:
             logging.error(f"❌ Unexpected error processing {file_link}: {type(e).__name__} - {e}")
-
-# === HELPER FUNCTIONS (Refactored from main) ===
-def load_config(file_path: str | Path) -> dict:
-    """Loads and returns the configuration JSON."""
-    try:
-        with open(file_path, "r", encoding='utf-8') as f: 
-            return json.load(f)
-    except FileNotFoundError:
-        logging.error(f"❌ Configuration file not found: '{file_path}'")
-        raise 
-    except json.JSONDecodeError as e:
-        logging.error(f"❌ Failed to decode JSON from '{file_path}': {e}")
-        raise
-    except Exception as e:
-        logging.error(f"❌ Failed to load config '{file_path}': {type(e).__name__} - {e}")
-        raise
-
-def perform_login(driver: webdriver.Chrome, username: str, password: str | None) -> bool:
-    """Logs in using Selenium."""
-    logging.info(f"Attempting login for {username}...")
-    driver.get(LOGIN_URL)
-    try:
-        user_field = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "username")))
-        user_field.send_keys(username)
-        if password:
-            pass_field = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "password")))
-            pass_field.send_keys(password)
-       
-        user_field.submit()
-        WebDriverWait(driver, 15).until(EC.url_contains("/file"))
-        logging.info(f"✅ Login successful for {username}")
-        return True
-    except WebDriverException as e:
-        logging.error(f"❌ Login failed for {username}: {e}")
-        return False
-
-def transfer_cookies(driver: webdriver.Chrome, session: requests.Session):
-    """Transfers cookies from Selenium WebDriver to requests Session."""
-    logging.debug("Transferring cookies from WebDriver to requests session...")
-    selenium_cookies = driver.get_cookies()
-    for cookie in selenium_cookies:
-        session.cookies.set(cookie['name'], cookie['value'], domain=cookie.get('domain'), path=cookie.get('path'))
-    logging.debug(f"Transferred {len(selenium_cookies)} cookies.")
-
-def get_csrf_token_from_page(driver: webdriver.Chrome) -> str | None:
-     """Attempts to extract CSRF token directly from the Selenium driver's page source."""
-     logging.debug("Attempting to extract CSRF token from page source...")
-     try:
-        page_source = driver.page_source
-        soup = BeautifulSoup(page_source, "html.parser")
-        meta_tag = soup.find("meta", {"name": "csrftoken"})
-        token = meta_tag["content"]
-        return token
-     except Exception as e:
-        logging.error(f"Error extracting CSRF token from page source: {e}")
-        return None
 
 def fetch_file_list(session: requests.Session, token: str, search_criteria: str, folder: str) -> list | None:
     """Fetches the list of files matching the criteria via POST request."""
@@ -193,23 +119,9 @@ def fetch_file_list(session: requests.Session, token: str, search_criteria: str,
         logging.error(f"Failed to decode JSON response from file list endpoint: {e} - Response text: {response.text[:500]}") # Log part of the text
         return None
 
-def perform_logout(driver: webdriver.Chrome):
-    """Logs out using Selenium."""
-    logging.info("Attempting logout...")
-    try:
-        driver.get(LOGOUT_URL)
-        # Wait for an element that reliably appears on the login page after logout
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "username")))
-        logging.info("✅ Logout successful.")
-        return True
-    except WebDriverException as e:
-        logging.warning(f"⚠️ Logout navigation/check failed: {e}")
-        return False
 
- 
-# === MAIN ORCHESTRATION ===
+# === MAIN FLOW ===
 def main():
-    """Main script execution flow."""
     # --- Setup ---
     global LOGIN_URL, LOGOUT_URL, POST_URL, DOWNLOAD_URL
     try:
@@ -240,14 +152,12 @@ def main():
     # --- Create WebDriver Instance (Once) ---
     driver = None # Initialize driver variable
     try:
-        logging.info("Initializing WebDriver...")
         options = Options()
         options.add_argument("--headless")
         options.add_argument("--disable-gpu")
 
         driver = webdriver.Chrome(options=options)
-        logging.info("WebDriver initialized.")
-
+        
         # --- Create Requests Session (Once) ---
         session = requests.Session()
 
@@ -264,7 +174,7 @@ def main():
             logging.info(f"\n===== Processing User: {username} =====")
 
             # 1. Login
-            if not perform_login(driver, username, password):
+            if not perform_login(driver, username, password,LOGIN_URL):
                 logging.warning(f"Skipping file processing for {username} due to login failure.")
                 continue # Move to the next user
 

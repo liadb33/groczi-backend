@@ -1,5 +1,4 @@
 import os
-import json
 import shutil
 import logging
 import gzip
@@ -7,99 +6,102 @@ import zipfile
 import time
 from pathlib import Path
 from datetime import datetime
-from urllib.parse import urlparse
-from selenium.common.exceptions import WebDriverException, TimeoutException
 # Selenium Imports
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from utils.json import load_config
+from utils.constants import *
+from utils.date import get_file_hour
+from utils.selenium import access_site
 
-from requests.exceptions import RequestException
+JSON_FILE_PATH = get_json_file_path("cerberus.json")
 
-# === PATHS AND CONSTANTS ===
-SCRIPT_DIR = Path(__file__).parent.resolve()
-SHOPS_JSON_FILE = SCRIPT_DIR.parent / "configs" / "shop.json"
-GZ_FOLDER_PATH = SCRIPT_DIR.parent / "output" / "gz"
-XML_FOLDER_GROCERY_PATH = SCRIPT_DIR.parent / "output" / "groceries"
-XML_FOLDER_STORE_PATH = SCRIPT_DIR.parent / "output" / "stores"
-XML_FOLDER_PROMOTION_PATH = SCRIPT_DIR.parent / "output" / "promotions"
-XML_OTHERS_FOLDER_PATH = SCRIPT_DIR.parent / "output" / "others"
+prefs = {
+    "download.default_directory": str(GZ_FOLDER_PATH),  # Set the default download directory
+    "download.prompt_for_download": False,  # disables the "Save As" dialog
+    "download.directory_upgrade": True,
+    "safebrowsing.enabled": True  # avoid security prompts
+}
 
-# Logging Setup
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    datefmt='%d/%m/%Y %H:%M'
-)
-
-# === HELPER FUNCTIONS ===
-def load_config(file_path: str | Path) -> dict:
-    try:
-        with open(file_path, "r", encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        logging.error(f"❌ Configuration file not found: '{file_path}'")
-        raise
-    except json.JSONDecodeError as e:
-        logging.error(f"❌ Failed to decode JSON from '{file_path}': {e}")
-        raise
-    except Exception as e:
-        logging.error(f"❌ Failed to load config '{file_path}': {type(e).name} - {e}")
-        raise
-
-def access_site(driver: webdriver.Chrome, url: str,config: dict) -> bool:
-    logging.info(f"Accessing site: {url}")
-    try:
-        driver.get(url)
-        WebDriverWait(driver, 30).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, config["wait_for_selector"]))
-        )
-
-        logging.info(f"✅ Found table.")
-        return True
-    except TimeoutException:
-        logging.error(f"❌ Timed out waiting for site confirmation")
-        return False
-    except WebDriverException as e:
-        logging.error(f"❌ Site access failed {e}")
-        return False    
-    except Exception as e:
-        logging.error(f"❌ Error accessing {url}: {e}")
-        return False
-
-def fetch_all_file_entries(driver: webdriver.Chrome,config: dict) -> None:
-    res = fetch_file_list(driver,config)
-    while not res:
+def fetch_all_file_entries(driver: webdriver.Chrome, config: dict) -> bool:
+    overall_success = True
+    # Try to collect files from current page
+    page_result = fetch_file_list(driver, config)
+    
+    # If return is True, we're done (found a file outside desired hour range)
+    while not page_result:
         try:
-            page_il = driver.find_element(By.CSS_SELECTOR, config["pagination_selector"])
-            if page_il:
-                page_il.click()
-                WebDriverWait(driver, 10).until(EC.staleness_of(driver.find_element(By.TAG_NAME, "table")))
+            # Try to find button for next page
+            page_element = driver.find_element(By.CSS_SELECTOR, config["pagination_selector"])
+            
+            # Check if button exists and is accessible
+            if page_element and page_element.is_displayed() and page_element.is_enabled():
+                page_element.click()
+                
+                WebDriverWait(driver, 10).until(
+                    EC.staleness_of(driver.find_element(By.TAG_NAME, "table"))
+                )
+                
+                page_success = fetch_file_list(driver, config)
+                overall_success = overall_success and page_success
+                
+                # If we found a file outside the hour range, end the search
+                if page_success:
+                    break
             else:
+                logging.info("Reached last page (no next page button found)")
                 break
         except Exception as e:
-            logging.info("No next page found or error clicking next page; ending pagination.")
+            logging.info(f"End of page navigation: {e}")
             break
+    
+    return overall_success
      
-def fetch_file_list(driver: webdriver.Chrome,config: dict) -> bool:
+def fetch_file_list(driver: webdriver.Chrome, config: dict) -> bool:
     try:
-        rows = driver.find_elements(By.CSS_SELECTOR, config["row_selector"])  
+        # Find all rows in the table
+        rows = driver.find_elements(By.CSS_SELECTOR, config["row_selector"])
+        if not rows:
+            logging.warning("⚠️ No rows found in table")
+            return False
+        
+        # Set current hour minus one hour
         current_hour = datetime.now().hour - 1
-        for row in rows:            
-            timestamp = row.find_element(By.CSS_SELECTOR, config["timestamp_selector"])
-            file_hour = get_file_hour(timestamp.text)  
-            if file_hour != current_hour:
-                return True
-            download_link = row.find_element(By.CSS_SELECTOR, config["link_config"])
-            download_link.click()
-            logging.info(f"⬇️ Downloading")
-            wait_for_download_complete(GZ_FOLDER_PATH)
+        files_processed = 0
+        
+        for row in rows:
+            try:
+                # Extract timestamp
+                timestamp = row.find_element(By.CSS_SELECTOR, config["timestamp_selector"])
+                file_hour = get_file_hour(timestamp.text)
+                
+                # Check if file is from previous hour
+                if file_hour != current_hour:
+                    return True  # Found file outside hour range - end search
+                
+                # Click download link
+                download_link = row.find_element(By.CSS_SELECTOR, config["link_config"])
+                download_link.click()
+                logging.info(f"⬇️ Downloading file from hour: {timestamp.text}")
+                
+                # Wait for download completion
+                if not wait_for_download_complete(GZ_FOLDER_PATH):
+                    logging.warning(f"⚠️ Download did not complete within timeout for: {timestamp.text}")
+                
+                files_processed += 1
+            except Exception as e:
+                logging.error(f"❌ Error processing table row: {e}")
+        
+        logging.info(f"✅ Total of {files_processed} files processed in current page")
+        
+        # Return False to continue to next page if files were processed and no out-of-range file found
+        return files_processed == 0
     except Exception as e:
-         logging.error(f"❌ Error fetching file list: {e}")
-         return False
-    return False
+        logging.error(f"❌ Error fetching file list: {e}")
+        return False
 
 def wait_for_download_complete(folder: Path, timeout: int = 60) -> bool:
     logging.info("⏳ Waiting for download to complete...")
@@ -113,24 +115,6 @@ def wait_for_download_complete(folder: Path, timeout: int = 60) -> bool:
         elapsed += 1
     logging.warning("⚠️ Download may not have completed in time.")
     return False
-
-
-def get_file_hour(timestamp_text: str) -> int:
-    formats = [
-        "%H:%M",                      
-        "%m/%d/%Y %I:%M:%S %p",
-        "%Y-%m-%d %H:%M:%S",
-        "%d/%m/%Y %H:%M:%S",
-        "%H:%M %d/%m/%Y",
-    ]
-    
-    for fmt in formats:
-        try:
-            dt = datetime.strptime(timestamp_text, fmt)
-            return dt.hour
-        except ValueError:
-            continue
-    raise ValueError(f"Unrecognized timestamp format: {timestamp_text}")
 
 def extract(username: str) -> None:
     """Extracts .gz or .zip files from GZ_FOLDER_PATH to the given folder."""
@@ -180,45 +164,38 @@ def extract(username: str) -> None:
 # === MAIN FLOW ===
 def main():
     try:
-        config = load_config(SHOPS_JSON_FILE)
+        config = load_config(JSON_FILE_PATH)
     except Exception:
         logging.critical("Failed to load configuration. Exiting.")
         return
     
     driver = None
     try:
-        logging.info("Initializing WebDriver")
         options = Options()
         options.add_argument("--headless") 
-        prefs = {
-            "download.default_directory": str(GZ_FOLDER_PATH),  # Set the default download directory
-            "download.prompt_for_download": False,  # disables the "Save As" dialog
-            "download.directory_upgrade": True,
-            "safebrowsing.enabled": True  # avoid security prompts
-        }
         options.add_experimental_option("prefs", prefs) 
         driver = webdriver.Chrome(options=options)
-        logging.info("WebDriver initialized.")
+        
         users = config.get("users", [])
         for user in users:
             os.makedirs(GZ_FOLDER_PATH, exist_ok=True)
+            
             site_url = user.get("url", "").strip()
             if not site_url:
                 logging.warning("⚠️ No 'url' found in user entry; skipping.")
                 continue
-
-            logging.info(f"\n===== PROCESSING: {site_url} =====")
-            if not access_site(driver, site_url, user["config"]):
+            
+            if not access_site(driver, site_url, user["config"]["wait_for_selector"]):
                 logging.error(f"Skipping {site_url} due to site access failure.")
                 continue
 
             fetch_all_file_entries(driver,user["config"])
-
             extract(user.get("username", ""))
+            
             shutil.rmtree(GZ_FOLDER_PATH)
-
             logging.info(f"===== FINISHED: {site_url} =====")
     except Exception as e:
+        shutil.rmtree(GZ_FOLDER_PATH)
         logging.critical(f"An unexpected error occurred in main: {e}", exc_info=True)
     finally:
         if driver:
