@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import groceriesRoute from './features/groceries/routes/groceries.routes.js';
 import cors from 'cors';
 import storesRoute from './features/stores/routes/stores.routes.js';
+import promotionsRoute from './features/promotions/routes/promotions.routes.js';
 
 // Create Express app
 const app = express();
@@ -22,6 +23,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 //app.use('/api/v1/groceries', groceriesRoute);
 app.use('/api/v1/stores', storesRoute);
 app.use('/api/v1/groceries', groceriesRoute);
+app.use('/api/v1/promotions', promotionsRoute);
 
 // Start the server
 app.listen(PORT, () => {
