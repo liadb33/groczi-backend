@@ -7,13 +7,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
 model chains {
   ChainId   String      @id @db.VarChar(255)
+  ChainId   String      @id @db.VarChar(255)
   ChainName String?     @db.VarChar(255)
+  subchains subchains[]
   subchains subchains[]
 }
 
 model stores {
+  ChainId       String          @db.VarChar(255)
+  SubChainId    String          @db.VarChar(255)
+  StoreId       String          @db.VarChar(255)
   ChainId       String          @db.VarChar(255)
   SubChainId    String          @db.VarChar(255)
   StoreId       String          @db.VarChar(255)
@@ -27,15 +41,21 @@ model stores {
   subchains     subchains       @relation(fields: [ChainId, SubChainId], references: [ChainId, SubChainId], onDelete: NoAction, onUpdate: NoAction, map: "stores_ibfk_1")
 
   @@id([ChainId, SubChainId, StoreId])
+  @@id([ChainId, SubChainId, StoreId])
 }
 
 model subchains {
   ChainId      String   @db.VarChar(255)
   SubChainId   String   @db.VarChar(255)
+  ChainId      String   @db.VarChar(255)
+  SubChainId   String   @db.VarChar(255)
   SubChainName String?  @db.VarChar(255)
   stores       stores[]
   chains       chains   @relation(fields: [ChainId], references: [ChainId], onDelete: NoAction, onUpdate: NoAction, map: "subchains_ibfk_1")
+  stores       stores[]
+  chains       chains   @relation(fields: [ChainId], references: [ChainId], onDelete: NoAction, onUpdate: NoAction, map: "subchains_ibfk_1")
 
+  @@id([ChainId, SubChainId])
   @@id([ChainId, SubChainId])
 }
 
@@ -61,9 +81,14 @@ model store_grocery {
   ChainId       String   @db.VarChar(100)
   SubChainId    String   @db.VarChar(100)
   StoreId       String   @db.VarChar(100)
+  itemCode      String   @db.VarChar(100)
+  ChainId       String   @db.VarChar(100)
+  SubChainId    String   @db.VarChar(100)
+  StoreId       String   @db.VarChar(100)
   itemPrice     Decimal? @db.Decimal(12, 2)
   allowDiscount Boolean?
   grocery       grocery  @relation(fields: [itemCode], references: [itemCode], onDelete: NoAction, onUpdate: NoAction, map: "store_grocery_ibfk_1")
+  stores        stores   @relation(fields: [ChainId, SubChainId, StoreId], references: [ChainId, SubChainId, StoreId], onDelete: NoAction, onUpdate: NoAction, map: "store_grocery_ibfk_2")
   stores        stores   @relation(fields: [ChainId, SubChainId, StoreId], references: [ChainId, SubChainId, StoreId], onDelete: NoAction, onUpdate: NoAction, map: "store_grocery_ibfk_2")
 
   @@id([itemCode, ChainId, SubChainId, StoreId])
