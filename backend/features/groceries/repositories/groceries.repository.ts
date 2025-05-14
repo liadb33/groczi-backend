@@ -2,9 +2,71 @@
 import prisma from "../../shared/prisma-client/prisma-client.js";
 
 
-export const getAllGroceries = async () => {
-  return await prisma.grocery.findMany();
+// get all groceries with filters
+export const getAllGroceries = async (
+  minPrice?: number,
+  maxPrice?: number,
+  company?: string,
+  page: number = 1,
+  limit: number = 10
+) => {
+  const offset = (page - 1) * limit;
+
+  const [data, total] = await Promise.all([
+    prisma.grocery.findMany({
+      where: {
+        AND: [
+          minPrice !== undefined
+            ? { unitOfMeasurePrice: { gte: minPrice } }
+            : {},
+          maxPrice !== undefined
+            ? { unitOfMeasurePrice: { lte: maxPrice } }
+            : {},
+          company
+            ? {
+                manufacturerName: {
+                  contains: company,
+                },
+              }
+            : {},
+        ],
+      },
+      skip: offset,
+      take: limit,
+    }),
+    prisma.grocery.count({
+      where: {
+        AND: [
+          minPrice !== undefined
+            ? { unitOfMeasurePrice: { gte: minPrice } }
+            : {},
+          maxPrice !== undefined
+            ? { unitOfMeasurePrice: { lte: maxPrice } }
+            : {},
+          company
+            ? {
+                manufacturerName: {
+                  contains: company,
+                },
+              }
+            : {},
+        ],
+      },
+    }),
+  ]);
+
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    data,
+    page,
+    limit,
+    total,
+    totalPages,
+  };
 };
+
+
 
 
 export const getGroceryByItemCode = async (itemCode: string) => {

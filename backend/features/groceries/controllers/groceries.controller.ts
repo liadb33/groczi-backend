@@ -4,16 +4,36 @@ import { getAllGroceries, getGroceryByItemCode, getStoresByItemCode, searchGroce
 /**
  * Handles the request to get the list of groceries.
  */
-export const getAllGroceriesController = async (req: Request, res: Response, next: NextFunction) => {
+export const getAllGroceriesController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    // Get groceries directly from repository
-    const groceries = await getAllGroceries();
-    res.json(groceries);
+    const minPrice = req.query.minPrice
+      ? Number(req.query.minPrice)
+      : undefined;
+    const maxPrice = req.query.maxPrice
+      ? Number(req.query.maxPrice)
+      : undefined;
+    const company = req.query.company ? String(req.query.company) : undefined;
+    const page = req.query.page ? Number(req.query.page) : 1;
+    const limit = req.query.limit ? Number(req.query.limit) : 10;
+
+    const result = await getAllGroceries(
+      minPrice,
+      maxPrice,
+      company,
+      page,
+      limit
+    );
+    res.json(result);
   } catch (error) {
-    console.error('Error fetching groceries:', error);
-    next(error); // Pass to Express error handler
+    console.error("Error fetching groceries:", error);
+    next(error);
   }
 };
+
 
 //get grocery by id
 export const getGroceryByItemCodeController = async (req: Request, res: Response) => {
