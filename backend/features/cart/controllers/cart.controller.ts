@@ -1,1 +1,133 @@
- 
+import { Request, Response, NextFunction } from "express";
+import { getCartItemsByDeviceId, upsertCartItem, removeCartItem, updateCartItemQuantity, incrementCartItemQuantity } from "../repositories/cart.repository.js";
+
+// Helper function to format cart items and calculate total
+const formatCartResponse = (cartItems: any[]) => {
+  const items = cartItems.map((item) => {
+    const price = item.grocery?.unitOfMeasurePrice ?? 0;
+    const name =
+      item.grocery?.itemName ||
+      item.grocery?.manufacturerItemDescription ||
+      "Unknown";
+    const subtotal = Number(price) * item.quantity;
+
+    return {
+      cartItemId: item.id,
+      itemCode: item.itemCode,
+      name,
+      quantity: item.quantity,
+      price: Number(price).toFixed(2),
+      subtotal: subtotal.toFixed(2),
+    };
+  });
+
+  const total = items.reduce((sum, item) => sum + parseFloat(item.subtotal), 0).toFixed(2);
+
+  return { items, total };
+};
+
+// get cart items by device id
+export const getCartController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const deviceId = req.deviceId!;
+  try {
+    const cartItems = await getCartItemsByDeviceId(deviceId);
+    res.json(formatCartResponse(cartItems));
+  } catch (error) {
+    console.error("Failed to fetch cart:", error);
+    next(error);
+  }
+};
+
+// add cart item
+export const addCartItemController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const deviceId = req.deviceId!;
+  const { itemCode, quantity } = req.body;
+
+  if (!itemCode || !quantity || typeof quantity !== "number") {
+    return res
+      .status(400)
+      .json({ message: "itemCode and numeric quantity are required" });
+  }
+
+  try {
+    // Make sure quantity is a positive integer
+    const parsedQuantity = Math.max(1, Math.round(quantity));
+    
+    await upsertCartItem(deviceId, itemCode, parsedQuantity);
+    
+    const updatedCart = await getCartItemsByDeviceId(deviceId);
+    res.json(formatCartResponse(updatedCart));
+  } catch (error) {
+    console.error("Failed to upsert cart item:", error);
+    next(error);
+  }
+};
+
+// update cart item quantity - now increments the quantity instead of replacing it
+export const updateCartItemController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const deviceId = req.deviceId!;
+  const { itemCode } = req.params;
+  const { quantity } = req.body;
+
+  if (!itemCode || quantity === undefined || typeof quantity !== "number") {
+    return res
+      .status(400)
+      .json({ message: "itemCode and numeric quantity are required" });
+  }
+
+  try {
+    // Make sure quantity to add is a positive integer
+    const parsedQuantityToAdd = Math.max(1, Math.round(quantity));
+    
+    // Now we increment instead of replacing
+    await incrementCartItemQuantity(deviceId, itemCode, parsedQuantityToAdd);
+
+    const updatedCart = await getCartItemsByDeviceId(deviceId);
+    res.json(formatCartResponse(updatedCart));
+  } catch (error) {
+    console.error("Failed to update cart item:", error);
+    
+    // Special handling for item not found error
+    if (error instanceof Error && error.message.includes("not found")) {
+      return res.status(404).json({ message: "Cart item not found" });
+    }
+    
+    next(error);
+  }
+};
+
+// remove item from cart
+export const removeCartItemController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const deviceId = req.deviceId!;
+  const { itemCode } = req.params;
+
+  if (!itemCode) {
+    return res.status(400).json({ message: "itemCode is required" });
+  }
+
+  try {
+    await removeCartItem(deviceId, itemCode);
+
+    const updatedCart = await getCartItemsByDeviceId(deviceId);
+    res.json(formatCartResponse(updatedCart));
+  } catch (error) {
+    console.error("Failed to remove cart item:", error);
+    next(error);
+  }
+};

@@ -121,7 +121,7 @@ model CartItem {
   DeviceUser DeviceUser @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade, map: "fk_cart_device")
   grocery    grocery    @relation(fields: [itemCode], references: [itemCode], onDelete: Cascade, map: "fk_cart_grocery")
 
-  @@unique([deviceId, itemCode], map: "unique_device_cart_item")
+  @@unique([deviceId, itemCode])
   @@index([itemCode], map: "fk_cart_grocery")
 }
 
