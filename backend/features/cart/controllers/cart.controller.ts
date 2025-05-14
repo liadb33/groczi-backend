@@ -7,7 +7,7 @@ const formatCartResponse = (cartItems: any[]) => {
   const items = cartItems.map((item) => {
     const prices =
       item.grocery?.store_grocery
-        ?.map((p) => Number(p.itemPrice))
+        ?.map((p : any) => Number(p.itemPrice))
         .filter(Boolean) ?? [];
     const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
     const name =
@@ -74,7 +74,7 @@ export const addCartItemController = async (
   }
 };
 
-// update cart item quantity - now increments the quantity instead of replacing it
+// update cart item quantity -  increments the quantity 
 export const updateCartItemController = async (
   req: Request,
   res: Response,
