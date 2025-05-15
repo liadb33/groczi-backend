@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import prisma from "../prisma-client/prisma-client.js";
 
-
+// ensure device user
 export const ensureDeviceUser: RequestHandler = async (req, res, next) => {
   const deviceId = req.header("X-Device-ID");
 

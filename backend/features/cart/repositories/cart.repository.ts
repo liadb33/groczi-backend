@@ -40,29 +40,13 @@ export const upsertCartItem = async (
   });
 };
 
+
 // update cart item quantity
 export const updateCartItemQuantity = async (
   deviceId: string,
   itemCode: string,
-  quantity: number
+  quantityDelta: number
 ) => {
-  return await prisma.cartItem.update({
-    where: {
-      deviceId_itemCode: { deviceId, itemCode },
-    },
-    data: {
-      quantity,
-    },
-  });
-};
-
-// increment cart item quantity
-export const incrementCartItemQuantity = async (
-  deviceId: string,
-  itemCode: string,
-  quantityToAdd: number
-) => {
-  // First get the current item to know its quantity
   const currentItem = await prisma.cartItem.findUnique({
     where: {
       deviceId_itemCode: { deviceId, itemCode },
@@ -73,10 +57,17 @@ export const incrementCartItemQuantity = async (
     throw new Error(`Cart item not found: ${itemCode}`);
   }
 
-  // Calculate the new quantity (current + additional)
-  const newQuantity = currentItem.quantity + quantityToAdd;
+  const newQuantity = currentItem.quantity + quantityDelta;
 
-  // Update with the new total quantity
+  if (newQuantity <= 0) {
+    await prisma.cartItem.delete({
+      where: {
+        deviceId_itemCode: { deviceId, itemCode },
+      },
+    });
+    return null;
+  }
+
   return await prisma.cartItem.update({
     where: {
       deviceId_itemCode: { deviceId, itemCode },
@@ -86,6 +77,7 @@ export const incrementCartItemQuantity = async (
     },
   });
 };
+
 
 // remove item from cart
 export const removeCartItem = async (deviceId: string, itemCode: string) => {

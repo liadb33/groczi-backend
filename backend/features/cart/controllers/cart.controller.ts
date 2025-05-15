@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { getCartItemsByDeviceId, upsertCartItem, removeCartItem, updateCartItemQuantity, incrementCartItemQuantity } from "../repositories/cart.repository.js";
+import { getCartItemsByDeviceId, upsertCartItem, removeCartItem, updateCartItemQuantity } from "../repositories/cart.repository.js";
 
 
 // format cart response
@@ -91,11 +91,11 @@ export const updateCartItemController = async (
   }
 
   try {
-    // Make sure quantity to add is a positive integer
-    const parsedQuantityToAdd = Math.max(1, Math.round(quantity));
+    // Just round the quantity to ensure it's an integer, but allow negative values
+    const parsedQuantityToAdd = Math.round(quantity);
     
     // Now we increment instead of replacing
-    await incrementCartItemQuantity(deviceId, itemCode, parsedQuantityToAdd);
+    await updateCartItemQuantity(deviceId, itemCode, parsedQuantityToAdd);
 
     const updatedCart = await getCartItemsByDeviceId(deviceId);
     res.json(formatCartResponse(updatedCart));
