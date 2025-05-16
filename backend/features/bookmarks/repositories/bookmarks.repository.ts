@@ -6,7 +6,15 @@ export const getBookmarksByDeviceId = async (deviceId: string) => {
   return await prisma.bookmark.findMany({
     where: { deviceId },
     include: {
-      grocery: true, // Include grocery details
+      grocery: {
+        include: {
+          store_grocery: {
+            select: {
+              itemPrice: true,
+            },
+          },
+        },
+      },
     },
   });
 };
