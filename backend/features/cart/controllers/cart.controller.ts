@@ -81,35 +81,33 @@ export const updateCartItemController = async (
   next: NextFunction
 ) => {
   const deviceId = req.deviceId!;
-  const { itemCode } = req.params;
+  const { cartItemId } = req.params;
   const { quantity } = req.body;
 
-  if (!itemCode || quantity === undefined || typeof quantity !== "number") {
+  if (!cartItemId || quantity === undefined || typeof quantity !== "number") {
     return res
       .status(400)
-      .json({ message: "itemCode and numeric quantity are required" });
+      .json({ message: "cartItemId and numeric quantity are required" });
   }
 
   try {
-    // Just round the quantity to ensure it's an integer, but allow negative values
-    const parsedQuantityToAdd = Math.round(quantity);
-    
-    // Now we increment instead of replacing
-    await updateCartItemQuantity(deviceId, itemCode, parsedQuantityToAdd);
+    const parsedQuantityDelta = Math.round(quantity);
+
+    await updateCartItemQuantity(deviceId, cartItemId, parsedQuantityDelta);
 
     const updatedCart = await getCartItemsByDeviceId(deviceId);
     res.json(formatCartResponse(updatedCart));
   } catch (error) {
     console.error("Failed to update cart item:", error);
-    
-    // Special handling for item not found error
+
     if (error instanceof Error && error.message.includes("not found")) {
       return res.status(404).json({ message: "Cart item not found" });
     }
-    
+
     next(error);
   }
 };
+
 
 // remove item from cart
 export const removeCartItemController = async (
@@ -118,14 +116,14 @@ export const removeCartItemController = async (
   next: NextFunction
 ) => {
   const deviceId = req.deviceId!;
-  const { itemCode } = req.params;
+  const { cartItemId } = req.params;
 
-  if (!itemCode) {
-    return res.status(400).json({ message: "itemCode is required" });
+  if (!cartItemId) {
+    return res.status(400).json({ message: "cartItemId is required" });
   }
 
   try {
-    await removeCartItem(deviceId, itemCode);
+    await removeCartItem(deviceId, cartItemId);
 
     const updatedCart = await getCartItemsByDeviceId(deviceId);
     res.json(formatCartResponse(updatedCart));
@@ -134,3 +132,4 @@ export const removeCartItemController = async (
     next(error);
   }
 };
+

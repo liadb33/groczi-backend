@@ -17,10 +17,10 @@ cartRoute.get("/", getCartController);
 // POST /me/cart/items
 cartRoute.post("/items", addCartItemController as RequestHandler);
 
-// PUT /me/cart/items/:itemCode
-cartRoute.put("/items/:itemCode", updateCartItemController as RequestHandler);
+// PUT /me/cart/items/:cartItemId
+cartRoute.put("/items/:cartItemId", updateCartItemController as RequestHandler);
 
-// DELETE /me/cart/items/:itemCode
-cartRoute.delete("/items/:itemCode", removeCartItemController as RequestHandler);
+// DELETE /me/cart/items/:cartItemId
+cartRoute.delete("/items/:cartItemId", removeCartItemController as RequestHandler);
 
 export default cartRoute;

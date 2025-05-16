@@ -44,48 +44,45 @@ export const upsertCartItem = async (
 // update cart item quantity
 export const updateCartItemQuantity = async (
   deviceId: string,
-  itemCode: string,
+  cartItemId: string,
   quantityDelta: number
 ) => {
-  const currentItem = await prisma.cartItem.findUnique({
-    where: {
-      deviceId_itemCode: { deviceId, itemCode },
-    },
+  const currentItem = await prisma.cartItem.findFirst({
+    where: { id: cartItemId, deviceId },
   });
 
   if (!currentItem) {
-    throw new Error(`Cart item not found: ${itemCode}`);
+    throw new Error(`Cart item not found: ${cartItemId}`);
   }
 
   const newQuantity = currentItem.quantity + quantityDelta;
 
   if (newQuantity <= 0) {
     await prisma.cartItem.delete({
-      where: {
-        deviceId_itemCode: { deviceId, itemCode },
-      },
+      where: { id: cartItemId },
     });
     return null;
   }
 
   return await prisma.cartItem.update({
-    where: {
-      deviceId_itemCode: { deviceId, itemCode },
-    },
-    data: {
-      quantity: newQuantity,
-    },
+    where: { id: cartItemId },
+    data: { quantity: newQuantity },
   });
 };
 
 
+
 // remove item from cart
-export const removeCartItem = async (deviceId: string, itemCode: string) => {
-  console.log(`Removing cart item: Device=${deviceId}, Item=${itemCode}`);
-  
+export const removeCartItem = async (deviceId: string, cartItemId: string) => {
+ 
+  const item = await prisma.cartItem.findFirst({
+    where: { id: cartItemId, deviceId },
+  });
+
+  if (!item) {
+    throw new Error(`Cart item not found or unauthorized`);
+  }
   return await prisma.cartItem.delete({
-    where: {
-      deviceId_itemCode: { deviceId, itemCode },
-    },
+    where: { id: cartItemId },
   });
 };

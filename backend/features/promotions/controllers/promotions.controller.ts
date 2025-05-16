@@ -26,26 +26,44 @@ export const getDiscountedGroceriesController = async (
   const { chainId, subChainId, storeId } = req.query;
 
   if (!chainId || !subChainId || !storeId) {
-    return res
-      .status(400)
-      .json({ message: "Missing chainId, subChainId, or storeId" });
+    return res.status(400).json({
+      message: "Missing chainId, subChainId, or storeId",
+    });
   }
 
   try {
-    const groceries = await getDiscountedGroceriesByPromotionId(
+    const promo = await getDiscountedGroceriesByPromotionId(
       promotionId,
       String(chainId),
       String(subChainId),
       String(storeId)
     );
 
-    res.json(groceries);
+    if (!promo) {
+      return res.status(404).json({ message: "Promotion not found" });
+    }
+
+    const groceries = promo.promotion_grocery.map((pg) => ({
+      itemCode: pg.itemCode,
+      itemName:
+        pg.grocery?.itemName ??
+        pg.grocery?.manufacturerItemDescription ??
+        "Unknown",
+    }));
+
+    res.json({
+      PromotionId: promo.PromotionId,
+      ChainId: promo.ChainId,
+      SubChainId: promo.SubChainId,
+      StoreId: promo.StoreId,
+      PromotionName: promo.PromotionName ?? null,
+      groceries,
+    });
   } catch (error) {
     console.error("Error fetching discounted groceries:", error);
     next(error);
   }
 };
-
 
 // get promotions by store
 export const getPromotionsByStoreController = async (

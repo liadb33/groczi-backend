@@ -13,18 +13,25 @@ export const getDiscountedGroceriesByPromotionId = async (
   subChainId: string,
   storeId: string
 ) => {
-  return await prisma.promotion_grocery.findMany({
+  return await prisma.promotion.findUnique({
     where: {
-      PromotionId: promotionId,
-      ChainId: chainId,
-      SubChainId: subChainId,
-      StoreId: storeId,
+      PromotionId_ChainId_SubChainId_StoreId: {
+        PromotionId: promotionId,
+        ChainId: chainId,
+        SubChainId: subChainId,
+        StoreId: storeId,
+      },
     },
     include: {
-      grocery: true, // include grocery details
+      promotion_grocery: {
+        include: {
+          grocery: true,
+        },
+      },
     },
   });
 };
+
 
 // get promotions by store
 export const getPromotionsByStore = async (
