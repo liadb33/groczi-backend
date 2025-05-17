@@ -9,6 +9,7 @@ export interface Grocery {
   unitOfMeasure?: string;
   isWeighted?: boolean;
   qtyInPackage?: number;
+  category?: string;
   unitOfMeasurePrice?: number;
   quantity?: number;
 }
