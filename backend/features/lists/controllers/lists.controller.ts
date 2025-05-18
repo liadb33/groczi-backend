@@ -252,8 +252,7 @@ export const deleteListItemController = async (
 
     await deleteListItem(listId, itemCode);
 
-    const listDetails = await getListWithItems(listId);
-    res.json(listDetails);
+    res.json({ success: true });
   } catch (error) {
     console.error("Failed to delete list item:", error);
     next(error);

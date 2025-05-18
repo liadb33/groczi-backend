@@ -71,7 +71,22 @@ export const getStoresByGroceryItemCodeController = async (
         .json({ message: "No stores found for this grocery item" });
     }
 
-    res.json(stores);
+    const flattened = stores.map(({ stores: storeInfo, ...rest }) => ({
+      ...rest,
+      StoreName: storeInfo.StoreName,
+      Address: storeInfo.Address,
+      City: storeInfo.City,
+      ZipCode: storeInfo.ZipCode,
+    }));
+
+    const minPrice = Math.min(
+      ...flattened.map((s) => Number(s.itemPrice)).filter((p) => !isNaN(p))
+    );
+
+    res.json({
+      minPrice: minPrice.toFixed(2),
+      stores: flattened,
+    });
   } catch (error) {
     console.error("Error fetching stores by itemCode:", error);
     next(error);
