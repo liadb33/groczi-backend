@@ -1,4 +1,4 @@
-import { categorizeProduct } from "../../utils/categories.utils.js";
+//import { categorizeProduct } from "../../utils/categories.utils.js";
 import { normalizeKeys } from "../../utils/general.utils.js";
 import { Grocery, GroceryReference } from "./grocery.entity.js";
 
@@ -32,7 +32,7 @@ export function mapToGroceryAndReference(
       ? Number(data["unitofmeasureprice"])
       : undefined,
     quantity: data["quantity"] ? Number(data["quantity"]) : undefined,
-    category: categorizeProduct(data["itemname"]) ?? undefined,
+    //category: categorizeProduct(data["itemname"]) ?? undefined,
   };
 
   const reference: GroceryReference = {
