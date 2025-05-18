@@ -106,6 +106,7 @@ model Bookmark {
   id         String     @id @db.VarChar(255)
   deviceId   String     @db.VarChar(255)
   itemCode   String     @db.VarChar(255)
+  createdAt  DateTime?  @default(now()) @db.DateTime(0)
   DeviceUser DeviceUser @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade, map: "fk_bookmark_device")
   grocery    grocery    @relation(fields: [itemCode], references: [itemCode], onDelete: Cascade, map: "fk_bookmark_grocery")
 
@@ -118,10 +119,11 @@ model CartItem {
   deviceId   String     @db.VarChar(255)
   itemCode   String     @db.VarChar(255)
   quantity   Int
+  createdAt  DateTime?  @default(now()) @db.DateTime(0)
   DeviceUser DeviceUser @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade, map: "fk_cart_device")
   grocery    grocery    @relation(fields: [itemCode], references: [itemCode], onDelete: Cascade, map: "fk_cart_grocery")
 
-  @@unique([deviceId, itemCode])
+  @@unique([deviceId, itemCode], map: "unique_device_cart_item")
   @@index([itemCode], map: "fk_cart_grocery")
 }
 
@@ -137,6 +139,7 @@ model GroceryList {
   id         String     @id @db.VarChar(255)
   name       String     @db.VarChar(255)
   deviceId   String     @db.VarChar(255)
+  createdAt  DateTime?  @default(now()) @db.DateTime(0)
   DeviceUser DeviceUser @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade, map: "fk_list_device")
   ListItem   ListItem[]
 
@@ -148,6 +151,7 @@ model ListItem {
   listId      String      @db.VarChar(255)
   itemCode    String      @db.VarChar(255)
   quantity    Int
+  createdAt   DateTime?   @default(now()) @db.DateTime(0)
   grocery     grocery     @relation(fields: [itemCode], references: [itemCode], onDelete: Cascade, map: "fk_listitem_grocery")
   GroceryList GroceryList @relation(fields: [listId], references: [id], onDelete: Cascade, map: "fk_listitem_list")
 

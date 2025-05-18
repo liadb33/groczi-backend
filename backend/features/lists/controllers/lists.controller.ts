@@ -1,5 +1,35 @@
- import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import { createGroceryList, createListItem, deleteListItem, deleteListsByIds, getListById, getListsByDeviceId, getListWithItems, updateListName } from "../repository/lists.repository.js";
+
+
+const formatGroceryLists = (
+  rawLists: Awaited<ReturnType<typeof getListsByDeviceId>>
+) => {
+  return rawLists.map((list) => {
+    const itemCount = list.ListItem.reduce(
+      (count, item) => count + item.quantity,
+      0
+    );
+
+    const estimatedMinPrice = list.ListItem.reduce((sum, listItem) => {
+      const prices =
+        listItem.grocery?.store_grocery
+          ?.map((p) => Number(p.itemPrice))
+          .filter(Boolean) ?? [];
+
+      const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+      return sum + minPrice * listItem.quantity;
+    }, 0);
+
+    return {
+      id: list.id,
+      name: list.name,
+      itemCount,
+      estimatedMinPrice: estimatedMinPrice.toFixed(2),
+    };
+  });
+};
+
 
 
  // get grocery lists
@@ -12,34 +42,8 @@ export const getListsController = async (
 
   try {
     const rawLists = await getListsByDeviceId(deviceId);
-
-    const lists = rawLists.map((list) => {
-      //  Calculate total quantity, not just number of rows
-      const itemCount = list.ListItem.reduce(
-        (count, item) => count + item.quantity,
-        0
-      );
-
-      // Multiply quantity by lowest price
-      const estimatedMinPrice = list.ListItem.reduce((sum, listItem) => {
-        const prices =
-          listItem.grocery?.store_grocery
-            ?.map((p) => Number(p.itemPrice))
-            .filter(Boolean) ?? [];
-
-        const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
-        return sum + minPrice * listItem.quantity;
-      }, 0);
-
-      return {
-        id: list.id,
-        name: list.name,
-        itemCount,
-        estimatedMinPrice: estimatedMinPrice.toFixed(2),
-      };
-    });
-
-    res.json(lists);
+    const formattedLists = formatGroceryLists(rawLists);
+    res.json(formattedLists);
   } catch (error) {
     console.error("Failed to fetch lists:", error);
     next(error);
@@ -62,12 +66,20 @@ export const createListController = async (
 
   try {
     const newList = await createGroceryList(deviceId, name.trim());
-    res.status(201).json(newList);
+    
+    // Return only the newly created list
+    res.status(201).json({
+      id: newList.id,
+      name: newList.name,
+      itemCount: 0,
+      estimatedMinPrice: "0.00"
+    });
   } catch (error) {
     console.error("Failed to create grocery list:", error);
     next(error);
   }
 };
+
 
 
 // add an item to a list
@@ -102,7 +114,9 @@ export const addListItemController = async (
     const parsedQuantity = Math.max(1, Math.round(quantity));
     await createListItem(listId, itemCode, parsedQuantity);
 
-    res.json({ success: true });
+    const listDetails = await getListWithItems(listId);
+
+    res.json(listDetails);
   } catch (error) {
     console.error("Failed to add item to list:", error);
     next(error);
@@ -238,7 +252,8 @@ export const deleteListItemController = async (
 
     await deleteListItem(listId, itemCode);
 
-    res.json({ success: true });
+    const listDetails = await getListWithItems(listId);
+    res.json(listDetails);
   } catch (error) {
     console.error("Failed to delete list item:", error);
     next(error);

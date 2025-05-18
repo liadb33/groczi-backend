@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 export const getListsByDeviceId = async (deviceId: string) => {
   return await prisma.groceryList.findMany({
     where: { deviceId },
+    orderBy: { createdAt: "asc" },
     include: {
       ListItem: {
         include: {
@@ -62,6 +63,7 @@ export const getListWithItems = async (listId: string) => {
     where: { id: listId },
     include: {
       ListItem: {
+        orderBy: { createdAt: "asc" },
         include: {
           grocery: {
             include: {
