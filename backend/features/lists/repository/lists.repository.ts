@@ -108,3 +108,33 @@ export const deleteListItem = async (listId: string, itemCode: string) => {
     },
   });
 };
+
+
+export const updateListItemQuantity = async (
+  deviceId: string,
+  listId: string,
+  itemCode: string,
+  quantityDelta: number
+) => {
+  const currentItem = await prisma.listItem.findFirst({
+    where: { listId, itemCode, GroceryList: { deviceId } },
+  });
+
+  if (!currentItem) {
+    throw new Error(`List item not found: ${itemCode}`);
+  }
+
+  const newQuantity = currentItem.quantity + quantityDelta;
+
+  if (newQuantity <= 0) {
+    await prisma.listItem.delete({
+      where: { id: currentItem.id },
+    });
+    return null;
+  }
+
+  return await prisma.listItem.update({
+    where: { id: currentItem.id },
+    data: { quantity: newQuantity },
+  });
+};

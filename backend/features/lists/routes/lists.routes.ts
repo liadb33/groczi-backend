@@ -1,5 +1,5 @@
  import { RequestHandler, Router } from "express";
- import { addListItemController, createListController, deleteListItemController, deleteListsController, getListDetailController, getListsController, updateListNameController } from "../controllers/lists.controller.js";
+ import { addListItemController, createListController, deleteListItemController, deleteListsController, getListDetailController, getListsController, updateListItemQuantityController, updateListNameController } from "../controllers/lists.controller.js";
 import { ensureDeviceUser } from "../../shared/middleware/ensureDeviceUser.js";
 
 const listsRoute = Router();
@@ -20,6 +20,12 @@ listsRoute.put("/:listId", updateListNameController as RequestHandler);
 
 // DELETE /me/lists 
 listsRoute.delete("/", deleteListsController as RequestHandler);
+
+// PATCH /me/lists/:listId/items/:itemCode
+listsRoute.patch(
+  "/:listId/items/:itemCode",
+  updateListItemQuantityController as RequestHandler
+);
 
 // POST /me/lists/:listId/items
 listsRoute.post("/:listId/items", addListItemController as RequestHandler);

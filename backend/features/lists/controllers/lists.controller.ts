@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { createGroceryList, createListItem, deleteListItem, deleteListsByIds, getListById, getListsByDeviceId, getListWithItems, updateListName } from "../repository/lists.repository.js";
-
+import { createGroceryList, createListItem, deleteListItem, deleteListsByIds, getListById, getListsByDeviceId, getListWithItems, updateListItemQuantity, updateListName } from "../repository/lists.repository.js";
 
 const formatGroceryLists = (
   rawLists: Awaited<ReturnType<typeof getListsByDeviceId>>
@@ -30,9 +29,40 @@ const formatGroceryLists = (
   });
 };
 
+// Helper function to format list details with items
+const formatListWithItems = (list: Awaited<ReturnType<typeof getListWithItems>>) => {
+  if (!list) return null;
+  
+  const items = list.ListItem.map((listItem) => {
+    const prices =
+      listItem.grocery?.store_grocery
+        ?.map((p) => Number(p.itemPrice))
+        .filter(Boolean) ?? [];
 
+    const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+    const name =
+      listItem.grocery?.itemName ||
+      listItem.grocery?.manufacturerItemDescription ||
+      "Unknown";
+    const subtotal = minPrice * listItem.quantity;
+    
+    return {
+      id: listItem.id,
+      itemCode: listItem.itemCode,
+      name,
+      quantity: listItem.quantity,
+      subtotal: subtotal.toFixed(2),
+    };
+  });
 
- // get grocery lists
+  return {
+    id: list.id,
+    name: list.name,
+    items,
+  };
+};
+
+// get grocery lists
 export const getListsController = async (
   req: Request,
   res: Response,
@@ -81,7 +111,6 @@ export const createListController = async (
 };
 
 
-
 // add an item to a list
 export const addListItemController = async (
   req: Request,
@@ -115,8 +144,13 @@ export const addListItemController = async (
     await createListItem(listId, itemCode, parsedQuantity);
 
     const listDetails = await getListWithItems(listId);
-
-    res.json(listDetails);
+    
+    if (!listDetails) {
+      return res.status(404).json({ message: "List not found" });
+    }
+    
+    const formattedList = formatListWithItems(listDetails);
+    res.json(formattedList);
   } catch (error) {
     console.error("Failed to add item to list:", error);
     next(error);
@@ -142,32 +176,8 @@ export const getListDetailController = async (
         .json({ message: "List not found or unauthorized" });
     }
 
-    const items = list.ListItem.map((listItem) => {
-      const prices =
-        listItem.grocery?.store_grocery
-          ?.map((p) => Number(p.itemPrice))
-          .filter(Boolean) ?? [];
-
-      const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
-      const name =
-        listItem.grocery?.itemName ||
-        listItem.grocery?.manufacturerItemDescription ||
-        "Unknown";
-      const subtotal = minPrice * listItem.quantity;
-
-      return {
-        itemCode: listItem.itemCode,
-        name,
-        quantity: listItem.quantity,
-        subtotal: subtotal.toFixed(2),
-      };
-    });
-
-    res.json({
-      id: list.id,
-      name: list.name,
-      items,
-    });
+    const formattedList = formatListWithItems(list);
+    res.json(formattedList);
   } catch (error) {
     console.error("Failed to get list details:", error);
     next(error);
@@ -255,6 +265,49 @@ export const deleteListItemController = async (
     res.json({ success: true });
   } catch (error) {
     console.error("Failed to delete list item:", error);
+    next(error);
+  }
+};
+
+// update list item quantity
+export const updateListItemQuantityController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const deviceId = req.deviceId!;
+  const { listId, itemCode } = req.params;
+  const { quantity } = req.body;
+
+  if (typeof quantity !== "number") {
+    return res
+      .status(400)
+      .json({ message: "quantity (number) is required in body" });
+  }
+
+  try {
+    await updateListItemQuantity(
+      deviceId,
+      listId,
+      itemCode,
+      Math.round(quantity)
+    );
+    
+    const updatedList = await getListWithItems(listId);
+    
+    if (!updatedList) {
+      return res.status(404).json({ message: "List not found" });
+    }
+    
+    const formattedList = formatListWithItems(updatedList);
+    res.json(formattedList);
+  } catch (error) {
+    console.error("Failed to update list item:", error);
+
+    if (error instanceof Error && error.message.includes("not found")) {
+      return res.status(404).json({ message: "List item not found" });
+    }
+
     next(error);
   }
 };
