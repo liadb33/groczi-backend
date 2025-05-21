@@ -1,9 +1,10 @@
 import { normalizeKeys } from "../../utils/general.utils.js";
+import { handleLocation } from "../../utils/location.utils.js";
 import { Store } from "./store.entity.js";
 
 export function mapToStore(input: Record<string, any>): Store {
   const data = normalizeKeys(input);
-
+  const location = handleLocation(data);
   const store: Store = {
     ChainId: String(data["chainid"] ?? "").trim(),
     SubChainId: String(data["subchainid"] ?? "").trim(),
