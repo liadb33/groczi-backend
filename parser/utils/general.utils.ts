@@ -80,3 +80,27 @@ export function normalizeKeys(input: Record<string, any>): Record<string, any> {
   }
   return result;
 }
+
+export function normalizeKeys2(
+  input: Record<string, any>
+): Record<string, any> {
+  const result: Record<string, any> = {};
+
+  for (const key in input) {
+    const normalizedKey = key.toLowerCase();
+    let value = input[key];
+
+    if (typeof value === "string" && value.trim().toLowerCase() === "unknown")
+      value = null;
+
+    if (normalizedKey === "zipcode") {
+      value = String(value ?? "").trim();
+      if (value.startsWith("00") || value.length !== 7) {
+        value = null;
+      }
+    }
+    result[normalizedKey] = value;
+  }
+
+  return result;
+}

@@ -4,9 +4,11 @@ export interface Store {
   StoreId: string;
   StoreName?: string;
   Address?: string;
-  City?: string;
-  ZipCode?: string;
+  City: string | null;
+  ZipCode: string | null;
   StoreType?: number;
   ChainName?: string;
   SubChainName?: string;
+  Lat?: number;
+  Lon?: number;
 }
