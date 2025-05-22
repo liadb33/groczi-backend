@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { getAllGroceries, getGroceryByItemCode, getStoresByItemCode, searchGroceries } from '../repositories/groceries.repository.js';
+import { countGroceries, getAllGroceries, getGroceryByItemCode, getStoresByItemCode, searchGroceries } from '../repositories/groceries.repository.js';
 
 /**
  * Handles the request to get the list of groceries.
@@ -94,19 +94,33 @@ export const getStoresByGroceryItemCodeController = async (
 };
 
 // search groceries
-export const searchGroceriesController = async (req: Request, res: Response) => {
+export const searchGroceriesController = async (
+  req: Request,
+  res: Response
+) => {
   const query = req.query.q as string;
+  const page = parseInt(req.query.page as string) || 1; // default page 1
+  const limit = parseInt(req.query.limit as string) || 10; // default 10 items per page
 
   if (!query || query.trim() === "") {
     return res.status(400).json({ message: "Missing query parameter" });
   }
 
   try {
-    const results = await searchGroceries(query);
-    res.json(results);
+    const results = await searchGroceries(query, page, limit);
+
+    // Optionally, get total count for frontend pagination UI
+    const totalCount = await countGroceries(query);
+
+    res.json({
+      data: results,
+      page,
+      limit,
+      totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+    });
   } catch (error) {
     console.error("Autocomplete search failed:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
-

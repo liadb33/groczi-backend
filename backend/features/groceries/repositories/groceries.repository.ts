@@ -87,7 +87,11 @@ export const getStoresByItemCode = async (itemCode: string) => {
 
 
 // search groceries
-export const searchGroceries = async (query: string) => {
+export const searchGroceries = async (
+  query: string,
+  page: number = 1,
+  limit: number = 20
+) => {
   return await prisma.grocery.findMany({
     where: {
       OR: [
@@ -105,7 +109,29 @@ export const searchGroceries = async (query: string) => {
         },
       ],
     },
-    take: 5,
+    skip: (page - 1) * limit,
+    take: limit,
+  });
+};
+
+export const countGroceries = async (query: string) => {
+  return await prisma.grocery.count({
+    where: {
+      OR: [
+        {
+          manufacturerItemDescription: {
+            startsWith: query,
+            not: null,
+          },
+        },
+        {
+          itemName: {
+            startsWith: query,
+            not: null,
+          },
+        },
+      ],
+    },
   });
 };
 
