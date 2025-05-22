@@ -14,7 +14,7 @@ export type GeocodeResult = {
 
 export async function mapToStore(input: Record<string, any>): Promise<Store> {
   const data = normalizeKeys2(input);
-  const location = (await handleLocation(data)) as GeocodeResult;
+  const location = await handleLocation(data);
 
   const store: Store = {
     ChainId: String(data["chainid"] ?? "").trim(),
@@ -22,9 +22,9 @@ export async function mapToStore(input: Record<string, any>): Promise<Store> {
     StoreId: String(data["storeid"] ?? "").trim(),
     StoreType: data["storetype"] ? Number(data["storetype"]) : undefined,
     StoreName: data["storename"] ? String(data["storename"]).trim() : undefined,
-    Address: location?.address,
-    City: location?.city,
-    ZipCode: location?.zipcode,
+    Address: "",
+    City: "",
+    ZipCode: "",
     ChainName: data["chainname"] ? String(data["chainname"]).trim() : undefined,
     SubChainName: data["subchainname"]
       ? String(data["subchainname"]).trim()

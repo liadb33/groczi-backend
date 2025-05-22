@@ -1,9 +1,8 @@
-import { console } from "inspector";
 
 const apiKey = process.env.GOOGLE_API_KEY;
 const baseUrl = "https://maps.googleapis.com/maps/api/geocode/json";
 
-export function cleanAddressPart(value: unknown): string | null {
+export function cleanAddressPart(value: any): string | null {
   if (typeof value !== "string") return null; // <— וידוא שהקלט הוא string
   const str = value.trim();
   if (str.toLowerCase() === "unknown") return null;
@@ -14,9 +13,7 @@ export function cleanAddressPart(value: unknown): string | null {
     .trim();
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+
 
 type GeocodeResult = {
   address: string;
@@ -29,7 +26,7 @@ type GeocodeResult = {
 export async function fetchCoordinates(
   addressQuery: string
 ): Promise<GeocodeResult | null> {
-  console.log("Fetching coordinates for:", addressQuery);
+  
   const url = `${baseUrl}?address=${encodeURIComponent(
     addressQuery
   )}&key=${apiKey}`;
@@ -49,7 +46,7 @@ export async function fetchCoordinates(
     const { formatted_address, address_components, geometry } = result;
     const { lat, lng: lon } = geometry.location;
 
-    // חיפוש רכיב העיר (locality) או חלופה (administrative_area_level_2)
+  
     const cityComp =
       address_components.find((c: any) => c.types.includes("locality")) ||
       address_components.find((c: any) =>
@@ -79,12 +76,12 @@ export async function handleLocation(input: Record<string, any>) {
   const city = cleanAddressPart(input["city"]);
   const zipcode = cleanAddressPart(input["zipcode"]);
   const storename = cleanAddressPart(input["storename"]);
-  console.log("input:");
+ 
   if (address && city) {
     const query = storename?.includes(city)
       ? `${storename} ${address} `
-      : `${storename} ${address} ${city}`;
-    const location = await fetchCoordinates(encodeURIComponent(query));
+      : `${address} ${city} ${zipcode ?? ""}`;
+    const location = await fetchCoordinates(query);
     if (location) {
       console.log(
         "✅ 1 - Found:",
@@ -100,14 +97,14 @@ export async function handleLocation(input: Record<string, any>) {
         storename,
       };
     } else {
-      console.error("❌ Unable to geocode:", `${address} ${city} ${zipcode}`);
+      console.error("❌ Unable to geocode:", query);
     }
   }
   if (!address && city) {
     const query = storename?.includes(city)
       ? storename
       : `${storename} ${city}`;
-    const location = await fetchCoordinates(encodeURIComponent(query));
+    const location = await fetchCoordinates(query);
     if (location) {
       console.log(
         "✅ 2 - Found:",
@@ -123,7 +120,7 @@ export async function handleLocation(input: Record<string, any>) {
   }
   if (address && !city) {
     const query = `${storename} ${address}`;
-    const location = await fetchCoordinates(encodeURIComponent(query));
+    const location = await fetchCoordinates(query);
     if (location) {
       console.log(
         "✅ 3 - Found:",
@@ -138,7 +135,7 @@ export async function handleLocation(input: Record<string, any>) {
     }
   }
   if (!storename) return null;
-  const location = await fetchCoordinates(encodeURIComponent(storename));
+  const location = await fetchCoordinates(storename);
   if (location) {
     console.log("✅ 4 - Found:", location.lat, location.lon, "FOR:", storename);
     return { ...location, zipcode, storename };

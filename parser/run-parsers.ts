@@ -1,7 +1,6 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import prisma from "./prisma-client/prismaClient.js";
-
 import { processAllGroceriesFiles } from "./modules/groceries/groceries.service.js";
 import { processAllPromotionsFiles } from "./modules/promotions/promotion.service.js";
 import { processAllStoresFiles } from "./modules/stores/stores.service.js";
