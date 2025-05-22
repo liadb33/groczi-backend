@@ -22,8 +22,8 @@ model stores {
   Address    String?   @db.VarChar(100)
   City       String?   @db.VarChar(50)
   ZipCode    String?   @db.VarChar(50)
-  Lat        Decimal?  @db.Decimal(10, 0)
-  Lon        Decimal?  @db.Decimal(10, 0)
+  Lat        Decimal?  @db.Decimal(10, 7)
+  Lon        Decimal?  @db.Decimal(10, 7)
   subchains  subchains @relation(fields: [ChainId, SubChainId], references: [ChainId, SubChainId], onDelete: NoAction, onUpdate: NoAction, map: "stores_ibfk_1")
 
   @@id([ChainId, SubChainId, StoreId])

@@ -23,8 +23,9 @@ export async function saveStore(store: Store) {
     City,
     ZipCode,
     StoreType,
+    Lat,
+    Lon,
   } = store;
-
   // 1. Upsert chains (PK: ChainId)
   await prisma.chains.upsert({
     where: { ChainId },
@@ -63,6 +64,8 @@ export async function saveStore(store: Store) {
       City,
       ZipCode,
       StoreType,
+      Lat,
+      Lon,
     },
     create: {
       ChainId,
@@ -73,6 +76,8 @@ export async function saveStore(store: Store) {
       City,
       ZipCode,
       StoreType,
+      Lat,
+      Lon,
     },
   });
 }

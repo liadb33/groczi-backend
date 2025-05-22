@@ -1,4 +1,3 @@
-import { console } from "inspector";
 import { normalizeKeys, normalizeKeys2 } from "../../utils/general.utils.js";
 import { handleLocation } from "../../utils/location.utils.js";
 import { Store } from "./store.entity.js";
@@ -21,14 +20,16 @@ export async function mapToStore(input: Record<string, any>): Promise<Store> {
     SubChainId: String(data["subchainid"] ?? "").trim(),
     StoreId: String(data["storeid"] ?? "").trim(),
     StoreType: data["storetype"] ? Number(data["storetype"]) : undefined,
-    StoreName: data["storename"] ? String(data["storename"]).trim() : undefined,
-    Address: "",
-    City: "",
-    ZipCode: "",
+    StoreName: location?.storename,
+    Address: location?.address,
+    City: location?.city,
+    ZipCode: location?.zipcode,
     ChainName: data["chainname"] ? String(data["chainname"]).trim() : undefined,
     SubChainName: data["subchainname"]
       ? String(data["subchainname"]).trim()
       : undefined,
+    Lat: location?.lat,
+    Lon: location?.lon,
   };
 
   if (!store.SubChainName || /^\d+$/.test(store.SubChainName)) {
