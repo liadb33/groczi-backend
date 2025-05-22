@@ -1,5 +1,5 @@
  import { Router, RequestHandler } from "express";
- import { getAllPromotionsController, getDiscountedGroceriesController, getPromotionsByGroceryController, getPromotionsByStoreController } from "../controllers/promotions.controller.js";
+ import { getAllPromotionsController, getDiscountedGroceriesController, getPromotionsByGroceryController, getPromotionsByStoreController, getPromotionsSummaryController } from "../controllers/promotions.controller.js";
 
  const promotionsRoute = Router();
 
@@ -15,6 +15,9 @@ promotionsRoute.get( "/store/:chainId/:subChainId/:storeId",getPromotionsByStore
 
 // get promotions by grocery item code
 promotionsRoute.get("/grocery/:itemCode", getPromotionsByGroceryController as RequestHandler);
+
+// get promotions summary
+promotionsRoute.get("/summary", getPromotionsSummaryController as RequestHandler);
 
 
  export default promotionsRoute;

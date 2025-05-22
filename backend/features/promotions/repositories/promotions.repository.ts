@@ -61,3 +61,19 @@ export const getPromotionsByGroceryItemCode = async (itemCode: string) => {
   });
 };
 
+
+// get promotions summary
+export const getPromotionsSummary = async () => {
+  return await prisma.promotion.findMany({
+    include: {
+      stores: true, // to get the storeName
+      promotion_grocery: {
+        include: {
+          grocery: true,
+        },
+        take: 4, // max 4 groceries
+      },
+    },
+    take: 4,
+  });
+};

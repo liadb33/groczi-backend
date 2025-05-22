@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 from datetime import datetime
 from urllib.parse import urlparse
+
 from selenium.common.exceptions import WebDriverException, TimeoutException
 # Selenium Imports
 from selenium import webdriver
