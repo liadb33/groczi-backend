@@ -9,6 +9,10 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from requests.exceptions import RequestException 
 from selenium.common.exceptions import WebDriverException 
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from utils.selenium import perform_logout,perform_login,transfer_cookies
 from utils.json import load_config
 from utils.constants import *
@@ -210,7 +214,7 @@ def main():
                  logging.error(f"Skipping download for {username} due to error fetching file list.")
 
             # 7. Logout (within the loop for this user)
-            perform_logout(driver)
+            perform_logout(driver,LOGOUT_URL)
             # Clear cookies for the next user? Maybe not strictly necessary if login overwrites, but can be safer.
             session.cookies.clear()
             logging.info(f"===== Finished Processing User: {username} =====")
