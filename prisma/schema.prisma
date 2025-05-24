@@ -7,92 +7,85 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
+model bookmark {
+  id          String      @id @db.VarChar(255)
+  deviceId    String      @db.VarChar(255)
+  itemCode    String      @db.VarChar(255)
+  createdAt   DateTime?   @default(now()) @db.DateTime(0)
+  device_user device_user @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade, map: "fk_bookmark_device")
+  grocery     grocery     @relation(fields: [itemCode], references: [itemCode], onDelete: Cascade, map: "fk_bookmark_grocery")
+
+  @@unique([deviceId, itemCode], map: "unique_device_grocery")
+  @@index([itemCode], map: "fk_bookmark_grocery")
 }
 
-datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+model cart_item {
+  id          String      @id @db.VarChar(255)
+  deviceId    String      @db.VarChar(255)
+  itemCode    String      @db.VarChar(255)
+  quantity    Int
+  createdAt   DateTime?   @default(now()) @db.DateTime(0)
+  device_user device_user @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade, map: "fk_cart_device")
+  grocery     grocery     @relation(fields: [itemCode], references: [itemCode], onDelete: Cascade, map: "fk_cart_grocery")
+
+  @@unique([deviceId, itemCode], map: "unique_device_cart_item")
+  @@index([itemCode], map: "fk_cart_grocery")
 }
 
 model chains {
   ChainId   String      @id @db.VarChar(255)
-  ChainId   String      @id @db.VarChar(255)
   ChainName String?     @db.VarChar(255)
   subchains subchains[]
-  subchains subchains[]
 }
 
-model stores {
-  ChainId       String          @db.VarChar(255)
-  SubChainId    String          @db.VarChar(255)
-  StoreId       String          @db.VarChar(255)
-  ChainId       String          @db.VarChar(255)
-  SubChainId    String          @db.VarChar(255)
-  StoreId       String          @db.VarChar(255)
-  StoreType     Int?
-  StoreName     String?         @db.VarChar(255)
-  Address       String?         @db.VarChar(255)
-  City          String?         @db.VarChar(255)
-  ZipCode       String?         @db.VarChar(100)
-  promotion     promotion[]
-  store_grocery store_grocery[]
-  subchains     subchains       @relation(fields: [ChainId, SubChainId], references: [ChainId, SubChainId], onDelete: NoAction, onUpdate: NoAction, map: "stores_ibfk_1")
-
-  @@id([ChainId, SubChainId, StoreId])
-  @@id([ChainId, SubChainId, StoreId])
-}
-
-model subchains {
-  ChainId      String   @db.VarChar(255)
-  SubChainId   String   @db.VarChar(255)
-  ChainId      String   @db.VarChar(255)
-  SubChainId   String   @db.VarChar(255)
-  SubChainName String?  @db.VarChar(255)
-  stores       stores[]
-  chains       chains   @relation(fields: [ChainId], references: [ChainId], onDelete: NoAction, onUpdate: NoAction, map: "subchains_ibfk_1")
-  stores       stores[]
-  chains       chains   @relation(fields: [ChainId], references: [ChainId], onDelete: NoAction, onUpdate: NoAction, map: "subchains_ibfk_1")
-
-  @@id([ChainId, SubChainId])
-  @@id([ChainId, SubChainId])
+model device_user {
+  deviceId     String         @id @db.VarChar(255)
+  createdAt    DateTime?      @default(now()) @db.DateTime(0)
+  bookmark     bookmark[]
+  cart_item    cart_item[]
+  grocery_list grocery_list[]
 }
 
 model grocery {
-  itemCode                    String              @id @db.VarChar(255)
-  itemType                    Int?
-  itemName                    String?             @db.VarChar(255)
-  manufacturerName            String?             @db.VarChar(255)
-  manufactureCountry          String?             @db.VarChar(100)
-  manufacturerItemDescription String?             @db.Text
-  unitQty                     String?             @db.VarChar(100)
-  unitOfMeasure               String?             @db.VarChar(50)
-  isWeighted                  Boolean?
-  qtyInPackage                Int?
-  unitOfMeasurePrice          Decimal?            @db.Decimal(12, 2)
-  quantity                    Decimal?            @db.Decimal(12, 2)
-  promotion_grocery           promotion_grocery[]
-  store_grocery               store_grocery[]
+  itemCode           String              @id @db.VarChar(255)
+  itemType           Int?
+  itemName           String?             @db.VarChar(255)
+  manufacturerName   String?             @db.VarChar(255)
+  unitQty            String?             @db.VarChar(100)
+  unitOfMeasure      String?             @db.VarChar(50)
+  isWeighted         Boolean?
+  qtyInPackage       Int?
+  unitOfMeasurePrice Decimal?            @db.Decimal(12, 2)
+  quantity           Decimal?            @db.Decimal(12, 2)
+  bookmark           bookmark[]
+  cart_item          cart_item[]
+  list_item          list_item[]
+  promotion_grocery  promotion_grocery[]
+  store_grocery      store_grocery[]
 }
 
-model store_grocery {
-  itemCode      String   @db.VarChar(100)
-  ChainId       String   @db.VarChar(100)
-  SubChainId    String   @db.VarChar(100)
-  StoreId       String   @db.VarChar(100)
-  itemCode      String   @db.VarChar(100)
-  ChainId       String   @db.VarChar(100)
-  SubChainId    String   @db.VarChar(100)
-  StoreId       String   @db.VarChar(100)
-  itemPrice     Decimal? @db.Decimal(12, 2)
-  allowDiscount Boolean?
-  grocery       grocery  @relation(fields: [itemCode], references: [itemCode], onDelete: NoAction, onUpdate: NoAction, map: "store_grocery_ibfk_1")
-  stores        stores   @relation(fields: [ChainId, SubChainId, StoreId], references: [ChainId, SubChainId, StoreId], onDelete: NoAction, onUpdate: NoAction, map: "store_grocery_ibfk_2")
-  stores        stores   @relation(fields: [ChainId, SubChainId, StoreId], references: [ChainId, SubChainId, StoreId], onDelete: NoAction, onUpdate: NoAction, map: "store_grocery_ibfk_2")
+model grocery_list {
+  id          String      @id @db.VarChar(255)
+  name        String      @db.VarChar(255)
+  deviceId    String      @db.VarChar(255)
+  createdAt   DateTime?   @default(now()) @db.DateTime(0)
+  device_user device_user @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade, map: "fk_list_device")
+  list_item   list_item[]
 
-  @@id([itemCode, ChainId, SubChainId, StoreId])
-  @@index([ChainId, SubChainId, StoreId], map: "ChainId")
+  @@index([deviceId], map: "fk_list_device")
+}
+
+model list_item {
+  id           String       @id @db.VarChar(255)
+  listId       String       @db.VarChar(255)
+  itemCode     String       @db.VarChar(255)
+  quantity     Int
+  createdAt    DateTime?    @default(now()) @db.DateTime(0)
+  grocery      grocery      @relation(fields: [itemCode], references: [itemCode], onDelete: Cascade, map: "fk_listitem_grocery")
+  grocery_list grocery_list @relation(fields: [listId], references: [id], onDelete: Cascade, map: "fk_listitem_list")
+
+  @@index([itemCode], map: "fk_listitem_grocery")
+  @@index([listId], map: "fk_listitem_list")
 }
 
 model promotion {
@@ -122,4 +115,46 @@ model promotion_grocery {
 
   @@id([PromotionId, ChainId, SubChainId, StoreId, itemCode])
   @@index([itemCode], map: "itemCode")
+}
+
+model store_grocery {
+  itemCode      String   @db.VarChar(100)
+  ChainId       String   @db.VarChar(100)
+  SubChainId    String   @db.VarChar(100)
+  StoreId       String   @db.VarChar(100)
+  itemPrice     Decimal? @db.Decimal(12, 2)
+  allowDiscount Boolean?
+  grocery       grocery  @relation(fields: [itemCode], references: [itemCode], onDelete: NoAction, onUpdate: NoAction, map: "store_grocery_ibfk_1")
+  stores        stores   @relation(fields: [ChainId, SubChainId, StoreId], references: [ChainId, SubChainId, StoreId], onDelete: NoAction, onUpdate: NoAction, map: "store_grocery_ibfk_2")
+
+  @@id([itemCode, ChainId, SubChainId, StoreId])
+  @@index([ChainId, SubChainId, StoreId], map: "ChainId")
+}
+
+model stores {
+  ChainId       String          @db.VarChar(255)
+  SubChainId    String          @db.VarChar(255)
+  StoreId       String          @db.VarChar(255)
+  StoreType     Int?
+  StoreName     String?         @db.VarChar(255)
+  Address       String?         @db.VarChar(255)
+  City          String?         @db.VarChar(255)
+  ZipCode       String?         @db.VarChar(100)
+  Latitude      Float?
+  Longitude     Float?
+  promotion     promotion[]
+  store_grocery store_grocery[]
+  subchains     subchains       @relation(fields: [ChainId, SubChainId], references: [ChainId, SubChainId], onDelete: NoAction, onUpdate: NoAction, map: "stores_ibfk_1")
+
+  @@id([ChainId, SubChainId, StoreId])
+}
+
+model subchains {
+  ChainId      String   @db.VarChar(255)
+  SubChainId   String   @db.VarChar(255)
+  SubChainName String?  @db.VarChar(255)
+  stores       stores[]
+  chains       chains   @relation(fields: [ChainId], references: [ChainId], onDelete: NoAction, onUpdate: NoAction, map: "subchains_ibfk_1")
+
+  @@id([ChainId, SubChainId])
 }

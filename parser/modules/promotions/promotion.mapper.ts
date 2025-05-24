@@ -39,14 +39,13 @@ export function mapPromotion(raw: Record<string, any>): Promotion {
   // grouped <Promotions><Promotion>…</Promotion> or
   // flat <Promos><Sale>…</Sale>
   const items = ensureArray(raw.PromotionItems?.Item);
-
   return {
     PromotionId: String(data["promotionid"]).trim(),
     ChainId: String(data["chainid"] ?? "").trim(),
     SubChainId: String(data["subchainid"] ?? "").trim(),
     StoreId: String(data["storeid"] ?? "").trim(),
-    PromotionName: data["promotionname"]
-      ? String(data["promotionname"]).trim()
+    PromotionName: data["promotiondescription"]
+      ? String(data["promotiondescription"]).trim()
       : undefined,
     StartDate: raw.PromotionStartDate
       ? new Date(

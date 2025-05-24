@@ -6,18 +6,20 @@ export function mapToGroceryAndReference(
 ): GroceryReference {
   const data = normalizeKeys(input);
 
+
+  const name = data["itemname"] ? String(data["itemname"]).trim() : undefined;
+  const name2 = data["manufactureritemdescription"] ? String(data["manufactureritemdescription"]).trim() : undefined;
+  if(name == null ){
+    data["itemname"] = name2;
+  }else{
+    data["itemname"] = name;
+  }
   const grocery: Grocery = {
     itemCode: String(data["itemcode"] ?? "").trim(),
     itemType: data["itemtype"] ? Number(data["itemtype"]) : undefined,
     itemName: data["itemname"] ? String(data["itemname"]).trim() : undefined,
     manufacturerName: data["manufacturername"]
       ? String(data["manufacturername"]).trim()
-      : undefined,
-    manufactureCountry: data["manufacturecountry"]
-      ? String(data["manufacturecountry"]).trim()
-      : undefined,
-    manufacturerItemDescription: data["manufactureritemdescription"]
-      ? String(data["manufactureritemdescription"]).trim()
       : undefined,
     unitQty: data["unitqty"] ? String(data["unitqty"]).trim() : undefined,
     unitOfMeasure: data["unitofmeasure"]
