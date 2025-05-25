@@ -31,16 +31,8 @@ export async function fixProductData(data: {
 }) {
   const categoryList = CATEGORIES.join(", ");
 
-  const prompt = `יש לך מוצר עם itemName ו-manufactureName (אולי null). 
-תסדר את השם של המוצר שיהיה ברור ונקי, תוודא שה-manufactureName נכון (אם אין אז null), ותפלוט את הקטגוריה המתאימה מתוך הרשימה: [${categoryList}].
-התוצאה חייבת להיות JSON בפורמט:
-{
-  "itemName": string,
-  "manufactureName": string | null,
-  "category": string
-}
-הנה המידע:
-${JSON.stringify(data, null, 2)}`;
+  const prompt =
+    storePrompt + `\nהנה האובייקט:\n${JSON.stringify(data, null, 2)}`;
 
   const chatCompletion = await openai.chat.completions.create({
     model: "gpt-4.1-mini",
