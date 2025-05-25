@@ -87,7 +87,7 @@ def fetch_file_list(driver: webdriver.Chrome, config: dict) -> bool:
                 
                 # Click download link
                 download_link = row.find_element(By.CSS_SELECTOR, config["link_config"])
-                download_link.click()
+                driver.execute_script("arguments[0].click();", download_link)
                 logging.info(f"⬇️ Downloading file from hour: {timestamp.text}")
                 
                 # Wait for download completion
