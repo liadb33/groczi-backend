@@ -4,6 +4,8 @@ import logging
 import gzip
 import zipfile
 import time
+import sys
+
 from pathlib import Path
 from datetime import datetime
 # Selenium Imports
@@ -12,12 +14,13 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.json import load_config
 from utils.constants import *
 from utils.date import get_file_hour
 from utils.selenium import access_site
 
-JSON_FILE_PATH = get_json_file_path("cerberus.json")
+JSON_FILE_PATH = get_json_file_path("shops.json")
 
 prefs = {
     "download.default_directory": str(GZ_FOLDER_PATH),  # Set the default download directory

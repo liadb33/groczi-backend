@@ -3,16 +3,15 @@ import json
 import gzip
 import shutil
 import requests
+import sys
+
 from datetime import datetime, timedelta
 from pathlib import Path 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from requests.exceptions import RequestException 
 from selenium.common.exceptions import WebDriverException 
-import sys
-import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 from utils.selenium import perform_logout,perform_login,transfer_cookies
 from utils.json import load_config
 from utils.constants import *
