@@ -11,6 +11,7 @@ export async function saveGrocery(ref: GroceryReference) {
     itemPrice,
     allowDiscount,
     item,
+    priceUpdate,
   } = ref;
 
   // 1. Upsert the Grocery master record (unchanged)
@@ -76,4 +77,35 @@ export async function saveGrocery(ref: GroceryReference) {
       allowDiscount,
     },
   });
+  // check if the price is updated
+  // בדיקה אם יש רשומה קיימת בטבלת store_grocery
+  const existingStoreGrocery = await prisma.store_grocery.findUnique({
+    where: {
+      itemCode_ChainId_SubChainId_StoreId: {
+        itemCode,
+        ChainId,
+        SubChainId,
+        StoreId,
+      },
+    },
+  });
+
+  // האם יש שינוי במחיר או בהנחה?
+  const priceChanged =
+    !existingStoreGrocery ||
+    existingStoreGrocery.itemPrice === null ||
+    priceUpdate.itemPrice === undefined ||
+    Number(existingStoreGrocery.itemPrice) !== Number(priceUpdate.itemPrice);
+  if (priceChanged) {
+    await prisma.store_grocery_price_history.create({
+      data: {
+        itemCode,
+        ChainId,
+        SubChainId,
+        StoreId,
+        price: itemPrice,
+        updateDatetime: priceUpdate.date,
+      },
+    });
+  }
 }

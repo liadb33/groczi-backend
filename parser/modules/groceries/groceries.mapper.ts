@@ -1,17 +1,22 @@
 import { normalizeKeys } from "../../utils/general.utils.js";
-import { Grocery, GroceryReference } from "./grocery.entity.js";
+import {
+  Grocery,
+  GroceryPriceUpdate,
+  GroceryReference,
+} from "./grocery.entity.js";
 
 export function mapToGroceryAndReference(
   input: Record<string, any>
 ): GroceryReference {
   const data = normalizeKeys(input);
 
-
   const name = data["itemname"] ? String(data["itemname"]).trim() : undefined;
-  const name2 = data["manufactureritemdescription"] ? String(data["manufactureritemdescription"]).trim() : undefined;
-  if(name == null ){
+  const name2 = data["manufactureritemdescription"]
+    ? String(data["manufactureritemdescription"]).trim()
+    : undefined;
+  if (name == null) {
     data["itemname"] = name2;
-  }else{
+  } else {
     data["itemname"] = name;
   }
   const grocery: Grocery = {
@@ -35,14 +40,24 @@ export function mapToGroceryAndReference(
     quantity: data["quantity"] ? Number(data["quantity"]) : undefined,
   };
 
-  const reference: GroceryReference = {
-    itemCode: grocery.itemCode,
+  const priceUpdate: GroceryPriceUpdate = {
     ChainId: data["chainid"] ?? String(data["chainId"]).trim(),
     SubChainId: data["subchainid"] ?? String(data["subChainId"]).trim(),
     StoreId: data["storeid"] ?? String(data["storeId"]).trim(),
-    itemPrice: data["itemprice"] ? Number(data["itemprice"]) : undefined,
+    itemCode: grocery.itemCode,
+    itemPrice: data["itemprice"] ?? Number(data["itemprice"]),
+    date: data["priceupdatedate"] ?? new Date(data["priceupdatedate"]),
+  };
+
+  const reference: GroceryReference = {
+    itemCode: grocery.itemCode,
+    ChainId: priceUpdate.ChainId,
+    SubChainId: priceUpdate.SubChainId,
+    StoreId: priceUpdate.StoreId,
+    itemPrice: priceUpdate.itemPrice,
     allowDiscount: data["allowdiscount"] === "1" || data["allowdiscount"] === 1,
     item: grocery,
+    priceUpdate: priceUpdate,
   };
 
   return reference;
