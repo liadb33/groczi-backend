@@ -19,7 +19,6 @@ def get_image_duckduckgo(itemcode: str, itemname: str) -> str | None:
     return None
 
 if __name__ == "__main__":
-    # האטה רנדומלית – 2 עד 7 שניות
     delay = random.uniform(2, 7)
     time.sleep(delay)
 
