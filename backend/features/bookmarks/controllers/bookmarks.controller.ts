@@ -18,7 +18,6 @@ const mapBookmarksToResponse = (bookmarks: any[]) => {
       itemCode: bookmark.itemCode,
       itemName:
         grocery?.itemName ??
-        grocery?.manufacturerItemDescription ??
         "Unknown",
       price: minPrice.toFixed(2),
       unitQty: grocery?.unitQty,

@@ -17,10 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // Request logger middleware
-app.use((req: Request, res: Response, next: NextFunction) => {
-  console.log(`${req.method} ${req.url}`);
-  next();
-});
+
 
 // Routes
 app.use('/stores', storesRoute);

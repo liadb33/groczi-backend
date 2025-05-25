@@ -47,7 +47,6 @@ export const getDiscountedGroceriesController = async (
       itemCode: pg.itemCode,
       itemName:
         pg.grocery?.itemName ??
-        pg.grocery?.manufacturerItemDescription ??
         "Unknown",
     }));
 
@@ -118,7 +117,6 @@ export const getPromotionsSummaryController = async (req: Request, res: Response
         itemCode: pg.itemCode,
         itemName:
           pg.grocery?.itemName ||
-          pg.grocery?.manufacturerItemDescription ||
           "Unknown",
       })),
     }));

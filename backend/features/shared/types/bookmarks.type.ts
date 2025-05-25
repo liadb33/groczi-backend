@@ -1,10 +1,9 @@
-import { Bookmark, Prisma } from "@prisma/client";
+import { bookmark, Prisma } from "@prisma/client";
 import { StoreGroceryItem } from "./stores.groceries.type.js";
 
-export interface BookmarkWithGrocery extends Bookmark {
+export interface BookmarkWithGrocery extends bookmark {
   grocery: {
     itemName: string | null;
-    manufacturerItemDescription: string | null;
     unitQty: string | null;
     quantity: Prisma.Decimal | null;
     isWeighted: boolean | null;

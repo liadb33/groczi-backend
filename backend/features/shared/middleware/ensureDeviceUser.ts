@@ -14,7 +14,7 @@ export const ensureDeviceUser: RequestHandler = async (req, res, next) => {
     // Use as any to bypass TypeScript checking until the declaration file works
     (req as any).deviceId = deviceId;
 
-    await prisma.deviceUser.upsert({
+    await prisma.device_user.upsert({
       where: { deviceId },
       update: {},
       create: { deviceId },

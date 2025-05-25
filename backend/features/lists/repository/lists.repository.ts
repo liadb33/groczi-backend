@@ -3,11 +3,11 @@ import { v4 as uuidv4 } from "uuid";
 
 // get grocery lists by device id
 export const getListsByDeviceId = async (deviceId: string) => {
-  return await prisma.groceryList.findMany({
+  return await prisma.grocery_list.findMany({
     where: { deviceId },
     orderBy: { createdAt: "asc" },
     include: {
-      ListItem: {
+      list_item: {
         include: {
           grocery: {
             include: {
@@ -24,7 +24,7 @@ export const getListsByDeviceId = async (deviceId: string) => {
 
 // create grocery list
 export const createGroceryList = async (deviceId: string, name: string) => {
-  return await prisma.groceryList.create({
+  return await prisma.grocery_list.create({
     data: {
       id: uuidv4(),
       name,
@@ -35,7 +35,7 @@ export const createGroceryList = async (deviceId: string, name: string) => {
 
 // Fetch a list by ID
 export const getListById = async (listId: string) => {
-  return await prisma.groceryList.findUnique({
+  return await prisma.grocery_list.findUnique({
     where: { id: listId },
   });
 };
@@ -46,7 +46,7 @@ export const createListItem = async (
   itemCode: string,
   quantity: number
 ) => {
-  return await prisma.listItem.create({
+  return await prisma.list_item.create({
     data: {
       id: uuidv4(),
       listId,
@@ -59,10 +59,10 @@ export const createListItem = async (
 
 // get list details
 export const getListWithItems = async (listId: string) => {
-  return await prisma.groceryList.findUnique({
+  return await prisma.grocery_list.findUnique({
     where: { id: listId },
     include: {
-      ListItem: {
+      list_item: {
         orderBy: { createdAt: "asc" },
         include: {
           grocery: {
@@ -80,7 +80,7 @@ export const getListWithItems = async (listId: string) => {
 
 // update list name
 export const updateListName = async (listId: string, name: string) => {
-  return await prisma.groceryList.update({
+  return await prisma.grocery_list.update({
     where: { id: listId },
     data: { name },
   });
@@ -88,7 +88,7 @@ export const updateListName = async (listId: string, name: string) => {
 
 // delete lists by ids
 export const deleteListsByIds = async (deviceId: string, listIds: string[]) => {
-  const result = await prisma.groceryList.deleteMany({
+  const result = await prisma.grocery_list.deleteMany({
     where: {
       id: { in: listIds },
       deviceId, // ensure device scoping
@@ -101,7 +101,7 @@ export const deleteListsByIds = async (deviceId: string, listIds: string[]) => {
 
 // Delete a specific item from a list
 export const deleteListItem = async (listId: string, itemCode: string) => {
-  return await prisma.listItem.deleteMany({
+  return await prisma.list_item.deleteMany({
     where: {
       listId,
       itemCode,
@@ -116,8 +116,8 @@ export const updateListItemQuantity = async (
   itemCode: string,
   quantityDelta: number
 ) => {
-  const currentItem = await prisma.listItem.findFirst({
-    where: { listId, itemCode, GroceryList: { deviceId } },
+  const currentItem = await prisma.list_item.findFirst({
+    where: { listId, itemCode, grocery_list: { deviceId } },
   });
 
   if (!currentItem) {
@@ -127,13 +127,13 @@ export const updateListItemQuantity = async (
   const newQuantity = currentItem.quantity + quantityDelta;
 
   if (newQuantity <= 0) {
-    await prisma.listItem.delete({
+    await prisma.list_item.delete({
       where: { id: currentItem.id },
     });
     return null;
   }
 
-  return await prisma.listItem.update({
+  return await prisma.list_item.update({
     where: { id: currentItem.id },
     data: { quantity: newQuantity },
   });

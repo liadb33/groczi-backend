@@ -4,16 +4,16 @@ import { createGroceryList, createListItem, deleteListItem, deleteListsByIds, ge
 const formatGroceryLists = (
   rawLists: Awaited<ReturnType<typeof getListsByDeviceId>>
 ) => {
-  return rawLists.map((list) => {
-    const itemCount = list.ListItem.reduce(
-      (count, item) => count + item.quantity,
+  return rawLists.map((list: any) => {
+    const itemCount = list.list_item.reduce(
+      (count: number, item: any) => count + item.quantity,
       0
     );
 
-    const estimatedMinPrice = list.ListItem.reduce((sum, listItem) => {
+    const estimatedMinPrice = list.list_item.reduce((sum: number, listItem: any) => {
       const prices =
         listItem.grocery?.store_grocery
-          ?.map((p) => Number(p.itemPrice))
+          ?.map((p: any) => Number(p.itemPrice))
           .filter(Boolean) ?? [];
 
       const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
@@ -33,16 +33,15 @@ const formatGroceryLists = (
 const formatListWithItems = (list: Awaited<ReturnType<typeof getListWithItems>>) => {
   if (!list) return null;
   
-  const items = list.ListItem.map((listItem) => {
+  const items = list.list_item.map((listItem: any) => {
     const prices =
       listItem.grocery?.store_grocery
-        ?.map((p) => Number(p.itemPrice))
+        ?.map((p: any) => Number(p.itemPrice))
         .filter(Boolean) ?? [];
 
     const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
     const name =
       listItem.grocery?.itemName ||
-      listItem.grocery?.manufacturerItemDescription ||
       "Unknown";
     const subtotal = minPrice * listItem.quantity;
     

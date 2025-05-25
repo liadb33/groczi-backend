@@ -7,4 +7,6 @@ export interface Store {
   City: string | null;
   ZipCode: string | null;
   StoreType: number | null;
+  Latitude: number | null;
+  Longitude: number | null;
 }

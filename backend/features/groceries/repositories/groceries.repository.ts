@@ -1,4 +1,3 @@
-
 import prisma from "../../shared/prisma-client/prisma-client.js";
 
 
@@ -94,20 +93,10 @@ export const searchGroceries = async (
 ) => {
   return await prisma.grocery.findMany({
     where: {
-      OR: [
-        {
-          manufacturerItemDescription: {
-            startsWith: query,
-            not: null,
-          },
-        },
-        {
-          itemName: {
-            startsWith: query,
-            not: null,
-          },
-        },
-      ],
+      itemName: {
+        startsWith: query,
+        not: null,
+      },
     },
     skip: (page - 1) * limit,
     take: limit,
@@ -117,20 +106,10 @@ export const searchGroceries = async (
 export const countGroceries = async (query: string) => {
   return await prisma.grocery.count({
     where: {
-      OR: [
-        {
-          manufacturerItemDescription: {
-            startsWith: query,
-            not: null,
-          },
-        },
-        {
-          itemName: {
-            startsWith: query,
-            not: null,
-          },
-        },
-      ],
+      itemName: {
+        startsWith: query,
+        not: null,
+      },
     },
   });
 };

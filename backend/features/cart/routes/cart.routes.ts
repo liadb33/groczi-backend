@@ -3,7 +3,9 @@ import {
  addCartItemController, 
  getCartController,
  removeCartItemController,
- updateCartItemController
+ updateCartItemController,
+ optimizeAndRankStoresForCartController,
+ optimizeMultiStoreCartController,
 } from "../controllers/cart.controller.js";
 import { ensureDeviceUser } from "../../shared/middleware/ensureDeviceUser.js";
 
@@ -22,5 +24,11 @@ cartRoute.put("/items/:cartItemId", updateCartItemController as RequestHandler);
 
 // DELETE /me/cart/items/:cartItemId
 cartRoute.delete("/items/:cartItemId", removeCartItemController as RequestHandler);
+
+// POST /me/cart/optimize-single-store
+cartRoute.post("/optimize-single-store", optimizeAndRankStoresForCartController as RequestHandler);
+
+// POST /me/cart/optimize-multi-store
+cartRoute.post("/optimize-multi-store", optimizeMultiStoreCartController as RequestHandler);
 
 export default cartRoute;
