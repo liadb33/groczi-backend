@@ -1,7 +1,8 @@
 import { OpenAI } from "openai";
+import { CATEGORIES } from "../constants/categories";
 
-const GOOGLE_GEOCODING_API_KEY = process.env.GOOGLE_API_KEY;
-const GOOGLE_GEOCODING_BASE_URL = process.env.GOOGLE_GEOCODING_BASE_URL;
+//const GOOGLE_GEOCODING_API_KEY = process.env.GOOGLE_API_KEY;
+//const GOOGLE_GEOCODING_BASE_URL = process.env.GOOGLE_GEOCODING_BASE_URL;
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -17,7 +18,7 @@ export async function fixStoreData(data: {
 ${JSON.stringify(data, null, 2)}`;
 
   const chatCompletion = await openai.chat.completions.create({
-    model: "gpt-4",
+    model: "gpt-4.1-mini",
     messages: [{ role: "user", content: prompt }],
     temperature: 0,
   });
@@ -30,7 +31,7 @@ export async function fixProductData(data: {
   itemName: string;
   manufactureName?: string | null;
 }) {
-  const categoryList = categories.join(", ");
+  const categoryList = CATEGORIES.join(", ");
 
   const prompt = `יש לך מוצר עם itemName ו-manufactureName (אולי null). 
 תסדר את השם של המוצר שיהיה ברור ונקי, תוודא שה-manufactureName נכון (אם אין אז null), ותפלוט את הקטגוריה המתאימה מתוך הרשימה: [${categoryList}].
@@ -44,7 +45,7 @@ export async function fixProductData(data: {
 ${JSON.stringify(data, null, 2)}`;
 
   const chatCompletion = await openai.chat.completions.create({
-    model: "gpt-4",
+    model: "gpt-4.1-mini",
     messages: [{ role: "user", content: prompt }],
     temperature: 0.2,
   });
@@ -53,29 +54,42 @@ ${JSON.stringify(data, null, 2)}`;
   return JSON.parse(response);
 }
 
-export async function fetchCoordinates(
-  query: string
-): Promise<{ lat: number; lon: number } | null> {
-  const url = `${GOOGLE_GEOCODING_BASE_URL}?address=${encodeURIComponent(
-    query
-  )}&key=${GOOGLE_GEOCODING_API_KEY}&language=iw`;
+async () => {
+  const object = {
+    chainname: "Dor Alon",
+    subchainname: "AM:PM",
+    storename: "Am-pm פרנקל",
+    address: "פרנקל 15",
+    city: "5000",
+    zipcode: "6608419",
+  };
+  const data = await fixStoreData(object);
+  console.log(data);
+};
 
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
+// export async function fetchCoordinates(
+//   query: string
+// ): Promise<{ lat: number; lon: number } | null> {
+//   const url = `${GOOGLE_GEOCODING_BASE_URL}?address=${encodeURIComponent(
+//     query
+//   )}&key=${GOOGLE_GEOCODING_API_KEY}&language=iw`;
 
-    if (data.status !== "OK" || !data.results.length) {
-      console.warn(`Google Geocoding failed for "${query}": ${data.status}`);
-      return null;
-    }
+//   try {
+//     const res = await fetch(url);
+//     const data = await res.json();
 
-    const result = data.results[0];
-    const { geometry } = result;
-    const { lat, lon } = geometry.location;
+//     if (data.status !== "OK" || !data.results.length) {
+//       console.warn(`Google Geocoding failed for "${query}": ${data.status}`);
+//       return null;
+//     }
 
-    return { lat, lon };
-  } catch (err) {
-    console.error(`Google Geocoding error for "${query}":`, err);
-    return null;
-  }
-}
+//     const result = data.results[0];
+//     const { geometry } = result;
+//     const { lat, lon } = geometry.location;
+
+//     return { lat, lon };
+//   } catch (err) {
+//     console.error(`Google Geocoding error for "${query}":`, err);
+//     return null;
+//   }
+// }
