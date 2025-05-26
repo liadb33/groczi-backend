@@ -54,8 +54,20 @@ export async function saveGrocery(ref: GroceryReference) {
     );
     return;
   }
-  // 2. Upsert ל־store_grocery עם ה־Composite PK החדש
-  await prisma.store_grocery.upsert({
+
+
+  const previous = await prisma.store_grocery.findUnique({
+    where: {
+      itemCode_ChainId_SubChainId_StoreId: {
+        itemCode,
+        ChainId,
+        SubChainId,
+        StoreId,
+      },
+    },
+  });
+
+  const storeGrocery = await prisma.store_grocery.upsert({
     where: {
       itemCode_ChainId_SubChainId_StoreId: {
         itemCode,
@@ -77,26 +89,15 @@ export async function saveGrocery(ref: GroceryReference) {
       allowDiscount,
     },
   });
-  // check if the price is updated
-  // בדיקה אם יש רשומה קיימת בטבלת store_grocery
-  const existingStoreGrocery = await prisma.store_grocery.findUnique({
-    where: {
-      itemCode_ChainId_SubChainId_StoreId: {
-        itemCode,
-        ChainId,
-        SubChainId,
-        StoreId,
-      },
-    },
-  });
 
-  // האם יש שינוי במחיר או בהנחה?
+
   const priceChanged =
-    !existingStoreGrocery ||
-    existingStoreGrocery.itemPrice === null ||
+    !previous || // חדש לגמרי
+    previous.itemPrice === null ||
     priceUpdate.itemPrice === undefined ||
-    Number(existingStoreGrocery.itemPrice) !== Number(priceUpdate.itemPrice);
-  if (priceChanged) {
+    Number(previous.itemPrice) !== Number(priceUpdate.itemPrice);
+
+  if (priceChanged && priceUpdate.date) {
     await prisma.store_grocery_price_history.create({
       data: {
         itemCode,

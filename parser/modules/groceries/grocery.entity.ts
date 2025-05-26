@@ -17,7 +17,7 @@ export interface GroceryPriceUpdate {
   StoreId: string; // references stores(StoreId)
   itemCode: string; // references grocery.itemCode
   itemPrice: number;
-  date: Date;
+  date?: Date;
 }
 
 export interface GroceryReference {

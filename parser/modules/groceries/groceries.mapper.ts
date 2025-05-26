@@ -46,7 +46,9 @@ export function mapToGroceryAndReference(
     StoreId: data["storeid"] ?? String(data["storeId"]).trim(),
     itemCode: grocery.itemCode,
     itemPrice: data["itemprice"] ?? Number(data["itemprice"]),
-    date: data["priceupdatedate"] ?? new Date(data["priceupdatedate"]),
+    date: data["priceupdatedate"]
+      ? new Date(String(data["priceupdatedate"]).replace(" ", "T"))
+      : undefined
   };
 
   const reference: GroceryReference = {
