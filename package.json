@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "parsers": "node --no-warnings --loader ts-node/esm ./parser/run-parsers.ts",
+    "cerberus": "py ./scraper-engine/scripts/cerberus.py",
+    "shops": "py ./scraper-engine/scripts/shops.py",
+    "prices": "py ./scraper-engine/scripts/prices.py"
   },
   "author": "Shlomi,Ben,Liad",
   "license": "ISC",
