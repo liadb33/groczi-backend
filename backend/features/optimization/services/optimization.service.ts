@@ -68,6 +68,8 @@ export async function rankEligibleStoresForItemList(
       fullMatchEvaluations.push({
         store_id: storeInfo.storeId, store_name: storeInfo.storeName,
         address: storeInfo.address, city: storeInfo.city, zipcode: storeInfo.zipcode,
+        latitude: storeInfo.location[0], longitude: storeInfo.location[1],
+        chainId: storeInfo.chainId, subChainId: storeInfo.subChainId,
         combined_score: parseFloat(combinedScore.toFixed(2)),
         item_cost_at_store: parseFloat(currentTotalItemCost.toFixed(2)),
         travel_cost_to_store: parseFloat(travelCost.toFixed(2)),
@@ -113,6 +115,8 @@ export async function rankEligibleStoresForItemList(
       evaluatedStores.push({
         store_id: storeInfo.storeId, store_name: storeInfo.storeName,
         address: storeInfo.address, city: storeInfo.city, zipcode: storeInfo.zipcode,
+        latitude: storeInfo.location[0], longitude: storeInfo.location[1],
+        chainId: storeInfo.chainId, subChainId: storeInfo.subChainId,
         combined_score: parseFloat(combinedScorePartial.toFixed(2)),
         item_cost_at_store: parseFloat(currentTotalItemCostPartial.toFixed(2)),
         travel_cost_to_store: parseFloat(travelCost.toFixed(2)),
@@ -333,7 +337,17 @@ export async function runTopNMultiStoreDPForList( // Renamed for clarity
       const storeInfo = dpStoresData[storeId];
       const storeKey = storeInfo.storeName || storeId;
       if (!assignments![storeKey]) {
-        assignments![storeKey] = { store_id: storeId, address: storeInfo.address, city: storeInfo.city, zipcode: storeInfo.zipcode, items: [] };
+        assignments![storeKey] = { 
+          store_id: storeId, 
+          address: storeInfo.address, 
+          city: storeInfo.city, 
+          zipcode: storeInfo.zipcode, 
+          latitude: storeInfo.location[0], 
+          longitude: storeInfo.location[1], 
+          chainId: storeInfo.chainId,
+          subChainId: storeInfo.subChainId,
+          items: [] 
+        };
       }
       const quantity = dpGroceryList[itemCode]; const price = dpPricesMatrix[storeId]?.[itemCode] ?? Infinity;
       assignments![storeKey].items.push({ itemCode, itemName: itemDetailsMap.get(itemCode)?.itemName || itemCode, quantity, price: parseFloat(price.toFixed(2)) });

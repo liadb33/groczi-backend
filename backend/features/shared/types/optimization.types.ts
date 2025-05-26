@@ -32,6 +32,10 @@ export interface SingleStoreEvaluation {
   address: string;
   city: string;
   zipcode: string;
+  latitude: number;    // Store latitude coordinate
+  longitude: number;   // Store longitude coordinate
+  chainId: string;     // Chain ID for the store
+  subChainId: string;  // Sub-chain ID for the store
   combined_score: number;       // Score based on items it *does* have
   item_cost_at_store: number;   // Cost of items it *does* have
   travel_cost_to_store: number;
@@ -69,6 +73,8 @@ export interface DPStoreInfo {
   address: string; 
   city: string; 
   zipcode: string; 
+  chainId: string;     // Chain ID for the store
+  subChainId: string;  // Sub-chain ID for the store
 }
 
 export interface DPStoresData { 
@@ -85,9 +91,13 @@ export interface MultiStoreSolution {
   assignments: { 
     [storeNameOrId: string]: { 
       store_id: string; 
-      address: string; 
+      address: string;
+      latitude: number;
+      longitude: number;
       city: string; 
       zipcode: string; 
+      chainId: string;     // Chain ID for the store
+      subChainId: string;  // Sub-chain ID for the store
       items: { 
         itemCode: string; 
         itemName: string; 

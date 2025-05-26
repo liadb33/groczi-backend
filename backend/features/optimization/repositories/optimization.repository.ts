@@ -39,6 +39,8 @@ export interface StoreDataForOptimization {
   address: string;
   city: string;
   zipcode: string;
+  chainId: string;     // Chain ID for the store
+  subChainId: string;  // Sub-chain ID for the store
   location: [number, number];
   distanceKm: number;
   itemPrices: { // Prices for items from the input list that THIS store stocks
@@ -77,12 +79,13 @@ export async function fetchDataForSingleStoreFromList(
   // 2. Fetch ALL stores that have a location (same as before)
   const allDbStoresWithLocation = await prisma.stores.findMany({
     where: { Latitude: { not: null }, Longitude: { not: null } },
-    select: { StoreId: true, StoreName: true, Latitude: true, Longitude: true, Address: true, City: true, ZipCode: true },
+    select: { StoreId: true, StoreName: true, Latitude: true, Longitude: true, Address: true, City: true, ZipCode: true, ChainId: true, SubChainId: true },
   });
 
   // 3. Filter these stores by distance (same as before)
   const nearbyStoreCandidatesInfo: {
     storeId: string; storeName: string; address: string; city: string; zipcode: string;
+    chainId: string; subChainId: string;
     location: [number, number]; distanceKm: number;
   }[] = [];
   for (const dbStore of allDbStoresWithLocation) {
@@ -92,6 +95,7 @@ export async function fetchDataForSingleStoreFromList(
       nearbyStoreCandidatesInfo.push({
         storeId: dbStore.StoreId, storeName: dbStore.StoreName || 'Unknown Store',
         address: dbStore.Address || '', city: dbStore.City || '', zipcode: dbStore.ZipCode || '',
+        chainId: dbStore.ChainId, subChainId: dbStore.SubChainId,
         location: [dbStore.Latitude, dbStore.Longitude], distanceKm: distance,
       });
     }
@@ -127,6 +131,8 @@ export async function fetchDataForSingleStoreFromList(
         address: candidate.address,
         city: candidate.city,
         zipcode: candidate.zipcode,
+        chainId: candidate.chainId,
+        subChainId: candidate.subChainId,
         location: candidate.location,
         distanceKm: candidate.distanceKm,
         itemPrices: storeItemPrices, // Only includes prices for items it stocks from the input list
@@ -188,7 +194,7 @@ export async function fetchDataForMultiStoreFromList(
   // Fetch ALL stores with location
   const allDbStoresWithLocation = await prisma.stores.findMany({
     where: { Latitude: { not: null }, Longitude: { not: null } },
-    select: { StoreId: true, StoreName: true, Latitude: true, Longitude: true, Address: true, City: true, ZipCode: true },
+    select: { StoreId: true, StoreName: true, Latitude: true, Longitude: true, Address: true, City: true, ZipCode: true, ChainId: true, SubChainId: true },
   });
 
   // Filter stores by distance to get candidate stores for DP
@@ -207,6 +213,8 @@ export async function fetchDataForMultiStoreFromList(
         address: dbStore.Address || '',
         city: dbStore.City || '',
         zipcode: dbStore.ZipCode || '',
+        chainId: dbStore.ChainId,
+        subChainId: dbStore.SubChainId,
       };
       candidateStoreIds.push(dbStore.StoreId);
     }
