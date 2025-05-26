@@ -91,17 +91,44 @@ export const searchGroceries = async (
   page: number = 1,
   limit: number = 20
 ) => {
-  return await prisma.grocery.findMany({
+  // 1. Find items that start with the query (for both name and code)
+  const startsWithResults = await prisma.grocery.findMany({
     where: {
-      itemName: {
-        startsWith: query,
-        not: null,
-      },
+      OR: [
+        { itemName: { startsWith: query, not: null } },
+        { itemCode: { startsWith: query, not: undefined } },
+      ],
     },
-    skip: (page - 1) * limit,
-    take: limit,
   });
+
+  // 2. Find items that contain the query, but exclude the ones already found
+  const containsResults = await prisma.grocery.findMany({
+    where: {
+      OR: [
+        { itemName: { contains: query, not: null } },
+        { itemCode: { contains: query, not: undefined } },
+      ],
+      AND: [
+        {
+          itemCode: {
+            // assuming you have a unique "id" field
+            notIn: startsWithResults.map((item) => item.itemCode),
+          },
+        },
+      ],
+    },
+  });
+
+  // 3. Merge results: startsWith first, then contains
+  const mergedResults = [...startsWithResults, ...containsResults];
+
+  // 4. Apply pagination
+  const pagedResults = mergedResults.slice((page - 1) * limit, page * limit);
+
+  return pagedResults;
 };
+
+
 
 export const countGroceries = async (query: string) => {
   return await prisma.grocery.count({
