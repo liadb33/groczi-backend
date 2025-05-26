@@ -9,7 +9,6 @@ export async function saveGrocery(ref: GroceryReference) {
     SubChainId,
     StoreId,
     itemPrice,
-    allowDiscount,
     item,
     priceUpdate,
   } = ref;
@@ -18,7 +17,6 @@ export async function saveGrocery(ref: GroceryReference) {
   await prisma.grocery.upsert({
     where: { itemCode },
     update: {
-      itemType: item.itemType,
       itemName: item.itemName,
       manufacturerName: item.manufacturerName,
       unitQty: item.unitQty,
@@ -30,7 +28,6 @@ export async function saveGrocery(ref: GroceryReference) {
     },
     create: {
       itemCode,
-      itemType: item.itemType,
       itemName: item.itemName,
       manufacturerName: item.manufacturerName,
       unitQty: item.unitQty,
@@ -78,7 +75,6 @@ export async function saveGrocery(ref: GroceryReference) {
     },
     update: {
       itemPrice,
-      allowDiscount,
     },
     create: {
       itemCode,
@@ -86,7 +82,6 @@ export async function saveGrocery(ref: GroceryReference) {
       SubChainId,
       StoreId,
       itemPrice,
-      allowDiscount,
     },
   });
 

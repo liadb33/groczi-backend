@@ -13,7 +13,7 @@ export async function processAllGroceriesFiles(basePath: string) {
     const groceries = await parseGroceryXmlFile(file);
     if (!groceries.length) continue;
     for (const grocery of groceries) {
-      await saveGrocery(grocery);
+     // await saveGrocery(grocery);
     }
     success++;
     //console.log("Saved", groceries.length, "groceries from", file);
