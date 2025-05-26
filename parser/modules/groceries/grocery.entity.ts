@@ -1,6 +1,5 @@
 export interface Grocery {
   itemCode: string; // primary key
-  itemType?: number;
   itemName?: string;
   manufacturerName?: string;
   unitQty?: string;
@@ -26,7 +25,6 @@ export interface GroceryReference {
   SubChainId: string; // references stores(SubChainId)
   StoreId: string; // references stores(StoreId)
   itemPrice?: number;
-  allowDiscount?: boolean;
   item: Grocery;
   priceUpdate: GroceryPriceUpdate;
 }
