@@ -9,7 +9,7 @@ from duckduckgo_search import DDGS
 def is_valid_barcode(code: str) -> bool:
     return code.isdigit() and len(code) == 13
 
-def get_image_duckduckgo(itemcode: str, itemname: str) -> str | None:
+def get_product_image_duckduckgo(itemcode: str, itemname: str) -> str | None:
     query = itemcode if is_valid_barcode(itemcode) else itemname
     with DDGS() as ddgs:
         results = ddgs.images(query, max_results=1)
@@ -18,6 +18,16 @@ def get_image_duckduckgo(itemcode: str, itemname: str) -> str | None:
             return results[0]["image"]
     return None
 
+
+def get_store_image_duckduckgo(storename: str) -> str | None:
+    query = storename
+    with DDGS() as ddgs:
+        results = ddgs.images(query, max_results=1)
+        results = list(results)
+        if results:
+            return results[0]["image"]
+        
+        
 if __name__ == "__main__":
     delay = random.uniform(2, 7)
     time.sleep(delay)
