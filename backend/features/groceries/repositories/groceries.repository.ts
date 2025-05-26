@@ -13,7 +13,18 @@ export const getGroceryByItemCode = async (itemCode: string) => {
   });
 };
 
-
+export const getGroceryHistory = async (itemCode: string) => {
+  return await prisma.store_grocery_price_history.findMany({
+    where: { itemCode },
+    include: {
+      stores: true, // ודא שזה השם הנכון של היחס ב-Prisma schema שלך
+    },
+    orderBy: [
+      { StoreId: 'asc' },
+      { updateDatetime: 'asc' },
+    ],
+  });
+};
 export const getStoresByItemCode = async (itemCode: string) => {
   return await prisma.store_grocery.findMany({
     where: { itemCode },
@@ -29,12 +40,12 @@ export const searchGroceries = async (query: string) => {
   return await prisma.grocery.findMany({
     where: {
       OR: [
-        {
-          manufacturerItemDescription: {
-            startsWith: query,
-            not: null,
-          },
-        },
+        // {
+        //   manufacturerItemDescription: {
+        //     startsWith: query,
+        //     not: null,
+        //   },
+        // },
         {
           itemName: {
             startsWith: query,

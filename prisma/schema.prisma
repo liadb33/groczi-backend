@@ -29,6 +29,7 @@ model stores {
   subchains     subchains       @relation(fields: [ChainId, SubChainId], references: [ChainId, SubChainId], onDelete: NoAction, onUpdate: NoAction, map: "stores_ibfk_1")
 
   @@id([ChainId, SubChainId, StoreId])
+  store_grocery_price_history store_grocery_price_history[]
 }
 
 model subchains {
@@ -59,6 +60,7 @@ model grocery {
   list_item          list_item[]
   promotion_grocery  promotion_grocery[]
   store_grocery      store_grocery[]
+  store_grocery_price_history store_grocery_price_history[]
 }
 
 model store_grocery {
@@ -159,4 +161,20 @@ model list_item {
 
   @@index([itemCode], map: "fk_listitem_grocery")
   @@index([listId], map: "fk_listitem_list")
+}
+
+model store_grocery_price_history {
+  ChainId        String   @db.VarChar(20)
+  itemCode       String   @db.VarChar(20)
+  SubChainId     String   @db.VarChar(20)
+  StoreId        String   @db.VarChar(20)
+  price          Decimal?  @db.Decimal(12, 2)
+  updateDatetime DateTime @db.DateTime(0)
+
+  @@id([itemCode, ChainId, SubChainId, StoreId, updateDatetime])
+
+  @@index([itemCode, ChainId, SubChainId, StoreId, updateDatetime])
+
+  grocery grocery @relation(fields: [itemCode], references: [itemCode], onDelete: NoAction, onUpdate: NoAction, map: "store_grocery_price_history_ibfk_1")
+  stores  stores  @relation(fields: [ChainId, SubChainId, StoreId], references: [ChainId, SubChainId, StoreId], onDelete: NoAction, onUpdate: NoAction, map: "store_grocery_price_history_ibfk_2")
 }

@@ -11,6 +11,15 @@ export interface Grocery {
   quantity?: number;
 }
 
+export interface GroceryPriceUpdate {
+  ChainId: string; // references stores(ChainId)
+  SubChainId: string; // references stores(SubChainId)
+  StoreId: string; // references stores(StoreId)
+  itemCode: string; // references grocery.itemCode
+  itemPrice: number;
+  date?: Date;
+}
+
 export interface GroceryReference {
   itemCode: string; // references grocery.itemCode
   ChainId: string; // references stores(ChainId)
@@ -19,4 +28,5 @@ export interface GroceryReference {
   itemPrice?: number;
   allowDiscount?: boolean;
   item: Grocery;
+  priceUpdate: GroceryPriceUpdate;
 }
