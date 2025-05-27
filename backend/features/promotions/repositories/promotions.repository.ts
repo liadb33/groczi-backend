@@ -62,18 +62,41 @@ export const getPromotionsByGroceryItemCode = async (itemCode: string) => {
 };
 
 
-// get promotions summary
-export const getPromotionsSummary = async () => {
-  return await prisma.promotion.findMany({
+export const getPromotionsGroupedByStore = async () => {
+  // Fetch all promotions including store info
+  const promos = await prisma.promotion.findMany({
     include: {
-      stores: true, // to get the storeName
-      promotion_grocery: {
-        include: {
-          grocery: true,
-        },
-        take: 4, // max 4 groceries
-      },
+      stores: true, 
     },
-    take: 4,
+    take: 5,
   });
+
+  // Group promotions by store key (chainId-subChainId-storeId)
+  const grouped = promos.reduce((acc: any, promo: any) => {
+    const key = `${promo.ChainId}-${promo.SubChainId}-${promo.StoreId}`;
+    if (!acc[key]) {
+      acc[key] = {
+        chainId: promo.ChainId,
+        subChainId: promo.SubChainId,
+        storeId: promo.StoreId,
+        storeName: promo.stores?.StoreName || null,
+        address: promo.stores?.Address || null,
+        city: promo.stores?.City || null,
+        zipcode: promo.stores?.Zipcode || null,
+        latitude: promo.stores?.Latitude || null,
+        longitude: promo.stores?.Longitude || null,
+        promotions: [],
+      };
+    }
+    acc[key].promotions.push({
+      promotionId: promo.PromotionId,
+      promotionName: promo.PromotionName,
+      startDate: promo.StartDate,
+      endDate: promo.EndDate,
+    });
+    return acc;
+  }, {});
+
+  // Return as array
+  return Object.values(grouped);
 };

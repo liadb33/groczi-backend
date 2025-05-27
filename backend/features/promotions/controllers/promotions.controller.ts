@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { getAllPromotions, getDiscountedGroceriesByPromotionId, getPromotionsByGroceryItemCode, getPromotionsByStore, getPromotionsSummary } from "../repositories/promotions.repository.js";
+import { getAllPromotions, getDiscountedGroceriesByPromotionId, getPromotionsByGroceryItemCode, getPromotionsByStore, getPromotionsGroupedByStore } from "../repositories/promotions.repository.js";
 
  // get all promotions
 export const getAllPromotionsController = async (
@@ -99,32 +99,13 @@ export const getPromotionsByGroceryController = async (
   }
 };
 
-
-export const getPromotionsSummaryController = async (req: Request, res: Response, next: NextFunction) => {
+// get promotions grouped by store
+export const getPromotionsGroupedByStoreController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const promos = await getPromotionsSummary();
-
-    // Reshape the data to return only the fields you want:
-    const results = promos.map((promo: any) => ({
-      promotionId: promo.PromotionId,
-      promotionName: promo.PromotionName,
-      storeName: promo.stores?.StoreName || null,
-      chainId: promo.ChainId,
-      subChainId: promo.SubChainId,
-      storeId: promo.StoreId,
-      expiryDate: promo.EndDate,
-      groceries: promo.promotion_grocery.map((pg: any) => ({
-        itemCode: pg.itemCode,
-        itemName:
-          pg.grocery?.itemName ||
-          "Unknown",
-      })),
-    }));
-
-    res.json(results);
+    const groupedPromos = await getPromotionsGroupedByStore();
+    res.json(groupedPromos);
   } catch (error) {
-    console.error("Error fetching promotions summary:", error);
+    console.error("Error fetching grouped promotions:", error);
     next(error);
   }
 };
-

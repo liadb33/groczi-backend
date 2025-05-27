@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { findAllStores, findStoreById } from '../repositories/stores.repository.js';
+import { findAllStores, findStoreById, getNearbyStoresFromLocation } from '../repositories/stores.repository.js';
 
 //get all stores
 export const getAllStores = async (req: Request, res: Response, next: NextFunction) => {
@@ -29,6 +29,36 @@ export const getStoreById = async (
     res.json(store);
   } catch (error) {
     console.error("Error fetching store by ID:", error);
+    next(error);
+  }
+};
+
+
+// get nearby stores
+export const getNearbyStores = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { userLatitude, userLongitude, maxStoreDistance, limit } = req.query;
+
+  if (!userLatitude || !userLongitude || !maxStoreDistance) {
+    return res.status(400).json({
+      message: "Missing userLatitude, userLongitude, or maxStoreDistance",
+    });
+  }
+
+  try {
+    const stores = await getNearbyStoresFromLocation(
+      parseFloat(userLatitude as string),
+      parseFloat(userLongitude as string),
+      parseFloat(maxStoreDistance as string),
+      parseInt(limit as string) || 5
+    );
+
+    res.json(stores);
+  } catch (error) {
+    console.error("Error fetching nearby stores:", error);
     next(error);
   }
 };

@@ -132,9 +132,6 @@ export async function rankEligibleStoresForItemList(
 }
 
 // --- Multi-Store DP Service function (runTopNMultiStoreDPOptimization) ---
-// This will also need to be refactored later to accept a list of items (DPGroceryList)
-// and an itemDetailsMap, rather than fetching from a deviceId.
-// For now, keeping the signature you provided previously, but it will need adjustment.
 
 // --- Helper: Calculate Distance (Haversine, for TSP) ---
 function calculateDistanceForTSP(loc1: [number, number], loc2: [number, number]): number {
