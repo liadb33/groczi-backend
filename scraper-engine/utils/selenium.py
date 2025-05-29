@@ -72,8 +72,7 @@ def access_site(driver: webdriver.Chrome, url: str,wait_selector: str) -> bool:
         WebDriverWait(driver, 30).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, wait_selector))
         )
-
-        logging.info(f"✅ Found table.")
+        
         return True
     except TimeoutException:
         logging.error(f"❌ Timed out waiting for site confirmation")

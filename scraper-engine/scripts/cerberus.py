@@ -21,6 +21,7 @@ from utils.selenium import perform_logout,perform_login,transfer_cookies
 from utils.json import load_config
 from utils.constants import *
 from utils.selenium import get_csrf_token_from_page
+from utils.filesys import determine_folder
 
 colorama.init(autoreset=True)
 
@@ -55,12 +56,7 @@ def download_and_extract(file_links: list[str], session: requests.Session, usern
 
             gz_path = Path(GZ_FOLDER_PATH) / file_name_gz
             file_name_xml = file_name_gz[:-3] + ".xml" 
-            user_xml_folder = (
-                XML_FOLDER_GROCERY_PATH if "price" in file_name_gz.lower() else
-                XML_FOLDER_STORE_PATH if "store" in file_name_gz.lower() else
-                XML_FOLDER_PROMOTION_PATH if "promo" in file_name_gz.lower() else
-                XML_OTHERS_FOLDER_PATH
-            )
+            user_xml_folder = determine_folder(file_name_gz, username)
         
             extracted_path = user_xml_folder / username / file_name_xml
             extracted_path.parent.mkdir(parents=True, exist_ok=True)

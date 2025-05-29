@@ -13,7 +13,6 @@ from pathlib import Path
 from tqdm import tqdm
 from datetime import datetime, timedelta
 from requests.exceptions import RequestException
-from tqdm import tqdm
 from colorama import Fore, Style
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
