@@ -4,18 +4,25 @@ import gzip
 import shutil
 import requests
 import sys
+import logging
+import colorama
 
+from tqdm import tqdm
+from colorama import Fore, Style
 from datetime import datetime, timedelta
 from pathlib import Path 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from requests.exceptions import RequestException 
 from selenium.common.exceptions import WebDriverException 
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.selenium import perform_logout,perform_login,transfer_cookies
 from utils.json import load_config
 from utils.constants import *
 from utils.selenium import get_csrf_token_from_page
+
+colorama.init(autoreset=True)
 
 JSON_FILE_PATH = get_json_file_path("cerberus.json")
 
@@ -37,12 +44,14 @@ POST_REQUEST_HEADERS_BASE = {
 def download_and_extract(file_links: list[str], session: requests.Session, username: str):
     """Downloads GZ files, extracts them to XML in the user's folder, and removes the GZ."""
     
+    failed_files = []
+
     for file_link in file_links:
         try:
             file_name_gz = file_link.split("/")[-1].split("?")[0]
             if not file_name_gz.endswith(".gz"):
-                 logging.warning(f"Skipping link - expected .gz file: {file_link}")
-                 continue
+                logging.warning(f"Skipping link - expected .gz file: {file_link}")
+                continue
 
             gz_path = Path(GZ_FOLDER_PATH) / file_name_gz
             file_name_xml = file_name_gz[:-3] + ".xml" 
@@ -56,27 +65,49 @@ def download_and_extract(file_links: list[str], session: requests.Session, usern
             extracted_path = user_xml_folder / username / file_name_xml
             extracted_path.parent.mkdir(parents=True, exist_ok=True)
             
-            logging.info(f"⬇️ Downloading: {file_name_gz} to {gz_path}")
-            response = session.get(file_link, stream=True, timeout=60)
-            response.raise_for_status() 
+            print(f"{Fore.CYAN}⬇️ Downloading: {file_name_gz}{Style.RESET_ALL}")
+            
+            with session.get(file_link, stream=True, timeout=60) as response:
+                response.raise_for_status()
+                total_size = int(response.headers.get("content-length", 0))
+                block_size = 8192
+                
+                with open(gz_path, "wb") as f_gz, tqdm(
+                    total=total_size,
+                    unit='B',
+                    unit_scale=True,
+                    desc=file_name_gz,
+                    leave=False,
+                    ncols=80
+                ) as pbar:
+                    for chunk in response.iter_content(block_size):
+                        if chunk:
+                            f_gz.write(chunk)
+                            pbar.update(len(chunk))
 
-            with open(gz_path, "wb") as f_gz:
-                shutil.copyfileobj(response.raw, f_gz)
-
-            logging.info(f"📦 Extracting: {gz_path} to {extracted_path}")
+            print(f"{Fore.MAGENTA}📦 Extracting: {file_name_gz}{Style.RESET_ALL}")
             with gzip.open(gz_path, "rb") as f_gzip:
                 with open(extracted_path, "wb") as f_xml:
                     shutil.copyfileobj(f_gzip, f_xml)
 
             os.remove(gz_path) 
-            logging.info(f"✅ Done & Cleaned: {file_name_gz}")
 
         except RequestException as e:
-            logging.error(f"❌ Download failed for {file_link}: {e}")
+            print(f"{Fore.RED}❌ Download failed for {file_link}: {e}{Style.RESET_ALL}")
+            failed_files.append(file_link)
         except OSError as e:
-            logging.error(f"❌ File/Extract error for {file_name_gz} (Link: {file_link}): {e}")
+            print(f"{Fore.RED}❌ File/Extract error for {file_name_gz} (Link: {file_link}): {e}{Style.RESET_ALL}")
+            failed_files.append(file_link)
         except Exception as e:
-            logging.error(f"❌ Unexpected error processing {file_link}: {type(e).__name__} - {e}")
+            print(f"{Fore.RED}❌ Unexpected error processing {file_link}: {type(e).__name__} - {e}{Style.RESET_ALL}")
+            failed_files.append(file_link)
+
+    if failed_files:
+        print(f"{Fore.YELLOW}⚠️ Some files failed to download or extract:{Style.RESET_ALL}")
+        for f in failed_files:
+            print(f"{Fore.YELLOW}  - {f}{Style.RESET_ALL}")
+    else:
+        print(f"{Fore.GREEN}🎉 All files downloaded and extracted successfully for user {username}!{Style.RESET_ALL}")
 
 def fetch_file_list(session: requests.Session, token: str, search_criteria: str, folder: str) -> list | None:
     """Fetches the list of files matching the criteria via POST request."""

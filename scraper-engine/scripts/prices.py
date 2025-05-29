@@ -5,10 +5,16 @@ import gzip
 import shutil
 import re
 import sys
+import logging
+import time
+import colorama
+
 from pathlib import Path
 from tqdm import tqdm
 from datetime import datetime, timedelta
 from requests.exceptions import RequestException
+from tqdm import tqdm
+from colorama import Fore, Style
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.json import load_config
@@ -16,11 +22,6 @@ from utils.filesys import determine_folder
 from utils.filesys import parse_args
 from utils.constants import *
 
-import logging
-from tqdm import tqdm
-import time
-import colorama
-from colorama import Fore, Style
 colorama.init(autoreset=True)
 
 JSON_FILE_PATH = get_json_file_path("prices.json")

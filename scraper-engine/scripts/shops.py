@@ -7,7 +7,7 @@ import time
 import sys
 
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 # Selenium Imports
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -72,7 +72,9 @@ def fetch_file_list(driver: webdriver.Chrome, config: dict) -> bool:
             return False
         
         # Set current hour minus one hour
-        current_hour = datetime.now().hour - 1
+        
+        current_hour = (datetime.now() - timedelta(hours=1)).hour
+
         files_processed = 0
         
         for row in rows:
@@ -90,10 +92,6 @@ def fetch_file_list(driver: webdriver.Chrome, config: dict) -> bool:
                 driver.execute_script("arguments[0].click();", download_link)
                 logging.info(f"⬇️ Downloading file from hour: {timestamp.text}")
                 
-                # Wait for download completion
-                if not wait_for_download_complete(GZ_FOLDER_PATH):
-                    logging.warning(f"⚠️ Download did not complete within timeout for: {timestamp.text}")
-                
                 files_processed += 1
             except Exception as e:
                 logging.error(f"❌ Error processing table row: {e}")
@@ -105,19 +103,6 @@ def fetch_file_list(driver: webdriver.Chrome, config: dict) -> bool:
     except Exception as e:
         logging.error(f"❌ Error fetching file list: {e}")
         return False
-
-def wait_for_download_complete(folder: Path, timeout: int = 60) -> bool:
-    logging.info("⏳ Waiting for download to complete...")
-    elapsed = 0
-    while elapsed < timeout:
-        files = list(folder.glob("*.crdownload"))
-        if not files:
-            logging.info("✅ Download finished.")
-            return True
-        time.sleep(1)
-        elapsed += 1
-    logging.warning("⚠️ Download may not have completed in time.")
-    return False
 
 def extract(username: str) -> None:
     """Extracts .gz or .zip files from GZ_FOLDER_PATH to the given folder."""
@@ -142,7 +127,7 @@ def extract(username: str) -> None:
                     XML_OTHERS_FOLDER_PATH
                 )
 
-                file_name_xml = file_name_gz + ".xml"
+                file_name_xml = gz_path.stem + ".xml"
                 extracted_path = user_xml_folder / username / file_name_xml
                 extracted_path.parent.mkdir(parents=True, exist_ok=True)
 
