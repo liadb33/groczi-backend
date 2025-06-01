@@ -37,26 +37,43 @@ prefs = {
 }
 
 
+from selenium.webdriver import ActionChains
+
 def safe_click(driver, element):
+    # 1) ActionChains move_to_element().click()
     try:
+        ActionChains(driver).move_to_element(element).click().perform()
+        return
+    except Exception:
+        pass
+
+    # 2) Scroll into view, then element.click()
+    try:
+        driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center', inline: 'center'});",
+            element
+        )
+        time.sleep(0.2)
         element.click()
         return
-    except:
+    except Exception:
         pass
+
+    # 3) Get href and navigate
     try:
-        actions = ActionChains(driver)
-        actions.move_to_element(element).click().perform()
-        return
-    except:
+        href = element.get_attribute("href")
+        if href:
+            driver.get(href)
+            return
+    except Exception:
         pass
+
+    # 4) JavaScript click
     try:
-        driver.execute_script("arguments[0].scrollIntoView(true);", element)
-        time.sleep(0.2)
         driver.execute_script("arguments[0].click();", element)
         return
     except Exception as e:
-        print(f"All click methods failed: {e}")
-        raise
+        raise RuntimeError(f"All click methods failed: {e}")
 
 def wait_for_single_gz_file(folder: Path, timeout: int = 30) -> Path | None:
     """Wait up to timeout seconds until exactly one .gz file exists in folder."""
@@ -112,7 +129,7 @@ def download_and_extract(driver: webdriver.Chrome, user: dict):
             
             download_link = row.find_element(By.CSS_SELECTOR, config["link_config"])
 
-            #safe_click(driver,download_link)
+            safe_click(driver,download_link)
             #option 1
             # actions = ActionChains(driver)
             # actions.move_to_element(download_link).click().perform()
@@ -125,7 +142,7 @@ def download_and_extract(driver: webdriver.Chrome, user: dict):
             # driver.get(href)
 
             #option 4
-            driver.execute_script("arguments[0].click();", download_link)
+            #driver.execute_script("arguments[0].click();", download_link)
 
 
             gz_path = wait_for_single_gz_file(Path(GZ_FOLDER_PATH), timeout=60)
