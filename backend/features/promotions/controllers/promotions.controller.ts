@@ -102,7 +102,37 @@ export const getPromotionsByGroceryController = async (
 // get promotions grouped by store
 export const getPromotionsGroupedByStoreController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const groupedPromos = await getPromotionsGroupedByStore();
+    const { lat, lon, maxStoreDistance } = req.query;
+
+    // Parse and validate query parameters
+    let userLat: number | undefined;
+    let userLon: number | undefined;
+    let maxDistance: number | undefined;
+
+    if (lat && lon) {
+      userLat = parseFloat(String(lat));
+      userLon = parseFloat(String(lon));
+
+      // Validate that the parsed values are valid numbers
+      if (isNaN(userLat) || isNaN(userLon)) {
+        return res.status(400).json({
+          message: "Invalid latitude or longitude values. Must be valid numbers."
+        });
+      }
+    }
+
+    if (maxStoreDistance) {
+      maxDistance = parseFloat(String(maxStoreDistance));
+
+      // Validate that the parsed value is a valid positive number
+      if (isNaN(maxDistance) || maxDistance <= 0) {
+        return res.status(400).json({
+          message: "Invalid maxStoreDistance value. Must be a positive number."
+        });
+      }
+    }
+
+    const groupedPromos = await getPromotionsGroupedByStore(userLat, userLon, maxDistance);
     res.json(groupedPromos);
   } catch (error) {
     console.error("Error fetching grouped promotions:", error);

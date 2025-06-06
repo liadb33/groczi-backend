@@ -61,14 +61,29 @@ export const getPromotionsByGroceryItemCode = async (itemCode: string) => {
   });
 };
 
+// Haversine distance formula to calculate distance between two points on Earth
+const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+  const R = 6371; // Earth's radius in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; // Distance in kilometers
+};
 
-export const getPromotionsGroupedByStore = async () => {
+export const getPromotionsGroupedByStore = async (
+  userLat?: number,
+  userLon?: number,
+  maxStoreDistance?: number
+) => {
   // Fetch all promotions including store info
   const promos = await prisma.promotion.findMany({
     include: {
       stores: true, 
     },
-    take: 5,
   });
 
   // Group promotions by store key (chainId-subChainId-storeId)
@@ -97,6 +112,33 @@ export const getPromotionsGroupedByStore = async () => {
     return acc;
   }, {});
 
-  // Return as array
-  return Object.values(grouped);
+  // Convert to array
+  let storesWithPromotions = Object.values(grouped);
+
+  // If user coordinates are provided, filter and sort by distance
+  if (userLat !== undefined && userLon !== undefined) {
+    // Filter out stores without coordinates
+    storesWithPromotions = storesWithPromotions.filter((store: any) => 
+      store.latitude !== null && store.longitude !== null
+    );
+
+    // Calculate distance for each store and add it to the store object
+    storesWithPromotions = storesWithPromotions.map((store: any) => ({
+      ...store,
+      distance: calculateDistance(userLat, userLon, store.latitude, store.longitude)
+    }));
+
+    // Filter stores within maxStoreDistance if provided
+    if (maxStoreDistance !== undefined) {
+      storesWithPromotions = storesWithPromotions.filter((store: any) => 
+        store.distance <= maxStoreDistance
+      );
+    }
+
+    // Sort by distance (closest first)
+    storesWithPromotions.sort((a: any, b: any) => a.distance - b.distance);
+  }
+
+  // Return up to 5 stores
+  return storesWithPromotions.slice(0, 5);
 };
