@@ -1,3 +1,5 @@
+import { CATEGORIES } from "./categories";
+
 export const storePrompt = `
 אתה מקבל אובייקט JSON המכיל מידע על חנות אך הערכים שלו מבולגנים בין השדות. 
 סדר את הערכים של השדות הבאים בלבד: "storename", "address", "city", "zipcode".
@@ -14,4 +16,25 @@ export const storePrompt = `
 התוצאה צריכה להיות JSON בלבד, ללא טקסט נוסף.
 `;
 
-export const groceryPrompt = ``;
+const formattedCategories = CATEGORIES.map((c) => `"${c}"`).join(", ");
+
+export const groceryPrompt = `
+אתה מקבל אובייקט JSON עם השדות הבאים בלבד:
+  - "itemName" (שם המוצר)
+  - "unitQty" (כמות/משקל – מחרוזת או null)
+  - "manufactureName" (יצרן – מחרוזת או null)
+
+הנחיות מתקדמות:
+- חיפוש וחליצה מתוך itemName:
+   - אם מתוך itemName ניתן לזהות את שם היצרן (manufactureName), הוצא אותו וחזר אותו בשדה manufactureName.
+   - אם מתוך itemName ניתן לזהות את הכמות/משקל בעברית (למשל "250 גרם", "1 ליטר"), המיר אותו לשדה unitQty בפורמט "<מספר><יחידה>" באנגלית (למשל "250g", "1L").
+- ניקוי manufactureName:
+   - אם manufactureName חסר, ריק או לא מחרוזת תקפה – הגדר ל-null.
+- בדיקת unitQty:
+   - אם לא ניתן לחלץ כמות ברורה, הגדר unitQty ל-null.
+- הוספת שדה חדש "category":
+   - בחר מתוך רשימת הקטגוריות הבאות: [${formattedCategories}]
+   - על סמך ה־itemName בחר את הקטגוריה המתאימה ביותר.
+   - אם אין התאמה ברורה, הגדר category ל-null.
+
+   החזר אך ורק JSON תקף, ללא טקסט נוסף.`;
