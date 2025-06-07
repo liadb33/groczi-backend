@@ -1,40 +1,31 @@
 import os
 import json
 import requests
-import gzip
-import shutil
 import re
 import sys
-import logging
 import time
-import colorama
-
-from pathlib import Path
-from tqdm import tqdm
 from datetime import datetime, timedelta
+from pathlib import Path
 from requests.exceptions import RequestException
-from colorama import Fore, Style
 
+# Utils imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from utils.json import load_config
-from utils.filesys import determine_folder
-from utils.filesys import parse_args
+from utils.json     import load_config
+from utils.filesys  import determine_folder, parse_args, extract_file  # <-- import extract_file
 from utils.constants import *
+from utils.logging  import log_info, log_success, log_warn, log_error, log_critical
 
-colorama.init(autoreset=True)
+# Record script start and hour
+SCRIPT_START      = datetime.now()
+SCRIPT_START_HOUR = SCRIPT_START.hour
 
 JSON_FILE_PATH = get_json_file_path("prices.json")
+
 
 def fetch_file_list_from_html(session: requests.Session, url: str, hour_str: str | None = None) -> list[str] | None:
     """🌐 Parses the HTML page and returns a list of full download links for .gz files.
 
-    Args:
-        session (requests.Session): The HTTP session to use.
-        url (str): The base URL to fetch files from.
-        hour_str (str | None): Specific hour to filter files by (format: YYYYMMDDHH). If None, uses current hour - 1.
-
-    Returns:
-        list[str] | None: A list of filtered download links or None on failure.
+    Uses the script start time for default filtering (previous hour).
     """
     try:
         response = session.get(url, timeout=30)
@@ -42,125 +33,104 @@ def fetch_file_list_from_html(session: requests.Session, url: str, hour_str: str
 
         pattern = r'const\s+files\s*=\s*JSON\.parse\(`(.*?)`\)\.map\(String\);'
         match = re.search(pattern, response.text, re.DOTALL)
-        if match:
-            files_json_str = match.group(1)
-            files_list = json.loads(files_json_str)
-        else:
-            print("No match found for the files array.")
+        if not match:
+            log_warn(f"No match found for files array in {url}")
             return None
 
-        now = datetime.now()
-        date_str = now.strftime("%Y%m%d")
+        files_list = json.loads(match.group(1))
+
+        date_str = SCRIPT_START.strftime("%Y%m%d")
         if hour_str is None:
-            hour_str = (now - timedelta(hours=1)).strftime("%Y%m%d%H")
+            # default to one hour before script start
+            hour_str = (SCRIPT_START).strftime("%Y%m%d%H")
 
         base_url = url.rstrip("/")
-        filtered_files = [filename for filename in files_list if hour_str in filename]
-        full_links = [f"{base_url}/{date_str}/{filename}" for filename in filtered_files]
+        filtered = [fn for fn in files_list if hour_str in fn]
+        links = [f"{base_url}/{date_str}/{fn}" for fn in filtered]
+
+        return links
 
     except json.JSONDecodeError as e:
-        logging.error(f"❌ Failed to decode JSON from {url}: {e}")
+        log_error(f"Failed to decode JSON from {url}: {e}")
         return None
     except RequestException as e:
-        logging.error(f"❌ Request error while fetching HTML {e}")
+        log_error(f"Request error while fetching HTML: {e}")
         return None
     except Exception as e:
-        logging.error(f"⚠️ Unexpected error during HTML parsing {type(e).__name__} - {e}")
+        log_error(f"Unexpected error during HTML parsing ({type(e).__name__}): {e}")
         return None
 
-    return full_links
 
-def download_and_extract(file_links: list[str], session: requests.Session, userFolder: str) -> None:
+def download_and_extract(file_links: list[str], session: requests.Session, user_folder: str) -> None:
     os.makedirs(GZ_FOLDER_PATH, exist_ok=True)
-    failed_files = []
+    failures = []
+    log_info(f"     🗃 Starting downloads for user: {user_folder}")
 
-    print(f"        {Fore.CYAN}🗃 Starting downloads for user: {userFolder}{Style.RESET_ALL}")
-
-    for file_link in file_links:
-        file_name_gz = file_link.split("/")[-1]
-        start_time = time.time()
+    for link in file_links:
+        name_gz = link.split("/")[-1]
+        start = time.time()
         try:
-            user_xml_folder = determine_folder(file_name_gz, userFolder)
-            os.makedirs(user_xml_folder, exist_ok=True)
+            user_dir = determine_folder(name_gz, user_folder)
+            os.makedirs(user_dir, exist_ok=True)
 
-            gz_path = Path(GZ_FOLDER_PATH) / file_name_gz
-            file_name_xml = file_name_gz + ".xml"
-            extracted_path = Path(user_xml_folder) / file_name_xml
+            gz_path   = Path(GZ_FOLDER_PATH) / name_gz
+            xml_name  = name_gz.replace('.gz', '.xml')
+            xml_path  = Path(user_dir) / xml_name
 
-            response = session.get(file_link, stream=True, timeout=30)
-            response.raise_for_status()
+            with session.get(link, stream=True, timeout=30) as resp:
+                resp.raise_for_status()
+                with open(gz_path, 'wb') as f:
+                    for chunk in resp.iter_content(8192):
+                        if chunk:
+                            f.write(chunk)
 
-            total_size = int(response.headers.get("content-length", 0))
-            block_size = 8192
+            extract_file(gz_path, xml_path)  # <-- use shared util
+            gz_path.unlink()
 
-            with open(gz_path, "wb") as f, tqdm(
-                total=total_size, unit='B', unit_scale=True, desc=file_name_gz, leave=False
-            ) as pbar:
-                for data in response.iter_content(block_size):
-                    f.write(data)
-                    pbar.update(len(data))
+            elapsed = time.time() - start
+            log_success(f"✅ {name_gz} downloaded & extracted in {elapsed:.2f}s")
 
-            with gzip.open(gz_path, "rb") as f_gzip:
-                with open(extracted_path, "wb") as f_xml:
-                    shutil.copyfileobj(f_gzip, f_xml)
-
-            os.remove(gz_path)
-
-            elapsed = time.time() - start_time
-            print(f"{Fore.GREEN}✅ {file_name_gz} downloaded & extracted in {elapsed:.2f}s{Style.RESET_ALL}")
-
-        except requests.RequestException as e:
-            logging.error(f"{Fore.RED}❌ Download failed for {file_link}: {e}{Style.RESET_ALL}")
-            failed_files.append(file_link)
-        except OSError as e:
-            logging.error(f"{Fore.RED}❌ File/Extract error for {file_name_gz}: {e}{Style.RESET_ALL}")
-            failed_files.append(file_link)
         except Exception as e:
-            logging.error(f"{Fore.RED}❌ Unexpected error for {file_link}: {type(e).__name__} - {e}{Style.RESET_ALL}")
-            failed_files.append(file_link)
+            log_error(f"❌ Error for {name_gz}: {type(e).__name__} - {e}")
+            failures.append(link)
 
-    if failed_files:
-        print(f"{Fore.YELLOW}⚠️ Some files failed to download:{Style.RESET_ALL}")
-        for file in failed_files:
-            print(f"{Fore.YELLOW}  - {file}{Style.RESET_ALL}")
+    if failures:
+        log_warn("⚠️ Some files failed to download:")
+        for f in failures:
+            log_error(f" - {f}")
     else:
-        print(f"{Fore.GREEN}🎉 All files downloaded successfully for user {userFolder}!{Style.RESET_ALL}")
+        log_success(f"🎉 All files downloaded successfully for user {user_folder}!")
+
 
 def main():
-    """
-    Main function to load configuration, fetch file links for each user,
-    and download and extract the corresponding files.
-    """
     args = parse_args()
-
     try:
         config = load_config(JSON_FILE_PATH)
     except Exception:
-        logging.critical("Failed to load configuration. Exiting.")
+        log_critical("Failed to load configuration. Exiting.")
         return
 
     session = requests.Session()
-    users = config.get("users", [])
-    if not users:
-        logging.error("❌ No users found in the configuration.")
-        return
-
-    if args.user: # filter users by arg username
-        users = [u for u in users if u["username"] in args.user]
+    users   = config.get('users', [])
+    if args.user:
+        users = [u for u in users if u['username'] in args.user]
         if not users:
-            logging.warning("⚠️ No matching users found for the provided --user argument(s).")
+            log_warn("No matching users for provided --user argument(s). Exiting.")
             return
-        
+
     for user in users:
-        url = user["url"]
-        username = user["username"]
-        file_links = fetch_file_list_from_html(session, url,hour_str=args.hour)
-        
-        if file_links:
-            download_and_extract(file_links, session, username)
+        url  = user.get('url','')
+        name = user.get('username','')
+        if not url:
+            log_warn(f"Missing URL for user {name}, skipping.")
+            continue
+
+        links = fetch_file_list_from_html(session, url, hour_str=args.hour)
+        if links:
+            download_and_extract(links, session, name)
         else:
-            logging.error(f"⚠️ No file links found for {username}")
+            log_warn(f"No file links found for user {name}")
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
