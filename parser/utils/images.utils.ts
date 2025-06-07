@@ -5,22 +5,31 @@ import util from "util";
 const prisma = new PrismaClient();
 const execFileAsync = util.promisify(execFile);
 
-async function getImageUrl(
-  itemcode: string | null,
-  itemname: string
+// Generic helper: pass mode + args
+async function fetchImage(
+  mode: "product" | "subchain",
+  args: string[]
 ): Promise<string | null> {
   try {
     const { stdout } = await execFileAsync("python", [
-      "../../images-scraper/test.py",
-      itemcode ?? "",
-      itemname ?? "",
+      "../../images-scraper/find_image.py",
+      mode,
+      ...args,
     ]);
     const url = stdout.trim();
     return url || null;
   } catch (err) {
-    console.error("Python error:", err);
+    console.error(`Python error [${mode}]:`, err);
     return null;
   }
+}
+
+async function getProductImageUrl(itemcode: string, itemname: string) {
+  return fetchImage("product", [itemcode, itemname]);
+}
+
+async function getSubChainImageUrl(subchainname: string) {
+  return fetchImage("subchain", [subchainname]);
 }
 
 async function main() {
@@ -28,26 +37,51 @@ async function main() {
     where: { imageUrl: null },
     select: { itemCode: true, itemName: true },
   });
-  for (const grocery of groceries) {
-    if (grocery.itemCode === null || grocery.itemName === null) {
-      console.log(`❌ Skipping grocery with missing itemCode or itemName`);
-      continue;
-    }
 
-    const imageUrl = await getImageUrl(grocery.itemCode, grocery.itemName);
+  for (const { itemCode, itemName } of groceries) {
+    if (!itemCode || !itemName) continue;
+    const imageUrl = await getProductImageUrl(itemCode, itemName);
     if (imageUrl) {
       await prisma.grocery.update({
-        where: { itemCode: grocery.itemCode },
+        where: { itemCode },
         data: { imageUrl },
       });
-      console.log(`✔️ Updated image for ${grocery.itemName}`);
+      console.log(`✔️ Product image updated: ${itemName}`);
     } else {
-      console.log(`❌ No image found for ${grocery.itemName}`);
+      console.log(`❌ No image for product: ${itemName}`);
+    }
+  }
+
+  const subchains = await prisma.subchains.findMany({
+    where: { imageUrl: null },
+    select: { SubChainId: true, SubChainName: true, ChainId: true },
+  });
+
+  for (const { SubChainId, SubChainName, ChainId } of subchains) {
+    if (!SubChainName) continue;
+    const imageUrl = await getSubChainImageUrl(SubChainName);
+    if (imageUrl) {
+      await prisma.subchains.update({
+        where: {
+          ChainId_SubChainId: {
+            ChainId,
+            SubChainId,
+          },
+        },
+        data: { imageUrl },
+      });
+      console.log(`✔️ Sub Chain image updated: ${SubChainName}`);
+    } else {
+      console.log(`❌ No image for Sub Chain: ${SubChainName}`);
     }
   }
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(() => {
+    prisma.$disconnect();
+  });
