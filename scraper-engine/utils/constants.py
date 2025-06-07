@@ -1,11 +1,4 @@
 from pathlib import Path
-import logging
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    datefmt='%d/%m/%Y %H:%M'
-)
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 

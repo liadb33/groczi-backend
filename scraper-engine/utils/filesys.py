@@ -10,8 +10,6 @@ def determine_folder(file_name: str, user_folder: str) -> Path:
     )
     return base_folder / user_folder
 
-
-
 def parse_args():
     parser = argparse.ArgumentParser(description="Download and extract .gz files from store URLs.")
     parser.add_argument(

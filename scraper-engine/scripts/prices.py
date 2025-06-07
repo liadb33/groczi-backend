@@ -93,7 +93,6 @@ def download_and_extract(file_links: list[str], session: requests.Session, userF
             total_size = int(response.headers.get("content-length", 0))
             block_size = 8192
 
-            # tqdm עם סך גודל להראות בר בזמן אמת
             with open(gz_path, "wb") as f, tqdm(
                 total=total_size, unit='B', unit_scale=True, desc=file_name_gz, leave=False
             ) as pbar:
@@ -156,6 +155,7 @@ def main():
         url = user["url"]
         username = user["username"]
         file_links = fetch_file_list_from_html(session, url,hour_str=args.hour)
+        
         if file_links:
             download_and_extract(file_links, session, username)
         else:
