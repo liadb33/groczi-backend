@@ -52,7 +52,7 @@
       "username": "laibcatalog",
       "url": "https://laibcatalog.co.il/",
       "config": {
-        "wait_for_selector": "table",
+        "wait_for_selector": "#download_content table tbody",
         "row_selector": "table > tbody > tr:not(:first-child)",
         "timestamp_selector": "td:nth-child(7)",
         "link_config": "td:nth-child(8) > a",

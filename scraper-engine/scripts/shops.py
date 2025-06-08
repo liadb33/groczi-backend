@@ -1,207 +1,184 @@
 import os
-import shutil
-import logging
-import gzip
-import zipfile
+import sys
 import time
+import gzip
+import shutil
+import zipfile
+
 from pathlib import Path
 from datetime import datetime
-# Selenium Imports
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By 
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from utils.json import load_config
+from selenium.webdriver import ActionChains
+
+# Utils imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from utils.json     import load_config
 from utils.constants import *
-from utils.date import get_file_hour
+from utils.date     import get_file_hour
 from utils.selenium import access_site
+from utils.filesys  import parse_args, determine_folder, extract_file
+from utils.logging  import log_info, log_success, log_warn, log_error, log_critical
 
-JSON_FILE_PATH = get_json_file_path("cerberus.json")
+# Record script start time
+SCRIPT_START      = datetime.now()
+SCRIPT_START_HOUR = SCRIPT_START.hour
 
-prefs = {
-    "download.default_directory": str(GZ_FOLDER_PATH),  # Set the default download directory
-    "download.prompt_for_download": False,  # disables the "Save As" dialog
+# Paths and Selenium download preferences
+JSON_FILE_PATH = get_json_file_path("shops.json")
+GZ_FOLDER      = Path(GZ_FOLDER_PATH)
+CHROME_PREFS   = {
+    "download.default_directory": str(GZ_FOLDER),
+    "download.prompt_for_download": False,
     "download.directory_upgrade": True,
-    "safebrowsing.enabled": True  # avoid security prompts
+    "safebrowsing.enabled": True
 }
 
-def fetch_all_file_entries(driver: webdriver.Chrome, config: dict) -> bool:
-    overall_success = True
-    # Try to collect files from current page
-    page_result = fetch_file_list(driver, config)
-    
-    # If return is True, we're done (found a file outside desired hour range)
-    while not page_result:
-        try:
-            # Try to find button for next page
-            page_element = driver.find_element(By.CSS_SELECTOR, config["pagination_selector"])
-            
-            # Check if button exists and is accessible
-            if page_element and page_element.is_displayed() and page_element.is_enabled():
-                page_element.click()
-                
-                WebDriverWait(driver, 10).until(
-                    EC.staleness_of(driver.find_element(By.TAG_NAME, "table"))
-                )
-                
-                page_success = fetch_file_list(driver, config)
-                overall_success = overall_success and page_success
-                
-                # If we found a file outside the hour range, end the search
-                if page_success:
-                    break
-            else:
-                logging.info("Reached last page (no next page button found)")
-                break
-        except Exception as e:
-            logging.info(f"End of page navigation: {e}")
-            break
-    
-    return overall_success
-     
-def fetch_file_list(driver: webdriver.Chrome, config: dict) -> bool:
+def safe_click(driver, element):
     try:
-        # Find all rows in the table
-        rows = driver.find_elements(By.CSS_SELECTOR, config["row_selector"])
-        if not rows:
-            logging.warning("⚠️ No rows found in table")
-            return False
-        
-        # Set current hour minus one hour
-        current_hour = datetime.now().hour - 1
-        files_processed = 0
-        
-        for row in rows:
-            try:
-                # Extract timestamp
-                timestamp = row.find_element(By.CSS_SELECTOR, config["timestamp_selector"])
-                file_hour = get_file_hour(timestamp.text)
-                
-                # Check if file is from previous hour
-                if file_hour != current_hour:
-                    return True  # Found file outside hour range - end search
-                
-                # Click download link
-                download_link = row.find_element(By.CSS_SELECTOR, config["link_config"])
-                download_link.click()
-                logging.info(f"⬇️ Downloading file from hour: {timestamp.text}")
-                
-                # Wait for download completion
-                if not wait_for_download_complete(GZ_FOLDER_PATH):
-                    logging.warning(f"⚠️ Download did not complete within timeout for: {timestamp.text}")
-                
-                files_processed += 1
-            except Exception as e:
-                logging.error(f"❌ Error processing table row: {e}")
-        
-        logging.info(f"✅ Total of {files_processed} files processed in current page")
-        
-        # Return False to continue to next page if files were processed and no out-of-range file found
-        return files_processed == 0
-    except Exception as e:
-        logging.error(f"❌ Error fetching file list: {e}")
-        return False
-
-def wait_for_download_complete(folder: Path, timeout: int = 60) -> bool:
-    logging.info("⏳ Waiting for download to complete...")
-    elapsed = 0
-    while elapsed < timeout:
-        files = list(folder.glob("*.crdownload"))
-        if not files:
-            logging.info("✅ Download finished.")
-            return True
-        time.sleep(1)
-        elapsed += 1
-    logging.warning("⚠️ Download may not have completed in time.")
-    return False
-
-def extract(username: str) -> None:
-    """Extracts .gz or .zip files from GZ_FOLDER_PATH to the given folder."""
-    
-    gz_files = list(Path(GZ_FOLDER_PATH).glob("*.gz"))
-    if not gz_files:
-        logging.warning("⚠️ No .gz files found to extract.")
+        ActionChains(driver).move_to_element(element).click().perform()
         return
-    
-    for gz_path in gz_files:
+    except Exception:
+        pass
+    try:
+        driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center', inline: 'center'});",
+            element
+        )
+        time.sleep(0.2)
+        element.click()
+        return
+    except Exception:
+        pass
+    try:
+        href = element.get_attribute("href")
+        if href:
+            driver.get(href)
+            return
+    except Exception:
+        pass
+    try:
+        driver.execute_script("arguments[0].click();", element)
+    except Exception as e:
+        log_error(f"Click failed: {e}")
+        raise
+
+def wait_for_single_gz_file(folder: Path, timeout: int = 30) -> Path | None:
+    end_time = time.time() + timeout
+    while time.time() < end_time:
+        gz_files = list(folder.glob("*.gz"))
+        if len(gz_files) == 1:
+            return gz_files[0]
+        time.sleep(0.5)
+    return None
+
+def clear_gz_folder(folder: Path):
+    for f in folder.glob("*.gz"):
+        f.unlink()
+
+def download_file(driver, row, config) -> Path | None:
+    ts_el = row.find_element(By.CSS_SELECTOR, config.get("timestamp_selector", ""))
+    if get_file_hour(ts_el.text) != SCRIPT_START_HOUR:
+        return None
+
+    link_el = row.find_element(By.CSS_SELECTOR, config.get("link_config", ""))
+    clear_gz_folder(GZ_FOLDER)
+    safe_click(driver, link_el)
+    return wait_for_single_gz_file(GZ_FOLDER, timeout=60)
+
+def download_and_extract(driver: webdriver.Chrome, user: dict):
+    username = user.get("username", "").strip()
+    log_info(f"     🗃 Starting downloads for user: {username}")
+    config   = user.get("config", {})
+
+    rows = driver.find_elements(By.CSS_SELECTOR, config.get("row_selector", ""))
+    if not rows:
+        log_warn(f"No rows found for user {username}")
+        return
+
+    successes = 0
+    failures   = []
+
+    for row in rows:
         try:
-            with open(gz_path, "rb") as f:
-                magic = f.read(2)
-                f.seek(0)  # Reset file pointer
+            gz_path = download_file(driver, row, config)
+            if not gz_path:
+                continue
 
-                file_name_gz = gz_path.name
-                
-                user_xml_folder = (
-                    XML_FOLDER_GROCERY_PATH if "price" in file_name_gz.lower() else
-                    XML_FOLDER_STORE_PATH if "store" in file_name_gz.lower() else
-                    XML_FOLDER_PROMOTION_PATH if "promo" in file_name_gz.lower() else
-                    XML_OTHERS_FOLDER_PATH
-                )
+            start      = time.time()
+            file_name  = gz_path.name
+            output_dir = determine_folder(file_name, username)
+            os.makedirs(output_dir, exist_ok=True)
 
-                file_name_xml = file_name_gz + ".xml"
-                extracted_path = user_xml_folder / username / file_name_xml
-                extracted_path.parent.mkdir(parents=True, exist_ok=True)
+            xml_name      = file_name.replace('.gz', '.xml')
+            extracted_path = Path(output_dir) / xml_name
 
-                if magic == b'\x1f\x8b':  # GZIP magic number
-                    with gzip.open(f, "rb") as f_gzip, open(extracted_path, "wb") as f_xml:
-                        shutil.copyfileobj(f_gzip, f_xml)
+            extract_file(gz_path, extracted_path)    # <-- shared util
+            gz_path.unlink()
 
-                elif magic == b'PK':  # ZIP file magic number
-                    with zipfile.ZipFile(f) as z:
-                        for zipped_file in z.namelist():
-                            # Extract the first file in the zip
-                            with z.open(zipped_file) as zip_file, open(extracted_path, 'wb') as out_file:
-                                shutil.copyfileobj(zip_file, out_file)
-
-                else:
-                    raise ValueError("Unknown file format")
-
-            logging.info(f"✅ Extracted & removed: {file_name_gz}") 
+            elapsed = time.time() - start
+            log_success(f"✅ {file_name} downloaded & extracted in {elapsed:.2f}s")
+            successes += 1
         except Exception as e:
-            logging.error(f"❌ Failed to extract {gz_path}: {type(e).__name__} - {e}")
+            log_error(f"❌ Failed processing file for user {username}: {e}")
+            failures.append(str(e))
 
-# === MAIN FLOW ===
+    if successes == 0:
+        log_warn(f"No matching files found for user {username}")
+    if failures:
+        log_warn(f"Some errors occurred for user {username}:")
+        for err in failures:
+            log_error(f" - {err}")
+
+    # pagination
+    try:
+        next_btn = driver.find_element(By.CSS_SELECTOR, config.get("pagination_selector", ""))
+        if next_btn.is_displayed() and next_btn.is_enabled():
+            table = driver.find_element(By.TAG_NAME, "table")
+            next_btn.click()
+            WebDriverWait(driver, 10).until(EC.staleness_of(table))
+            download_and_extract(driver, user)
+    except Exception:
+        pass
+
 def main():
+    args = parse_args()
     try:
         config = load_config(JSON_FILE_PATH)
     except Exception:
-        logging.critical("Failed to load configuration. Exiting.")
+        log_critical("Failed to load configuration. Exiting.")
         return
-    
-    driver = None
-    try:
-        options = Options()
-        options.add_argument("--headless") 
-        options.add_experimental_option("prefs", prefs) 
-        driver = webdriver.Chrome(options=options)
-        
-        users = config.get("users", [])
-        for user in users:
-            os.makedirs(GZ_FOLDER_PATH, exist_ok=True)
-            
-            site_url = user.get("url", "").strip()
-            if not site_url:
-                logging.warning("⚠️ No 'url' found in user entry; skipping.")
-                continue
-            
-            if not access_site(driver, site_url, user["config"]["wait_for_selector"]):
-                logging.error(f"Skipping {site_url} due to site access failure.")
-                continue
 
-            fetch_all_file_entries(driver,user["config"])
-            extract(user.get("username", ""))
-            
-            shutil.rmtree(GZ_FOLDER_PATH)
-            logging.info(f"===== FINISHED: {site_url} =====")
-    except Exception as e:
-        shutil.rmtree(GZ_FOLDER_PATH)
-        logging.critical(f"An unexpected error occurred in main: {e}", exc_info=True)
-    finally:
-        if driver:
-            logging.info("Closing WebDriver...")
-            driver.quit()
-            logging.info("WebDriver closed.")
+    users = config.get("users", [])
+    if args.user:
+        users = [u for u in users if u.get("username") in args.user]
+        if not users:
+            log_warn("No matching users for provided --user argument(s).")
+            return
+
+    os.makedirs(GZ_FOLDER, exist_ok=True)
+    options = Options()
+    options.add_argument("--headless")
+    options.add_experimental_option("prefs", CHROME_PREFS)
+    options.add_argument("--ignore-certificate-errors")
+    options.set_capability("acceptInsecureCerts", True)
+
+    driver = webdriver.Chrome(options=options)
+    for user in users:
+        name = user.get("username", "").strip()
+        url  = user.get("url", "").strip()
+        if not url:
+            log_warn(f"Missing URL for user {name}, skipping.")
+            continue
+        if not access_site(driver, url, user.get("config", {}).get("wait_for_selector", "")):
+            log_error(f"Failed to access {url} for user {name}")
+            continue
+        download_and_extract(driver, user)
+
+    driver.quit()
 
 if __name__ == "__main__":
     main()

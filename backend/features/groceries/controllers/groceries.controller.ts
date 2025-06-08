@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { countGroceries, getAllGroceries, getGroceryByItemCode, getStoresByItemCode, searchGroceries } from '../repositories/groceries.repository.js';
+import { countGroceries, getAllGroceries, getGroceryByItemCode, getGroceryHistory, getStoresByItemCode, searchGroceries } from '../repositories/groceries.repository.js';
 
 /**
  * Handles the request to get the list of groceries.
@@ -124,3 +124,45 @@ export const searchGroceriesController = async (
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+export async function getPriceHistoryController(req: Request, res: Response) {
+  const { itemCode } = req.params;
+
+  try {
+    const priceHistory = await getGroceryHistory(itemCode);
+
+    const grouped: Record<
+      string,
+      {
+        store_id: string;
+        store_name: string;
+        prices: { date: string; price: number }[];
+      }
+    > = {};
+
+    priceHistory.forEach(({ StoreId, price, updateDatetime, stores }) => {
+      if (!grouped[StoreId]) {
+        grouped[StoreId] = {
+          store_id: StoreId,
+          store_name: stores?.StoreName ?? "Unknown",
+          prices: [],
+        };
+      }
+
+      grouped[StoreId].prices.push({
+        date: updateDatetime.toISOString(),
+        price: Number(price),
+      });
+    });
+
+    res.json({
+      itemCode,
+      price_history: Object.values(grouped),
+    });
+
+  } catch (error) {
+    console.error("Error fetching price history:", error);
+    res.status(500).json({ error: "Failed to fetch price history" });
+  }
+}

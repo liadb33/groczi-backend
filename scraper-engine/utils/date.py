@@ -1,10 +1,5 @@
 from datetime import datetime
 
-
-
-
-
-
 def get_file_hour(timestamp_text: str) -> int:
     formats = [
         "%H:%M",                      

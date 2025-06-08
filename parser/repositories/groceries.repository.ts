@@ -9,15 +9,14 @@ export async function saveGrocery(ref: GroceryReference) {
     SubChainId,
     StoreId,
     itemPrice,
-    allowDiscount,
     item,
+    priceUpdate,
   } = ref;
 
   // 1. Upsert the Grocery master record (unchanged)
   await prisma.grocery.upsert({
     where: { itemCode },
     update: {
-      itemType: item.itemType,
       itemName: item.itemName,
       manufacturerName: item.manufacturerName,
       unitQty: item.unitQty,
@@ -29,7 +28,6 @@ export async function saveGrocery(ref: GroceryReference) {
     },
     create: {
       itemCode,
-      itemType: item.itemType,
       itemName: item.itemName,
       manufacturerName: item.manufacturerName,
       unitQty: item.unitQty,
@@ -53,8 +51,20 @@ export async function saveGrocery(ref: GroceryReference) {
     );
     return;
   }
-  // 2. Upsert ל־store_grocery עם ה־Composite PK החדש
-  await prisma.store_grocery.upsert({
+
+
+  const previous = await prisma.store_grocery.findUnique({
+    where: {
+      itemCode_ChainId_SubChainId_StoreId: {
+        itemCode,
+        ChainId,
+        SubChainId,
+        StoreId,
+      },
+    },
+  });
+
+  const storeGrocery = await prisma.store_grocery.upsert({
     where: {
       itemCode_ChainId_SubChainId_StoreId: {
         itemCode,
@@ -65,7 +75,6 @@ export async function saveGrocery(ref: GroceryReference) {
     },
     update: {
       itemPrice,
-      allowDiscount,
     },
     create: {
       itemCode,
@@ -73,7 +82,26 @@ export async function saveGrocery(ref: GroceryReference) {
       SubChainId,
       StoreId,
       itemPrice,
-      allowDiscount,
     },
   });
+
+
+  const priceChanged =
+    !previous || // חדש לגמרי
+    previous.itemPrice === null ||
+    priceUpdate.itemPrice === undefined ||
+    Number(previous.itemPrice) !== Number(priceUpdate.itemPrice);
+
+  if (priceChanged && priceUpdate.date) {
+    await prisma.store_grocery_price_history.create({
+      data: {
+        itemCode,
+        ChainId,
+        SubChainId,
+        StoreId,
+        price: itemPrice,
+        updateDatetime: priceUpdate.date,
+      },
+    });
+  }
 }
