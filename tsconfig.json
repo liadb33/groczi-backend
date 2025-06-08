@@ -9,7 +9,14 @@
     "skipLibCheck": true,
     "lib": ["ES2020", "DOM"],
     "allowImportingTsExtensions": true,
-    "noEmit": true
+    "noEmit": true,
+    "typeRoots": ["./node_modules/@types", "./backend/features/shared/types"],
+    "types": ["express"],
+    "paths": {
+      "*": ["node_modules/*"]
+    },
+    "baseUrl": "./"
   },
   "include": ["./backend", "./parser"],
+  "files": ["./backend/features/shared/types/express.d.ts"]
 }

@@ -3,8 +3,6 @@ export interface Grocery {
   itemType?: number;
   itemName?: string;
   manufacturerName?: string;
-  manufactureCountry?: string;
-  manufacturerItemDescription?: string;
   unitQty?: string;
   unitOfMeasure?: string;
   isWeighted?: boolean;
