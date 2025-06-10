@@ -94,55 +94,61 @@ def download_and_extract(driver: webdriver.Chrome, user: dict):
     log_info(f"     🗃 Starting downloads for user: {username}")
     config   = user.get("config", {})
 
-    rows = driver.find_elements(By.CSS_SELECTOR, config.get("row_selector", ""))
-    if not rows:
-        log_warn(f"No rows found for user {username}")
-        return
+    while True:
+        rows = driver.find_elements(By.CSS_SELECTOR, config.get("row_selector", ""))
+        if not rows:
+            log_warn(f"No rows found for user {username}")
+            break
 
-    successes = 0
-    failures   = []
+        successes = 0
+        failures   = []
 
-    for row in rows:
+        for row in rows:
+            try:
+                gz_path = download_file(driver, row, config)
+                if not gz_path:
+                    if not successes:
+                        log_warn(f"No matching files found for user {username}")
+                    return
+
+                start      = time.time()
+                file_name  = gz_path.name
+                output_dir = determine_folder(file_name, username)
+                os.makedirs(output_dir, exist_ok=True)
+
+                xml_name      = file_name.replace('.gz', '.xml')
+                extracted_path = Path(output_dir) / xml_name
+
+                extract_file(gz_path, extracted_path)    # <-- shared util
+                gz_path.unlink()
+
+                elapsed = time.time() - start
+                log_success(f"✅ {file_name} downloaded & extracted in {elapsed:.2f}s")
+                successes += 1
+            except Exception as e:
+                log_error(f"❌ Failed processing file for user {username}: {e}")
+                failures.append(str(e))
+
+        if successes == 0:
+            log_warn(f"No matching files found for user {username}")
+        if failures:
+            log_warn(f"Some errors occurred for user {username}:")
+            for err in failures:
+                log_error(f" - {err}")
+
+        # pagination logic
         try:
-            gz_path = download_file(driver, row, config)
-            if not gz_path:
-                continue
+            next_btn = driver.find_element(By.CSS_SELECTOR, config.get("pagination_selector", ""))
+            if next_btn.is_displayed() and next_btn.is_enabled():
+                table = driver.find_element(By.TAG_NAME, "table")
+                next_btn.click()
+                WebDriverWait(driver, 10).until(EC.staleness_of(table))
+                # loop will repeat for the new page automatically
+            else:
+                break  # no next page, exit loop
+        except Exception:
+            break  # no pagination found or error, exit loop
 
-            start      = time.time()
-            file_name  = gz_path.name
-            output_dir = determine_folder(file_name, username)
-            os.makedirs(output_dir, exist_ok=True)
-
-            xml_name      = file_name.replace('.gz', '.xml')
-            extracted_path = Path(output_dir) / xml_name
-
-            extract_file(gz_path, extracted_path)    # <-- shared util
-            gz_path.unlink()
-
-            elapsed = time.time() - start
-            log_success(f"✅ {file_name} downloaded & extracted in {elapsed:.2f}s")
-            successes += 1
-        except Exception as e:
-            log_error(f"❌ Failed processing file for user {username}: {e}")
-            failures.append(str(e))
-
-    if successes == 0:
-        log_warn(f"No matching files found for user {username}")
-    if failures:
-        log_warn(f"Some errors occurred for user {username}:")
-        for err in failures:
-            log_error(f" - {err}")
-
-    # pagination
-    try:
-        next_btn = driver.find_element(By.CSS_SELECTOR, config.get("pagination_selector", ""))
-        if next_btn.is_displayed() and next_btn.is_enabled():
-            table = driver.find_element(By.TAG_NAME, "table")
-            next_btn.click()
-            WebDriverWait(driver, 10).until(EC.staleness_of(table))
-            download_and_extract(driver, user)
-    except Exception:
-        pass
 
 def main():
     args = parse_args()
