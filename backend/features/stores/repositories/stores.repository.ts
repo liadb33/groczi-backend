@@ -12,7 +12,16 @@ import prisma from "../../shared/prisma-client/prisma-client.js";
 export async function findAllStores(): Promise<Store[]> {
 
   try {
-    const stores = await prisma.stores.findMany();
+    const stores = await prisma.stores.findMany({
+      include: {
+        subchains: {
+          select: {
+            imageUrl: true,
+            SubChainName: true
+          }
+        }
+      }
+    });
     return stores;
   } catch (error) {
     console.error('Error fetching stores:', error);
@@ -25,6 +34,14 @@ export async function findStoreById(storeId: string): Promise<Store | null> {
   try {
     const store = await prisma.stores.findFirst({
       where: { StoreId: storeId },
+      include: {
+        subchains: {
+          select: {
+            imageUrl: true,
+            SubChainName: true
+          }
+        }
+      }
     });
     return store;
   } catch (error) {
@@ -69,6 +86,14 @@ export async function getNearbyStoresFromLocation(
       Latitude: { not: null },
       Longitude: { not: null },
     },
+    include: {
+      subchains: {
+        select: {
+          imageUrl: true,
+          SubChainName: true
+        }
+      }
+    }
   });
 
   const storesWithDistance = allStores

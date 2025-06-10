@@ -58,6 +58,7 @@ model grocery {
   unitOfMeasurePrice Decimal?            @db.Decimal(12, 2)
   quantity           Decimal?            @db.Decimal(12, 2)
   imageUrl           String?             @db.VarChar(500)
+  category           String?             @db.VarChar(100)
   bookmark           bookmark[]
   cart_item          cart_item[]
   list_item          list_item[]

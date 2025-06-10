@@ -79,10 +79,19 @@ export const getPromotionsGroupedByStore = async (
   userLon?: number,
   maxStoreDistance?: number
 ) => {
-  // Fetch all promotions including store info
+  // Fetch all promotions including store info and subchain info
   const promos = await prisma.promotion.findMany({
     include: {
-      stores: true, 
+      stores: {
+        include: {
+          subchains: {
+            select: {
+              imageUrl: true,
+              SubChainName: true
+            }
+          }
+        }
+      }
     },
   });
 
@@ -100,6 +109,10 @@ export const getPromotionsGroupedByStore = async (
         zipcode: promo.stores?.Zipcode || null,
         latitude: promo.stores?.Latitude || null,
         longitude: promo.stores?.Longitude || null,
+        subchains: {
+          imageUrl: promo.stores?.subchains?.imageUrl || null,
+          SubChainName: promo.stores?.subchains?.SubChainName || null
+        },
         promotions: [],
       };
     }
