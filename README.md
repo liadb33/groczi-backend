@@ -495,3 +495,175 @@ This backend system demonstrates:
 - **Modern Technologies**: Current best practices in Node.js, TypeScript, and database design
 
 **Groczi Backend** - Transforming grocery shopping through intelligent price optimization. 🛒✨
+
+## 🧠 Optimization Algorithms
+
+The heart of Groczi lies in its sophisticated optimization algorithms that help users find the best grocery deals. The system implements two main optimization strategies, each designed for different shopping scenarios.
+
+### 🏪 Single-Store Optimization Algorithm
+
+**Purpose**: Find the best single store for your entire shopping list.
+
+**How it works**:
+1. **Location Filtering**: Find all stores within your specified distance (default 150km)
+2. **Item Availability Check**: Identify which stores stock your required items
+3. **Full vs Partial Match Logic**:
+   - **Full Match**: Stores that have ALL items in your list (preferred)
+   - **Partial Match**: Fallback to stores with some items if no full match exists
+4. **Cost Calculation**: For each store, calculate:
+   ```
+   Total Score = Item Cost + (λ × Travel Cost)
+   Travel Cost = 2 × Distance × Cost per km
+   ```
+5. **Ranking**: Sort stores by total score (lowest = best deal)
+
+**Smart Features**:
+- **Haversine Distance**: Accurate geographic distance calculations
+- **Travel Cost Weighting**: Adjustable λ (lambda) factor to prioritize convenience vs savings
+- **Partial Match Intelligence**: Never leaves you empty-handed
+
+**Example Output**:
+```json
+{
+  "is_partial_match": false,
+  "ranked_stores": [
+    {
+      "store_name": "SuperMarket Plus",
+      "combined_score": 45.30,
+      "item_cost_at_store": 42.50,
+      "travel_cost_to_store": 2.80,
+      "distance_to_store_km": 1.4,
+      "items_in_list": [...],
+      "missing_items": []
+    }
+  ]
+}
+```
+
+### 🛒 Multi-Store Optimization Algorithm (Dynamic Programming)
+
+**Purpose**: Find the optimal combination of stores to minimize total cost across multiple locations.
+
+**Algorithm Type**: Dynamic Programming with Bitmask State Compression
+
+**How it works**:
+
+#### Phase 1: State Space Setup
+- **Items Bitmask**: Each bit represents whether an item is purchased (2^n states)
+- **Stores Bitmask**: Each bit represents whether a store is visited (2^m combinations)
+- **DP State**: `dp[item_mask][store_mask] = minimum_cost`
+
+#### Phase 2: Dynamic Programming Transition
+```typescript
+for each current_item_mask:
+  for each current_store_mask:
+    for next_item_to_assign:
+      for each_candidate_store:
+        if (store_has_item && cost_is_better):
+          update dp[new_item_mask][new_store_mask]
+```
+
+#### Phase 3: Travel Cost Optimization (TSP)
+- **Problem**: Visit selected stores in optimal order
+- **Solution**: Nearest Neighbor heuristic for Traveling Salesman Problem
+- **Route**: User → Store₁ → Store₂ → ... → Storeₙ → User
+
+#### Phase 4: Solution Ranking
+```
+Final Score = Item Costs + (λ × Travel Distance × Cost per km)
+```
+
+**Constraints Handling**:
+- **Max Stores**: Limit number of stores to visit
+- **Max Travel Distance**: Cap total travel distance
+- **Performance**: Warns if >10 stores or >12 items (exponential complexity)
+
+**Smart Features**:
+- **Backtracking**: Reconstructs optimal item-to-store assignments
+- **Top-N Solutions**: Returns multiple alternatives (default 3)
+- **Geographic Intelligence**: Real-world travel cost calculations
+
+**Example Output**:
+```json
+{
+  "solutions": [
+    {
+      "assignments": {
+        "SuperMarket A": {
+          "items": [{"itemCode": "123", "quantity": 2, "price": 3.50}]
+        },
+        "Grocery World": {
+          "items": [{"itemCode": "456", "quantity": 1, "price": 2.20}]
+        }
+      },
+      "total_cost": 12.45,
+      "item_cost": 9.20,
+      "travel_cost": 3.25
+    }
+  ]
+}
+```
+
+### 🔧 Supporting Algorithms
+
+#### Haversine Distance Calculation
+```typescript
+// Accurate geographic distance between two points
+function calculateDistance(lat1, lon1, lat2, lon2): kilometers
+```
+Used for:
+- Store proximity filtering
+- Travel cost calculations
+- TSP route optimization
+
+#### Travel Cost Optimization (TSP Nearest Neighbor)
+```typescript
+// Approximate solution to Traveling Salesman Problem
+function optimizeTravelRoute(userLocation, storeLocations): totalDistance
+```
+**Process**:
+1. Start at user location
+2. Always visit nearest unvisited store
+3. Return to user location
+4. Calculate total distance
+
+#### Bit Manipulation Utilities
+```typescript
+// Count number of stores in solution
+function countSetBits(storeMask): numberOfStores
+
+// Check if store is included
+function isStoreIncluded(storeMask, storeIndex): boolean
+```
+
+### 📊 Algorithm Performance
+
+| Algorithm | Time Complexity | Space Complexity | Optimal For |
+|-----------|----------------|------------------|-------------|
+| Single-Store | O(n × m) | O(m) | Quick decisions, single trip |
+| Multi-Store DP | O(n × 2^n × m × 2^m) | O(2^n × 2^m) | Complex lists, cost optimization |
+| TSP Approximation | O(m²) | O(m) | Travel route optimization |
+
+**Performance Limits**:
+- **Single-Store**: Handles 1000+ stores efficiently
+- **Multi-Store**: Practical limit ~10 stores, ~12 items
+- **Real-world Usage**: Optimized for typical shopping scenarios
+
+### 🎯 Algorithm Selection Guide
+
+**Use Single-Store When**:
+- Simple shopping trips
+- Convenience over maximum savings
+- Large item lists (>15 items)
+- Time constraints
+
+**Use Multi-Store When**:
+- Maximum cost optimization needed
+- Small to medium lists (<12 items)
+- Willing to visit multiple locations
+- Price differences are significant
+
+**Smart Defaults**:
+- `costPerDistanceUnit`: ₪1.0 per km (adjustable for fuel costs)
+- `lambdaTravel`: 1.0 (equal weight for cost vs convenience)
+- `maxStoreDistance`: 150km (initial filtering radius)
