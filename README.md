@@ -468,11 +468,6 @@ npx prisma studio  # Visual database browser
 
 This project is developed as part of a final degree project. All rights reserved.
 
-## 👥 Authors
-
-- **Shlomi** - Backend Development
-- **Ben** - Data Processing
-- **Liad** - System Architecture
 
 ---
 
