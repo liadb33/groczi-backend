@@ -7,7 +7,21 @@
 [![MySQL](https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
-A comprehensive backend system for grocery price optimization and comparison platform. This project encompasses data scraping, processing, API services, and intelligent optimization algorithms to help users find the best grocery deals across multiple stores.
+## 📚 Project Documentation
+
+This repository contains the backend implementation of Groczi. The frontend application is maintained in a separate repository.
+
+### Project Documentation
+- [Literature & Competitors Analysis](https://github.com/user-attachments/files/18188417/Literature.%2B.Competitors.docx)
+- [Detailed Requirements Document](https://github.com/user-attachments/files/18223077/Groczi.Detailed.Requirements.docx)
+- [Detailed Design Document](https://github.com/user-attachments/files/18307645/Detailed.Design.Groczi.docx)
+- [Project Presentation](https://github.com/user-attachments/files/18429187/Groczi.Presentation.1.pptx)
+
+## 🛒 Project Overview
+
+**Groczi** is a grocery shopping optimization app that helps users save both time and money. By comparing grocery prices across nearby supermarkets in real time, Groczi identifies the most cost-effective stores for an entire shopping list. Combining dynamic pricing data, geolocation, and user-centric features.
+
+This backend system encompasses data scraping, processing, API services, and intelligent optimization algorithms to help users find the best grocery deals across multiple stores.
 
 ## 🏗️ System Architecture
 
