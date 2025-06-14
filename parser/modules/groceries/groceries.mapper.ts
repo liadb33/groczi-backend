@@ -5,6 +5,37 @@ import {
   GroceryReference,
 } from "./grocery.entity.js";
 
+// Helper function to find date value from multiple possible field names
+function extractDateValue(data: Record<string, any>): string | undefined {
+  const possibleDateFields = [
+    'priceupdatedate',     // PriceUpdateDate
+    'priceupdatetime',     // PriceUpdateTime
+    'updatedate',          // UpdateDate
+    'datetime',            // DateTime
+    'timestamp',           // Timestamp
+    'lastupdated',         // LastUpdated
+  ];
+
+  for (const field of possibleDateFields) {
+    if (data[field]) {
+      return data[field];
+    }
+  }
+  
+  return undefined;
+}
+
+// Helper function to parse date string in multiple formats
+function parseDateTime(dateString: string): Date {
+  // Handle space-separated format: "2024-01-15 10:30:00"
+  if (dateString.includes(' ') && !dateString.includes('T')) {
+    return new Date(dateString.replace(" ", "T"));
+  }
+  
+  // Handle ISO format: "2025-01-14T16:17:19.000"
+  return new Date(dateString);
+}
+
 export function mapToGroceryAndReference(
   input: Record<string, any>
 ): GroceryReference {
@@ -29,7 +60,6 @@ export function mapToGroceryAndReference(
     storeid,
     storeId,
     itemprice,
-    priceupdatedate,
     allowdiscount,
   } = data;
 
@@ -56,14 +86,17 @@ export function mapToGroceryAndReference(
   const resolvedSubChainId = subchainid ?? (subChainId ? String(subChainId).trim() : undefined);
   const resolvedStoreId = storeid ?? (storeId ? String(storeId).trim() : undefined);
 
+  // Extract date from any supported field and parse it properly
+  const dateValue = extractDateValue(data);
+
   const priceUpdate: GroceryPriceUpdate = {
     ChainId: resolvedChainId,
     SubChainId: resolvedSubChainId,
     StoreId: resolvedStoreId,
     itemCode: grocery.itemCode,
     itemPrice: itemprice ?? Number(itemprice),
-    date: priceupdatedate
-      ? new Date(String(priceupdatedate).replace(" ", "T"))
+    date: dateValue
+      ? parseDateTime(String(dateValue))
       : undefined,
   };
 

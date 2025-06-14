@@ -9,4 +9,8 @@ export interface Store {
   StoreType: number | null;
   Latitude: number | null;
   Longitude: number | null;
+  subchains: {
+    imageUrl: string | null;
+    SubChainName: string | null;
+  };
 }
