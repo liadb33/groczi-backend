@@ -33,24 +33,24 @@ async function getSubChainImageUrl(subchainname: string) {
 }
 
 async function main() {
-  // const groceries = await prisma.grocery.findMany({
-  //   where: { imageUrl: null },
-  //   select: { itemCode: true, itemName: true },
-  // });
+  const groceries = await prisma.grocery.findMany({
+    where: { imageUrl: null },
+    select: { itemCode: true, itemName: true },
+  });
 
-  // for (const { itemCode, itemName } of groceries) {
-  //   if (!itemCode || !itemName) continue;
-  //   const imageUrl = await getProductImageUrl(itemCode, itemName);
-  //   if (imageUrl) {
-  //     await prisma.grocery.update({
-  //       where: { itemCode },
-  //       data: { imageUrl },
-  //     });
-  //     console.log(`✔️ Product image updated: ${itemName}`);
-  //   } else {
-  //     console.log(`❌ No image for product: ${itemName}`);
-  //   }
-  // }
+  for (const { itemCode, itemName } of groceries) {
+    if (!itemCode || !itemName) continue;
+    const imageUrl = await getProductImageUrl(itemCode, itemName);
+    if (imageUrl) {
+      await prisma.grocery.update({
+        where: { itemCode },
+        data: { imageUrl },
+      });
+      console.log(`✔️ Product image updated: ${itemName}`);
+    } else {
+      console.log(`❌ No image for product: ${itemName}`);
+    }
+  }
 
   const subchains = await prisma.subchains.findMany({
     where: { imageUrl: null },
