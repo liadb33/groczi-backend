@@ -105,3 +105,9 @@ export async function saveGrocery(ref: GroceryReference) {
     });
   }
 }
+
+export async function findGrocery(itemCode: string) {
+  return await prisma.grocery.findFirst({
+    where: { itemCode },
+  });
+}

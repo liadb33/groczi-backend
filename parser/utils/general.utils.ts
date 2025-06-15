@@ -28,7 +28,6 @@ export async function getIdsFromRoot(
 
   if (chainId) {
     const subChains = await getSubchainsByChainId(chainId);
-    console.log("subChains", subChains);
     const subChain = subChains.find((sub) => sub.SubChainId === String(inputSubChainId || "").trim());
     
     if (subChain) {
