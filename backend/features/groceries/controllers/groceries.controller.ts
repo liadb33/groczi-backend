@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { countGroceries, getAllGroceries, getGroceryByItemCode, getGroceryHistory, getStoresByItemCode, searchGroceries } from '../repositories/groceries.repository.js';
+import prisma from '../../shared/prisma-client/prisma-client.js';
 
 /**
  * Handles the request to get the list of groceries.
@@ -61,17 +62,19 @@ export const getStoresByGroceryItemCodeController = async (
   next: NextFunction
 ) => {
   const { id: itemCode } = req.params;
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
 
   try {
-    const stores = await getStoresByItemCode(itemCode);
+    const result = await getStoresByItemCode(itemCode, page, limit);
 
-    if (!stores.length) {
+    if (!result.data.length && page === 1) {
       return res
         .status(404)
         .json({ message: "No stores found for this grocery item" });
     }
 
-    const flattened = stores.map(({ stores: storeInfo, ...rest }) => ({
+    const flattened = result.data.map(({ stores: storeInfo, ...rest }) => ({
       ...rest,
       StoreName: storeInfo.StoreName,
       Address: storeInfo.Address,
@@ -82,13 +85,25 @@ export const getStoresByGroceryItemCodeController = async (
       }
     }));
 
-    const minPrice = Math.min(
-      ...flattened.map((s) => Number(s.itemPrice)).filter((p) => !isNaN(p))
-    );
+    // Get minimum price across all stores (not just current page)
+    const allStoresForMinPrice = await prisma.store_grocery.findMany({
+      where: { itemCode },
+      select: { itemPrice: true }
+    });
+
+    const minPrice = allStoresForMinPrice.length > 0 
+      ? Math.min(...allStoresForMinPrice.map((s: any) => Number(s.itemPrice)).filter((p: number) => !isNaN(p)))
+      : 0;
 
     res.json({
       minPrice: minPrice.toFixed(2),
       stores: flattened,
+      page: result.page,
+      limit: result.limit,
+      total: result.total,
+      totalPages: result.totalPages,
+      hasNextPage: page < result.totalPages,
+      hasPrevPage: page > 1,
     });
   } catch (error) {
     console.error("Error fetching stores by itemCode:", error);
