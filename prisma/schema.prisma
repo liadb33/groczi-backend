@@ -142,7 +142,6 @@ model stores {
   StoreName     String?         @db.VarChar(100)
   Address       String?         @db.VarChar(150)
   City          String?         @db.VarChar(100)
-  ZipCode       String?         @db.VarChar(10)
   Latitude      Float?
   Longitude     Float?
   promotion     promotion[]

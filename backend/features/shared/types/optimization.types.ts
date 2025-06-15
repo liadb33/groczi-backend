@@ -31,7 +31,6 @@ export interface SingleStoreEvaluation {
   store_name: string;
   address: string;
   city: string;
-  zipcode: string;
   latitude: number;    // Store latitude coordinate
   longitude: number;   // Store longitude coordinate
   chainId: string;     // Chain ID for the store
@@ -72,7 +71,6 @@ export interface DPStoreInfo {
   storeName: string; 
   address: string; 
   city: string; 
-  zipcode: string; 
   chainId: string;     // Chain ID for the store
   subChainId: string;  // Sub-chain ID for the store
 }
@@ -95,7 +93,6 @@ export interface MultiStoreSolution {
       latitude: number;
       longitude: number;
       city: string; 
-      zipcode: string; 
       chainId: string;     // Chain ID for the store
       subChainId: string;  // Sub-chain ID for the store
       items: { 

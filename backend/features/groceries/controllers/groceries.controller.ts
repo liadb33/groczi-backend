@@ -79,7 +79,6 @@ export const getStoresByGroceryItemCodeController = async (
       StoreName: storeInfo.StoreName,
       Address: storeInfo.Address,
       City: storeInfo.City,
-      ZipCode: storeInfo.ZipCode,
       subchains: {
         imageUrl: storeInfo.subchains?.imageUrl || null,
         SubChainName: storeInfo.subchains?.SubChainName || null

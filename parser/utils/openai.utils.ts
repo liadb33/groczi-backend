@@ -30,7 +30,6 @@ export async function fixStoreData(data: {
   storename: string;
   address: string;
   city: string;
-  zipcode: string;
   chainname: string;
   subchainname: string;
 }) {

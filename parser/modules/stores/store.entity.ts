@@ -5,8 +5,6 @@ export interface Store {
   StoreName?: string;
   Address?: string;
   City?: string;
-  ZipCode?: string;
-  StoreType?: number;
   ChainName?: string;
   SubChainName?: string;
   Latitude?: number;

@@ -5,7 +5,6 @@ export interface Store {
   StoreName: string | null;
   Address: string | null;
   City: string | null;
-  ZipCode: string | null;
   StoreType: number | null;
   Latitude: number | null;
   Longitude: number | null;

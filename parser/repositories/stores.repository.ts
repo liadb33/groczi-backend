@@ -21,8 +21,6 @@ export async function saveStore(store: Store) {
     StoreName,
     Address,
     City,
-    ZipCode,
-    StoreType,
     Latitude,
     Longitude,
   } = store;
@@ -63,8 +61,6 @@ export async function saveStore(store: Store) {
       StoreName,
       Address,
       City,
-      ZipCode,
-      StoreType,
       Latitude,
       Longitude,
     },
@@ -75,8 +71,6 @@ export async function saveStore(store: Store) {
       StoreName,
       Address,
       City,
-      ZipCode,
-      StoreType,
       Latitude,
       Longitude,
     },
@@ -90,7 +84,6 @@ export async function findStoreByIds(ids: {
   StoreName: string | null;
   Address: string | null;
   City: string | null;
-  ZipCode: string | null;
 } | null> {
   return await prisma.stores.findFirst({
     where: {
@@ -102,20 +95,38 @@ export async function findStoreByIds(ids: {
       StoreName: true,
       Address: true,
       City: true,
-      ZipCode: true,
     },
   });
 }
 
 export async function getSubchainsByChainId(chainId: string): Promise<
-  {
-    SubChainId: string;
-  }[]
+  {SubChainId: string}[]
 > {
   return await prisma.subchains.findMany({
     where: { ChainId: chainId },
     select: {
       SubChainId: true,
+    },
+  });
+}
+
+export async function findStoreCoordinates(ids: {
+  ChainId: string;
+  SubChainId: string;
+  StoreId: string;
+}): Promise<{
+  Latitude: number | null;
+  Longitude: number | null;
+} | null> {
+  return await prisma.stores.findFirst({
+    where: {
+      ChainId: ids.ChainId,
+      SubChainId: ids.SubChainId,
+      StoreId: ids.StoreId,
+    },
+    select: {
+      Latitude: true,
+      Longitude: true,
     },
   });
 }
