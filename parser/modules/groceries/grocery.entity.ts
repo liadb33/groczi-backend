@@ -8,6 +8,7 @@ export interface Grocery {
   qtyInPackage?: number;
   unitOfMeasurePrice?: number;
   quantity?: number;
+  category?: string;
 }
 
 export interface GroceryPriceUpdate {

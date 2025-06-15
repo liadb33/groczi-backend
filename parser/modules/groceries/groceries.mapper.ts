@@ -10,10 +10,6 @@ function extractDateValue(data: Record<string, any>): string | undefined {
   const possibleDateFields = [
     'priceupdatedate',     // PriceUpdateDate
     'priceupdatetime',     // PriceUpdateTime
-    'updatedate',          // UpdateDate
-    'datetime',            // DateTime
-    'timestamp',           // Timestamp
-    'lastupdated',         // LastUpdated
   ];
 
   for (const field of possibleDateFields) {

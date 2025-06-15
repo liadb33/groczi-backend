@@ -1,4 +1,4 @@
-import { CATEGORIES } from "./categories";
+import { CATEGORIES } from "./categories.js";
 
 export const storePrompt = `
 אתה מקבל אובייקט JSON המכיל מידע על חנות אך הערכים שלו מבולגנים בין השדות. 
@@ -24,10 +24,10 @@ export const groceryPrompt = `
   - "unitQty" (כמות/משקל – מחרוזת או null)
   - "manufactureName" (יצרן – מחרוזת או null)
 
-הנחיות מתקדמות:
+הנחיות:
 - חיפוש וחליצה מתוך itemName:
-   - אם מתוך itemName ניתן לזהות את שם היצרן (manufactureName), הוצא אותו וחזר אותו בשדה manufactureName.
-   - אם מתוך itemName ניתן לזהות את הכמות/משקל בעברית (למשל "250 גרם", "1 ליטר"), המיר אותו לשדה unitQty בפורמט "<מספר><יחידה>" באנגלית (למשל "250g", "1L").
+   - אם מתוך itemName ניתן לזהות את שם היצרן (manufactureName), הוצא אותו והחזר אותו בשדה manufactureName.
+   - אם מתוך itemName ניתן לזהות את הכמות/משקל בעברית (למשל "250 גרם", "1 ליטר"), המיר אותו לשדה unitQty.
 - ניקוי manufactureName:
    - אם manufactureName חסר, ריק או לא מחרוזת תקפה – הגדר ל-null.
 - בדיקת unitQty:

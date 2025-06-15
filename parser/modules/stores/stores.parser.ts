@@ -16,33 +16,37 @@ export async function parseStoreXmlFile(filePath: string): Promise<Store[]> {
   }
 
   return (
-    parseAsxValues(json) ??
-    parseStoreBranches(json) ??
-    parseRootRow(json) ??
-    parseOrderXml(json) ??
-    parseRootSubChains(json) ??
-    parseRootUppercaseSubChains(json) ??
+    (await parseAsxValues(json)) ??
+    (await parseStoreBranches(json)) ??
+    (await parseRootRow(json)) ??
+    (await parseOrderXml(json)) ??
+    (await parseRootSubChains(json)) ??
+    (await parseRootUppercaseSubChains(json)) ??
     logUnrecognizedFormat(filePath, "stores.parser.ts")
   );
 }
 
 // Format 1: <asx:abap><asx:values><STORES><STORE>
-function parseAsxValues(json: any): Store[] | null {
+async function parseAsxValues(json: any): Promise<Store[] | null> {
   const stores = json["asx:abap"]?.["asx:values"]?.STORES?.STORE;
   if (!stores) return null;
   const chainId = json["asx:abap"]?.["asx:values"]?.CHAINID;
 
   const list = ensureArray(stores);
 
-  return list.map((store) => mapToStore({ ...store, CHAINID: chainId }));
+  const results = await Promise.all(
+    list.map((store) => mapToStore({ ...store, CHAINID: chainId }))
+  );
+  return results;
 }
 
 // Format 2: <Store><Branches><Branch>
-function parseStoreBranches(json: any): Store[] | null {
+async function parseStoreBranches(json: any): Promise<Store[] | null> {
   const branches = json.Store?.Branches?.Branch;
   if (!branches) return null;
   const list = ensureArray(branches);
-  return list.map(mapToStore);
+  const results = await Promise.all(list.map(mapToStore));
+  return results;
 }
 
 // Format 3: <root><row><_Root_> with inline XML as string content
@@ -50,11 +54,11 @@ function fixHebrewEncoding(text: string): string {
   return Buffer.from(text, "latin1").toString("utf8");
 }
 
-function parseRootRow(json: any): Store[] | null {
+async function parseRootRow(json: any): Promise<Store[] | null> {
   const rows = json.root?.row;
   if (!Array.isArray(rows)) return null;
 
-  const stores: Store[] = [];
+  const storeData: Record<string, string>[] = [];
   let current: Record<string, string> = {};
   let currentChainId = "";
   let currentSubChainId = "";
@@ -71,7 +75,7 @@ function parseRootRow(json: any): Store[] | null {
       current["SubChainId"] = current["SubChainId"] || currentSubChainId;
 
       if (current["StoreId"] && current["ChainId"] && current["SubChainId"]) {
-        stores.push(mapToStore(current));
+        storeData.push({ ...current });
       } else {
         console.warn(
           `⚠️ Store not saved: missing ChainId, SubChainId or StoreId. ChainId: ${current["ChainId"]}, SubChainId: ${current["SubChainId"]}, StoreId: ${current["StoreId"]}`
@@ -90,11 +94,12 @@ function parseRootRow(json: any): Store[] | null {
     }
   }
 
-  return stores;
+  const results = await Promise.all(storeData.map(mapToStore));
+  return results;
 }
 
 // Format 4: <OrderXml><Envelope><Header><Details><Line>
-function parseOrderXml(json: any): Store[] | null {
+async function parseOrderXml(json: any): Promise<Store[] | null> {
   const env = json.OrderXml?.Envelope;
   if (!env?.Header?.Details?.Line) return null;
   const lines = ensureArray(env.Header.Details.Line);
@@ -104,11 +109,14 @@ function parseOrderXml(json: any): Store[] | null {
     SubChainId: String(env.SubChainId) || String(env.SubChainID),
   };
 
-  return lines.map((line: any) => mapToStore({ ...context, ...line }));
+  const results = await Promise.all(
+    lines.map((line: any) => mapToStore({ ...context, ...line }))
+  );
+  return results;
 }
 
 // Format 5: <root><SubChains><SubChainsXMLObject><SubChain>
-function parseRootSubChains(json: any): Store[] | null {
+async function parseRootSubChains(json: any): Promise<Store[] | null> {
   const root = json.root;
   const subchains = root?.SubChains?.SubChainsXMLObject?.SubChain;
   if (!subchains) return null;
@@ -117,7 +125,7 @@ function parseRootSubChains(json: any): Store[] | null {
   const cname = root.ChainName;
 
   const arr = ensureArray(subchains);
-  const stores: Store[] = [];
+  const storeData: any[] = [];
 
   for (const sc of arr) {
     const scid = sc.SubChainId || sc.SubChainID;
@@ -129,23 +137,22 @@ function parseRootSubChains(json: any): Store[] | null {
     const items = ensureArray(storeBlock.SubChainStoreXMLObject);
 
     for (const it of items) {
-      stores.push(
-        mapToStore({
-          ...it,
-          ChainId: cid,
-          SubChainId: scid,
-          ChainName: cname,
-          SubChainName: scname,
-        })
-      );
+      storeData.push({
+        ...it,
+        ChainId: cid,
+        SubChainId: scid,
+        ChainName: cname,
+        SubChainName: scname,
+      });
     }
   }
 
-  return stores;
+  const results = await Promise.all(storeData.map(mapToStore));
+  return results;
 }
 
 // Format 6: <Root><SubChains><SubChain><Stores><Store>
-function parseRootUppercaseSubChains(json: any): Store[] | null {
+async function parseRootUppercaseSubChains(json: any): Promise<Store[] | null> {
   const root = json.Root;
   const subchains = root?.SubChains?.SubChain;
   if (!subchains) return null;
@@ -154,7 +161,7 @@ function parseRootUppercaseSubChains(json: any): Store[] | null {
   const cname = root.ChainName;
 
   const arr = ensureArray(subchains);
-  const stores: Store[] = [];
+  const storeData: any[] = [];
 
   for (const sc of arr) {
     const scid = sc.SubChainId || sc.SubChainID;
@@ -162,17 +169,16 @@ function parseRootUppercaseSubChains(json: any): Store[] | null {
 
     const lst = ensureArray(sc.Stores?.Store);
     for (const s of lst) {
-      stores.push(
-        mapToStore({
-          ...s,
-          ChainId: cid,
-          SubChainId: scid,
-          ChainName: cname,
-          SubChainName: scname,
-        })
-      );
+      storeData.push({
+        ...s,
+        ChainId: cid,
+        SubChainId: scid,
+        ChainName: cname,
+        SubChainName: scname,
+      });
     }
   }
 
-  return stores;
+  const results = await Promise.all(storeData.map(mapToStore));
+  return results;
 }

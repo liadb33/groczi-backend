@@ -23,6 +23,8 @@ export async function saveStore(store: Store) {
     City,
     ZipCode,
     StoreType,
+    Latitude,
+    Longitude,
   } = store;
 
   // 1. Upsert chains (PK: ChainId)
@@ -63,6 +65,8 @@ export async function saveStore(store: Store) {
       City,
       ZipCode,
       StoreType,
+      Latitude,
+      Longitude,
     },
     create: {
       ChainId,
@@ -73,6 +77,8 @@ export async function saveStore(store: Store) {
       City,
       ZipCode,
       StoreType,
+      Latitude,
+      Longitude,
     },
   });
 }
