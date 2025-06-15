@@ -105,7 +105,6 @@ export interface EligibleStoreForOptimization {
   storeName: string;
   address: string;
   city: string;
-  zipcode: string;
   location: [number, number];
   distanceKm: number;
   itemPrices: {

@@ -77,7 +77,7 @@ export async function fetchDataForMultiStoreFromList(
   // Fetch ALL stores with location
   const allDbStoresWithLocation = await prisma.stores.findMany({
     where: { Latitude: { not: null }, Longitude: { not: null } },
-    select: { StoreId: true, StoreName: true, Latitude: true, Longitude: true, Address: true, City: true, ZipCode: true, ChainId: true, SubChainId: true },
+    select: { StoreId: true, StoreName: true, Latitude: true, Longitude: true, Address: true, City: true, ChainId: true, SubChainId: true },
   });
 
   // Filter stores by distance to get candidate stores for DP
@@ -95,7 +95,6 @@ export async function fetchDataForMultiStoreFromList(
         storeName: dbStore.StoreName || 'Unknown Store',
         address: dbStore.Address || '',
         city: dbStore.City || '',
-        zipcode: dbStore.ZipCode || '',
         chainId: dbStore.ChainId,
         subChainId: dbStore.SubChainId,
       };

@@ -61,7 +61,7 @@ export async function rankEligibleStoresForItemList(
       const combinedScore = currentTotalItemCost + lambdaTravel * travelCost;
       fullMatchEvaluations.push({
         store_id: storeInfo.storeId, store_name: storeInfo.storeName,
-        address: storeInfo.address, city: storeInfo.city, zipcode: storeInfo.zipcode,
+        address: storeInfo.address, city: storeInfo.city,
         latitude: storeInfo.location[0], longitude: storeInfo.location[1],
         chainId: storeInfo.chainId, subChainId: storeInfo.subChainId,
         combined_score: parseFloat(combinedScore.toFixed(2)),
@@ -108,7 +108,7 @@ export async function rankEligibleStoresForItemList(
 
       evaluatedStores.push({
         store_id: storeInfo.storeId, store_name: storeInfo.storeName,
-        address: storeInfo.address, city: storeInfo.city, zipcode: storeInfo.zipcode,
+        address: storeInfo.address, city: storeInfo.city, 
         latitude: storeInfo.location[0], longitude: storeInfo.location[1],
         chainId: storeInfo.chainId, subChainId: storeInfo.subChainId,
         combined_score: parseFloat(combinedScorePartial.toFixed(2)),

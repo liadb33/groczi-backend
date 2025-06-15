@@ -32,7 +32,6 @@ export interface StoreDataForOptimization {
   storeName: string;
   address: string;
   city: string;
-  zipcode: string;
   chainId: string;     // Chain ID for the store
   subChainId: string;  // Sub-chain ID for the store
   location: [number, number];
@@ -73,12 +72,12 @@ export async function fetchDataForSingleStoreFromList(
   // 2. Fetch ALL stores that have a location
   const allDbStoresWithLocation = await prisma.stores.findMany({
     where: { Latitude: { not: null }, Longitude: { not: null } },
-    select: { StoreId: true, StoreName: true, Latitude: true, Longitude: true, Address: true, City: true, ZipCode: true, ChainId: true, SubChainId: true },
+    select: { StoreId: true, StoreName: true, Latitude: true, Longitude: true, Address: true, City: true, ChainId: true, SubChainId: true },
   });
 
   // 3. Filter these stores by distance
   const nearbyStoreCandidatesInfo: {
-    storeId: string; storeName: string; address: string; city: string; zipcode: string;
+    storeId: string; storeName: string; address: string; city: string;
     chainId: string; subChainId: string;
     location: [number, number]; distanceKm: number;
   }[] = [];
@@ -88,7 +87,7 @@ export async function fetchDataForSingleStoreFromList(
     if (distance <= maxDistanceKm) {
       nearbyStoreCandidatesInfo.push({
         storeId: dbStore.StoreId, storeName: dbStore.StoreName || 'Unknown Store',
-        address: dbStore.Address || '', city: dbStore.City || '', zipcode: dbStore.ZipCode || '',
+        address: dbStore.Address || '', city: dbStore.City || '',
         chainId: dbStore.ChainId, subChainId: dbStore.SubChainId,
         location: [dbStore.Latitude, dbStore.Longitude], distanceKm: distance,
       });
@@ -124,7 +123,6 @@ export async function fetchDataForSingleStoreFromList(
         storeName: candidate.storeName,
         address: candidate.address,
         city: candidate.city,
-        zipcode: candidate.zipcode,
         chainId: candidate.chainId,
         subChainId: candidate.subChainId,
         location: candidate.location,

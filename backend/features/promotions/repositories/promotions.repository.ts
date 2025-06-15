@@ -106,7 +106,6 @@ export const getPromotionsGroupedByStore = async (
         storeName: promo.stores?.StoreName || null,
         address: promo.stores?.Address || null,
         city: promo.stores?.City || null,
-        zipcode: promo.stores?.Zipcode || null,
         latitude: promo.stores?.Latitude || null,
         longitude: promo.stores?.Longitude || null,
         subchains: {

@@ -21,17 +21,17 @@ async function run() {
       await processAllStoresFiles(storesPath);
    }
 
-   if (actions.has("groceries")) {
-      const groceriesPath = path.join(dirname, "..", "scraper-engine", "output", "groceries");
-      console.log("🥬 Processing groceries...");
-      await processAllGroceriesFiles(groceriesPath);
-   }
+  //  if (actions.has("groceries")) {
+  //     const groceriesPath = path.join(dirname, "..", "scraper-engine", "output", "groceries");
+  //     console.log("🥬 Processing groceries...");
+  //     await processAllGroceriesFiles(groceriesPath);
+  //  }
 
-    if (actions.has("promotions")) {
-      const promotionsPath = path.join(dirname, "..", "scraper-engine", "output", "promotions");
-      console.log("💸 Processing promotions...");
-      await processAllPromotionsFiles(promotionsPath);
-   }
+  //   if (actions.has("promotions")) {
+  //     const promotionsPath = path.join(dirname, "..", "scraper-engine", "output", "promotions");
+  //     console.log("💸 Processing promotions...");
+  //     await processAllPromotionsFiles(promotionsPath);
+  //  }
 
 
     console.log("✅ All data processed successfully.");
