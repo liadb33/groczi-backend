@@ -3,7 +3,7 @@ const GOOGLE_GEOCODING_BASE_URL = process.env.GOOGLE_GEOCODING_BASE_URL;
 
 export async function fetchCoordinates(
   query: string
-): Promise<{ lat: number; lon: number } | null> {
+): Promise<{ lat: number; lng: number } | null> {
   const url = `${GOOGLE_GEOCODING_BASE_URL}?address=${encodeURIComponent(
     query
   )}&key=${GOOGLE_GEOCODING_API_KEY}&language=iw`;
@@ -19,9 +19,9 @@ export async function fetchCoordinates(
 
     const result = data.results[0];
     const { geometry } = result;
-    const { lat, lon } = geometry.location;
+    const { lat, lng } = geometry.location;
 
-    return { lat, lon };
+    return { lat, lng };
   } catch (err) {
     console.error(`Google Geocoding error for "${query}":`, err);
     return null;

@@ -9,4 +9,6 @@ export interface Store {
   StoreType?: number;
   ChainName?: string;
   SubChainName?: string;
+  Latitude?: number;
+  Longitude?: number;
 }

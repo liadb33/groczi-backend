@@ -77,6 +77,10 @@ export const getStoresByGroceryItemCodeController = async (
       Address: storeInfo.Address,
       City: storeInfo.City,
       ZipCode: storeInfo.ZipCode,
+      subchains: {
+        imageUrl: storeInfo.subchains?.imageUrl || null,
+        SubChainName: storeInfo.subchains?.SubChainName || null
+      }
     }));
 
     const minPrice = Math.min(

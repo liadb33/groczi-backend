@@ -90,7 +90,16 @@ export const getStoresByItemCode = async (itemCode: string) => {
   return await prisma.store_grocery.findMany({
     where: { itemCode },
     include: {
-      stores: true, // This pulls the full store data
+      stores: {
+        include: {
+          subchains: {
+            select: {
+              imageUrl: true,
+              SubChainName: true
+            }
+          }
+        }
+      }
     },
   });
 };

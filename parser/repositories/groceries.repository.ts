@@ -24,7 +24,7 @@ export async function saveGrocery(ref: GroceryReference) {
       isWeighted: item.isWeighted,
       qtyInPackage: item.qtyInPackage,
       unitOfMeasurePrice: item.unitOfMeasurePrice,
-      quantity: item.quantity,
+      quantity: item.quantity,      
     },
     create: {
       itemCode,
