@@ -211,7 +211,6 @@ export async function runTopNMultiStoreDPForList(
           store_id: storeId, 
           address: storeInfo.address, 
           city: storeInfo.city, 
-          zipcode: storeInfo.zipcode, 
           latitude: storeInfo.location[0], 
           longitude: storeInfo.location[1], 
           chainId: storeInfo.chainId,

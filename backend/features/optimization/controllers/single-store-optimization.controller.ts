@@ -27,14 +27,14 @@ export const optimizeSingleStoreForListController = async (
 
   // Validations
   if (userLatitude === undefined || userLongitude === undefined) { 
-    return res.status(400).json({ message: "User latitude and longitude are required." }); 
+    return res.status(400).json({ message: "קו רוחב וקו אורך של המשתמש נדרשים." }); 
   }
   if (!customItemsInput || !Array.isArray(customItemsInput) || customItemsInput.length === 0) { 
-    return res.status(400).json({ message: "A non-empty 'items' array is required."}); 
+    return res.status(400).json({ message: "נדרש מערך 'items' שאינו ריק."}); 
   }
   for (const item of customItemsInput) { 
     if (!item.itemCode || typeof item.quantity !== 'number' || item.quantity <= 0) { 
-      return res.status(400).json({ message: "Invalid item structure."}); 
+      return res.status(400).json({ message: "מבנה פריט לא תקין."}); 
     }
   }
   const parsedUserLocation: [number, number] = [parseFloat(String(userLatitude)), parseFloat(String(userLongitude))];
@@ -42,7 +42,7 @@ export const optimizeSingleStoreForListController = async (
   const numLambdaTravel = parseFloat(String(lambdaTravel));
   const numMaxStoreDistance = parseFloat(String(maxStoreDistance));
   if (isNaN(parsedUserLocation[0])||isNaN(parsedUserLocation[1])||isNaN(numCostPerDistanceUnit)||numCostPerDistanceUnit<0||isNaN(numLambdaTravel)||numLambdaTravel<0||isNaN(numMaxStoreDistance)||numMaxStoreDistance<0) { 
-    return res.status(400).json({ message: "Invalid numeric params."});
+    return res.status(400).json({ message: "פרמטרים מספריים לא תקינים."});
   }
 
   try {
@@ -51,7 +51,7 @@ export const optimizeSingleStoreForListController = async (
       await fetchDataForSingleStoreFromList(parsedUserLocation, numMaxStoreDistance, customItemsInput);
 
     if (itemsToOptimize.length === 0) {
-        return res.status(400).json({ message: "The provided item list is effectively empty or items are invalid." });
+        return res.status(400).json({ message: "רשימת הפריטים הנתונה ריקה בפועל או שהפריטים לא תקינים." });
     }
 
     // The service will handle the case of no candidate stores.
@@ -69,7 +69,7 @@ export const optimizeSingleStoreForListController = async (
       // This message implies no stores (even partial) met criteria or were found.
       // The is_partial_match flag in the result helps differentiate.
       return res.status(404).json({
-        message: "No stores found (even with partial matches) within the specified distance or stocking any requested items."
+        message: "לא נמצאו חנויות (אפילו עם התאמות חלקיות) במרחק שנקבע או שמחזיקות פריטים מהרשימה."
       });
     }
 

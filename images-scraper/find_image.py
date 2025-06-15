@@ -27,7 +27,7 @@ def get_subchain_image_duckduckgo(subchainname: str) -> str | None:
 
 if __name__ == "__main__":
     # tiny random delay to avoid hammering DDG
-    time.sleep(random.uniform(2, 7))
+    time.sleep(random.uniform(6, 12))
 
     mode = sys.argv[1].lower() if len(sys.argv) > 1 else "product"
     if mode == "subchain":

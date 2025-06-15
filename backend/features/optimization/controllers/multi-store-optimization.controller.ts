@@ -31,14 +31,14 @@ export const optimizeMultiStoreForListController = async (
 
   // Validate required inputs
   if (userLatitude === undefined || userLongitude === undefined) {
-    return res.status(400).json({ message: "User latitude and longitude are required." });
+    return res.status(400).json({ message: "קו רוחב וקו אורך של המשתמש נדרשים." });
   }
   if (!customItemsInput || !Array.isArray(customItemsInput) || customItemsInput.length === 0) {
-    return res.status(400).json({ message: "A non-empty 'items' array is required." });
+    return res.status(400).json({ message: "נדרש מערך 'items' שאינו ריק." });
   }
   for (const item of customItemsInput) { // Validate individual items
       if (!item.itemCode || typeof item.quantity !== 'number' || item.quantity <= 0) {
-          return res.status(400).json({ message: "Each item in the list must have an itemCode and a positive numeric quantity." });
+          return res.status(400).json({ message: "כל פריט ברשימה חייב להכיל itemCode וכמות מספרית חיובית." });
       }
   }
 
@@ -57,7 +57,7 @@ export const optimizeMultiStoreForListController = async (
       isNaN(numMaxInitialStoreDistance) || numMaxInitialStoreDistance < 0 ||
       (numMaxStoresInSolution !== undefined && (isNaN(numMaxStoresInSolution) || numMaxStoresInSolution < 1)) ||
       (numMaxTravelForSolution !== undefined && (isNaN(numMaxTravelForSolution) || numMaxTravelForSolution < 0)) ) {
-    return res.status(400).json({ message: "Invalid numeric input for location or optimization parameters." });
+    return res.status(400).json({ message: "קלט מספרי לא תקין עבור מיקום או פרמטרי אופטימיזציה." });
   }
 
   try {
@@ -65,11 +65,11 @@ export const optimizeMultiStoreForListController = async (
       await fetchDataForMultiStoreFromList(parsedUserLocation, numMaxInitialStoreDistance, customItemsInput);
 
     if (Object.keys(dpGroceryList).length === 0) {
-      return res.status(400).json({ message: "The provided item list is effectively empty or items are invalid." });
+      return res.status(400).json({ message: "רשימת הפריטים הנתונה ריקה בפועל או שהפריטים לא תקינים." });
     }
     if (Object.keys(dpStoresData).length === 0) {
       return res.status(404).json({
-        message: "No stores found within the specified initial 'maxStoreDistance' to consider."
+        message: "לא נמצאו חנויות במרחק הראשוני שנקבע 'maxStoreDistance' לבחינה."
       });
     }
 
@@ -94,7 +94,7 @@ export const optimizeMultiStoreForListController = async (
 
     if (result.solutions.length === 0) {
       return res.status(404).json({
-        message: "Could not find any feasible multi-store solutions with the given constraints."
+        message: "לא ניתן למצוא פתרונות ריבוי חנויות אפשריים עם המגבלות הנתונות."
       });
     }
 
