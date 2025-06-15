@@ -1,4 +1,6 @@
 import { normalizeKeys } from "../../utils/general.utils.js";
+import { fixProductData } from "../../utils/openai.utils.js";
+import { findGrocery } from "../../repositories/groceries.repository.js";
 import {
   Grocery,
   GroceryPriceUpdate,
@@ -32,16 +34,15 @@ function parseDateTime(dateString: string): Date {
   return new Date(dateString);
 }
 
-export function mapToGroceryAndReference(
+export async function mapToGroceryAndReference(
   input: Record<string, any>
-): GroceryReference {
+): Promise<GroceryReference | null> {
   const data = normalizeKeys(input);
 
   let {
     itemname,
     manufactureritemdescription,
     itemcode,
-    itemtype,
     manufacturername,
     unitqty,
     unitofmeasure,
@@ -56,7 +57,6 @@ export function mapToGroceryAndReference(
     storeid,
     storeId,
     itemprice,
-    allowdiscount,
   } = data;
 
   const name = itemname ? String(itemname).trim() : undefined;
@@ -66,11 +66,30 @@ export function mapToGroceryAndReference(
 
   const itemName = name ?? name2;
 
+  //check if product is already in the database if it is, check if category exists we dont need to use open ai
+  const existingGrocery = await findGrocery(String(itemcode ?? "").trim());
+  
+  let fixedProduct = null;
+  
+  // Only call OpenAI if the product doesn't exist in the database
+  if (!existingGrocery?.category) {
+    const productDataForAI = {
+      itemName: itemName || "",
+      unitQty: unitqty ? String(unitqty).trim() : null,
+      manufactureName: manufacturername ? String(manufacturername).trim() : null,
+    };
+    
+    fixedProduct = await fixProductData(productDataForAI);
+    console.log(`🤖 AI enhanced product: ${itemName} -> ${fixedProduct?.itemName}`);
+  } else {
+    console.log(`✅ Product exists in DB: ${existingGrocery.itemName}`);
+  }
+
   const grocery: Grocery = {
     itemCode: String(itemcode ?? "").trim(),
-    itemName: itemName,
-    manufacturerName: manufacturername ? String(manufacturername).trim() : undefined,
-    unitQty: unitqty ? String(unitqty).trim() : undefined,
+    itemName: fixedProduct?.itemName || existingGrocery?.itemName || itemName,
+    manufacturerName: fixedProduct?.manufactureName || existingGrocery?.manufacturerName || (manufacturername ? String(manufacturername).trim() : undefined),
+    unitQty: fixedProduct?.unitQty || existingGrocery?.unitQty || (unitqty ? String(unitqty).trim() : undefined),
     unitOfMeasure: unitofmeasure ? String(unitofmeasure).trim() : undefined,
     isWeighted: bisweighted === "1" || bisweighted === 1,
     qtyInPackage: qtyinpackage ? Number(qtyinpackage) : undefined,
@@ -85,12 +104,19 @@ export function mapToGroceryAndReference(
   // Extract date from any supported field and parse it properly
   const dateValue = extractDateValue(data);
 
+  const finalItemPrice = itemprice ?? Number(itemprice);
+  
+  // Skip items with price of 0
+  if (finalItemPrice === 0) {
+    return null;
+  }
+
   const priceUpdate: GroceryPriceUpdate = {
     ChainId: resolvedChainId,
     SubChainId: resolvedSubChainId,
     StoreId: resolvedStoreId,
     itemCode: grocery.itemCode,
-    itemPrice: itemprice ?? Number(itemprice),
+    itemPrice: finalItemPrice,
     date: dateValue
       ? parseDateTime(String(dateValue))
       : undefined,

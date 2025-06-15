@@ -22,8 +22,13 @@ export async function parseGroceryXmlFile(
   const dataRoot: any = json.root ?? json.Root;
   if (!dataRoot) return [];
 
+  const xmlChainRaw = dataRoot.ChainId ?? dataRoot.ChainID ?? "";
+  const xmlSubRaw = dataRoot.SubChainId ?? dataRoot.SubChainID ?? "";
+  const xmlStoreRaw = dataRoot.StoreId ?? dataRoot.StoreID ?? "";
+
+
   const { chainId, storeId, subChainId } = await getIdsFromRoot(
-    dataRoot,
+    xmlChainRaw,xmlSubRaw,xmlStoreRaw,
     filePath
   );
 
@@ -31,9 +36,14 @@ export async function parseGroceryXmlFile(
 
   const arr = ensureArray(dataRoot.Items?.Item);
 
-  const items = arr.map((item) =>
-    mapToGroceryAndReference({ ...item, chainId, subChainId, storeId })
+  const itemsWithNulls = await Promise.all(
+    arr.map((item) =>
+      mapToGroceryAndReference({ ...item, chainId, subChainId, storeId })
+    )
   );
+
+  // Filter out null values (items with price 0)
+  const items = itemsWithNulls.filter((item): item is GroceryReference => item !== null);
 
   if (!items) return logUnrecognizedFormat(filePath, "groceries.parser.ts");
 
