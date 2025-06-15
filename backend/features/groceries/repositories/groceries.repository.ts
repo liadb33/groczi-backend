@@ -86,22 +86,46 @@ export const getGroceryHistory = async (itemCode: string) => {
     ],
   });
 };
-export const getStoresByItemCode = async (itemCode: string) => {
-  return await prisma.store_grocery.findMany({
-    where: { itemCode },
-    include: {
-      stores: {
-        include: {
-          subchains: {
-            select: {
-              imageUrl: true,
-              SubChainName: true
+export const getStoresByItemCode = async (
+  itemCode: string,
+  page: number = 1,
+  limit: number = 10
+) => {
+  const offset = (page - 1) * limit;
+
+  const [data, total] = await Promise.all([
+    prisma.store_grocery.findMany({
+      where: { itemCode },
+      include: {
+        stores: {
+          include: {
+            subchains: {
+              select: {
+                imageUrl: true,
+                SubChainName: true
+              }
             }
           }
         }
-      }
-    },
-  });
+      },
+      skip: offset,
+      take: limit,
+      orderBy: { itemPrice: 'asc' }, // Order by price to show cheapest first
+    }),
+    prisma.store_grocery.count({
+      where: { itemCode },
+    }),
+  ]);
+
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    data,
+    page,
+    limit,
+    total,
+    totalPages,
+  };
 };
 
 
