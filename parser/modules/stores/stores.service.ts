@@ -12,7 +12,13 @@ export async function processAllStoresFiles(basePath: string) {
     const stores = await parseStoreXmlFile(file);
     if (!stores.length) continue;
 
-    for (const store of stores) await saveStore(store);
+    for (const store of stores) {
+      try {
+        await saveStore(store);
+      } catch (error) {
+        console.error(`❌ Failed to save store: ${store.StoreId}`, error);
+      }
+    }
 
     success++;
     total += stores.length;

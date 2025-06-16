@@ -9,20 +9,19 @@ export async function processAllPromotionsFiles(basePath: string) {
   let success = 0;
 
   for (const file of files) {
+    console.log(`promotion.service.ts: Processing ${file}...`);
     const promotions = await parsePromotionXmlFile(file);
-
-    success++;
-    if (!promotions.length) {
-      console.log("No promotions found in", file);
-      continue;
+    if (!promotions.length) continue;
+    
+    for (const promo of promotions){
+      try {
+        await savePromotion(promo);
+      } catch (err) {
+        console.error(`❌ Failed to save promotion ${promo.PromotionId}:`, err);
+        continue; 
+      }
     }
-    console.log(
-      `Found ${promotions.length} promotions in ${file} (${file
-        .split("/")
-        .pop()})`
-    );
-    //console.log("Saved", promotions.length, "promotions from", file);
-    for (const grocery of promotions) await savePromotion(grocery);
+    success++;
     total += promotions.length;
   }
 
