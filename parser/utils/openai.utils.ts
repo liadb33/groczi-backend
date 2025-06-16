@@ -137,7 +137,7 @@ export async function fixProductDataBatch(batchData: {
         itemName: aiResult.itemName || originalItem.itemName,
         manufactureName: aiResult.manufactureName || originalItem.manufactureName || null,
         unitQty: aiResult.unitQty || originalItem.unitQty || null,
-        category: aiResult.category || null
+        category: aiResult.category || "אחר"
       };
     });
     
@@ -147,13 +147,13 @@ export async function fixProductDataBatch(batchData: {
   } catch (error) {
     console.log(`❌ Batch processing failed for ${batchData.length} items:`, error);
     
-    // Fallback: return original data with null categories
+    // Fallback: return original data with "אחר" categories
     return batchData.map(item => ({
       itemCode: item.itemCode,
       itemName: item.itemName,
       manufactureName: item.manufactureName || null,
       unitQty: item.unitQty || null,
-      category: null
+      category: "אחר"
     }));
   }
 }

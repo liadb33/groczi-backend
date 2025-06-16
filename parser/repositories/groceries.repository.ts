@@ -95,16 +95,32 @@ export async function saveGrocery(ref: GroceryReference) {
     Number(previous.itemPrice) !== Number(priceUpdate.itemPrice);
 
   if (priceChanged && priceUpdate.date) {
-    await prisma.store_grocery_price_history.create({
-      data: {
-        itemCode,
-        ChainId,
-        SubChainId,
-        StoreId,
-        price: itemPrice,
-        updateDatetime: priceUpdate.date,
+    // Check if this exact timestamp already exists to prevent duplicates
+    const existingPriceHistory = await prisma.store_grocery_price_history.findUnique({
+      where: {
+        itemCode_ChainId_SubChainId_StoreId_updateDatetime: {
+          itemCode,
+          ChainId,
+          SubChainId,
+          StoreId,
+          updateDatetime: priceUpdate.date,
+        },
       },
     });
+
+    // Only create if this timestamp doesn't exist (preserves price history integrity)
+    if (!existingPriceHistory) {
+      await prisma.store_grocery_price_history.create({
+        data: {
+          itemCode,
+          ChainId,
+          SubChainId,
+          StoreId,
+          price: itemPrice,
+          updateDatetime: priceUpdate.date,
+        },
+      });
+    }
   }
 }
 

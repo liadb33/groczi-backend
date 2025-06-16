@@ -34,7 +34,7 @@ export const groceryPrompt = `
 - הוספת שדה חדש "category":
    - בחר מתוך רשימת הקטגוריות הבאות: [${formattedCategories}]
    - על סמך ה־itemName בחר את הקטגוריה המתאימה ביותר.
-   - אם אין התאמה ברורה, הגדר category ל-null.
+   - אם אין התאמה ברורה, הגדר את category כ-"אחר".
 
    החזר אך ורק JSON תקף, ללא טקסט נוסף.`;
 
@@ -56,7 +56,7 @@ export const groceryBatchPrompt = `
 - הוספת שדה חדש "category":
    - בחר מתוך רשימת הקטגוריות הבאות: [${formattedCategories}]
    - על סמך ה־itemName בחר את הקטגוריה המתאימה ביותר.
-   - אם אין התאמה ברורה, הגדר category ל-null.
+   - אם אין התאמה ברורה, הגדר את category כ-"אחר".
 
 עבד כל פריט במערך בנפרד והחזר מערך JSON תקף של אובייקטים מעובדים באותו סדר, כל אחד עם השדות: itemCode, itemName, manufactureName, unitQty, category. 
 ללא טקסט נוסף, רק JSON.`;
