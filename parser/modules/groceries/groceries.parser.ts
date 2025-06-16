@@ -8,11 +8,8 @@ import {
 } from "./groceries.mapper.js";
 // import { fixProductDataBatch } from "../../utils/openai.utils.js";
 import { findGroceriesBulk } from "../../repositories/groceries.repository.js";
-import {
-  ensureArray,
-  getIdsFromRoot,
-  logUnrecognizedFormat,
-} from "../../utils/general.utils.js";
+import { ensureArray } from "../../utils/array.utils.js";
+import { getIdsFromRoot, logUnrecognizedFormat } from "../../utils/id-resolution.utils.js";
 
 const parser = new XMLParser({ ignoreAttributes: false });
 

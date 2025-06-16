@@ -1,5 +1,6 @@
 import { fetchCoordinates } from "../../utils/google.utils.js";
-import { getIdsFromRoot, normalizeKeys, normalizeStoreKeys } from "../../utils/general.utils.js";
+import { getIdsFromRoot } from "../../utils/id-resolution.utils.js";
+import { normalizeKeys, normalizeStoreKeys } from "../../utils/text-normalization.utils.js";
 //import { fixStoreData } from "../../utils/openai.utils.js";
 import { findStoreCoordinates } from "../../repositories/stores.repository.js";
 import { Store } from "./store.entity.js";

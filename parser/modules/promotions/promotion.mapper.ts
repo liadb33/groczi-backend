@@ -1,5 +1,6 @@
 import { parseDateTime } from "../../utils/date.utils.js";
-import { ensureArray, normalizeKeys } from "../../utils/general.utils.js";
+import { ensureArray } from "../../utils/array.utils.js";
+import { normalizeKeys } from "../../utils/text-normalization.utils.js";
 import { GroceryItem, Promotion } from "./promotion.entity.js";
 
 export function mapPromotion(raw: Record<string, any>): Promotion {

@@ -1,4 +1,4 @@
-import { normalizeKeys } from "../../utils/general.utils.js";
+import { normalizeKeys } from "../../utils/text-normalization.utils.js";
 import { findGrocery } from "../../repositories/groceries.repository.js";
 import {
   Grocery,

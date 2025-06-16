@@ -1,8 +1,6 @@
-import {
-  ensureArray,
-  fixHebrewEncoding,
-  logUnrecognizedFormat,
-} from "../../utils/general.utils.js";
+import { ensureArray } from "../../utils/array.utils.js";
+import { fixHebrewEncoding } from "../../utils/text-normalization.utils.js";
+import { logUnrecognizedFormat } from "../../utils/id-resolution.utils.js";
 import { createParser, parseXmlFile } from "../../utils/xml-parser.utils.js";
 import { Store } from "./store.entity.js";
 import { mapToStore } from "./stores.mapper.js";

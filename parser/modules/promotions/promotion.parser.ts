@@ -2,11 +2,8 @@ import { Promotion } from "./promotion.entity.js";
 import { createParser, parseXmlFile } from "../../utils/xml-parser.utils.js";
 import { findStoreByChainIdAndStoreId } from "../../repositories/stores.repository.js";
 import { mapPromotion } from "./promotion.mapper.js";
-import {
-  ensureArray,
-  getIdsFromRoot,
-  logUnrecognizedFormat,
-} from "../../utils/general.utils.js";
+import { ensureArray } from "../../utils/array.utils.js";
+import { getIdsFromRoot, logUnrecognizedFormat } from "../../utils/id-resolution.utils.js";
 
 const parser = createParser("promotions");
 
