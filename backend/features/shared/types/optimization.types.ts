@@ -95,6 +95,7 @@ export interface MultiStoreSolution {
       city: string; 
       chainId: string;     // Chain ID for the store
       subChainId: string;  // Sub-chain ID for the store
+      distance_km: number; // Distance from user to store in kilometers
       items: { 
         itemCode: string; 
         itemName: string; 

@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "parsers": "node --no-warnings --loader ts-node/esm ./parser/run-parsers.ts",
+    "update-images": "node --no-warnings --loader ts-node/esm ./parser/utils/update-grocery-images.ts",
     "cerberus": "py ./scraper-engine/scripts/cerberus.py",
     "shops": "py ./scraper-engine/scripts/shops.py",
     "prices": "py ./scraper-engine/scripts/prices.py",
