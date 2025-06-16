@@ -118,7 +118,7 @@ export async function mapToGroceryWithAIData(
   const finalItemPrice = itemprice ?? Number(itemprice);
   
   // Skip items with price of 0
-  if (finalItemPrice === 0) {
+  if (finalItemPrice === 0 || finalItemPrice === null) {
     return null;
   }
 
@@ -181,10 +181,6 @@ export async function mapToGroceryAndReference(
   // Check if product is already in the database
   const existingGrocery = await findGrocery(String(itemcode ?? "").trim());
   
-  if (existingGrocery?.category) {
-    console.log(`✅ Product exists in DB: ${existingGrocery.itemName}`);
-  }
-
   const grocery: Grocery = {
     itemCode: String(itemcode ?? "").trim(),
     itemName: existingGrocery?.itemName || itemName,
@@ -208,7 +204,7 @@ export async function mapToGroceryAndReference(
   const finalItemPrice = itemprice ?? Number(itemprice);
   
   // Skip items with price of 0
-  if (finalItemPrice === 0) {
+  if (finalItemPrice === 0 || finalItemPrice === null || finalItemPrice === undefined) {
     return null;
   }
 

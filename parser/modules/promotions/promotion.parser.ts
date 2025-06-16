@@ -40,12 +40,17 @@ export async function parsePromotionXmlFile(
     json.promos ??
     {};
 
+  // Extract IDs from root object
+  const xmlChainRaw = root.ChainId ?? root.ChainID ?? "";
+  const xmlSubRaw = root.SubChainId ?? root.SubChainID ?? "";
+  const xmlStoreRaw = root.StoreId ?? root.StoreID ?? "";
+
   // Get chain, store, and sub-chain IDs from the root and filename
   let {
     chainId,
     storeId,
     subChainId: xmlSubChainId,
-  } = await getIdsFromRoot(root, filePath);
+  } = await getIdsFromRoot(xmlChainRaw, xmlStoreRaw, xmlSubRaw, filePath);
 
   if (!chainId || storeId == null || xmlSubChainId == null) return [];
 

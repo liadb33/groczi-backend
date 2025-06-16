@@ -11,7 +11,7 @@ export async function savePromotion(promo: Promotion) {
     promo.SubChainId === undefined ||
     promo.StoreId === undefined
   ) {
-    return;
+    return false;
   }
 
   const store = await findStoreByIds({
@@ -21,13 +21,40 @@ export async function savePromotion(promo: Promotion) {
   });
 
   if (!store) {
-    console.error(
-      `Store not found for ChainId: ${promo.ChainId}, SubChainId: ${promo.SubChainId}, StoreId: ${promo.StoreId}`
-    );
-    return;
+    return false;
   }
 
-  // 1) Upsert into `promotion` using its composite PK (PromotionId,ChainId,SubChainId,StoreId)
+  // STEP 1: Pre-validate which grocery items can be saved
+  const validGroceryItems = [];
+  
+  for (let i = 0; i < promo.groceryItems.length; i++) {
+    const groceryItem = promo.groceryItems[i];
+    
+    // skip if no itemCode
+    if (!groceryItem.itemCode) continue;
+
+    // Check if this grocery item exists in store_grocery
+    const grocery = await prisma.store_grocery.findFirst({
+      where: {
+        itemCode: groceryItem.itemCode,
+      },
+      select: {
+        StoreId: true,
+      },
+    });
+    
+    if (grocery) {
+      validGroceryItems.push(groceryItem);
+    }
+  }
+
+  // STEP 2: Only save promotion if it has at least one valid grocery item
+  if (validGroceryItems.length === 0) {
+    return false;
+  }
+
+
+  // STEP 3: Save the promotion (only if we have valid groceries)
   await prisma.promotion.upsert({
     where: {
       // THIS must match exactly the auto‐generated name in prisma client
@@ -54,26 +81,8 @@ export async function savePromotion(promo: Promotion) {
     },
   });
 
-  // 2) For each groceryItem, upsert into `promotion_grocery`
-  for (let i = 0; i < promo.groceryItems.length; i++) {
-    // skip if no itemCode
-    if (!promo.groceryItems[i].itemCode) continue;
-
-    const grocery = await prisma.store_grocery.findFirst({
-      where: {
-        itemCode: promo.groceryItems[i].itemCode,
-      },
-      select: {
-        StoreId: true,
-      },
-    });
-    if (!grocery) {
-      console.error(
-        `Grocery not found for itemCode: ${promo.groceryItems[i].itemCode}`
-      );
-      continue;
-    }
-
+  // STEP 4: Save only the valid grocery items
+  for (const groceryItem of validGroceryItems) {
     await prisma.promotion_grocery.upsert({
       where: {
         // composite PK (PromotionId,ChainId,SubChainId,StoreId,itemCode)
@@ -82,20 +91,22 @@ export async function savePromotion(promo: Promotion) {
           ChainId: promo.ChainId,
           SubChainId: promo.SubChainId,
           StoreId: promo.StoreId,
-          itemCode: promo.groceryItems[i].itemCode,
+          itemCode: groceryItem.itemCode,
         },
       },
       update: {
-        DiscountPrice: promo.groceryItems[i].DiscountPrice,
+        DiscountPrice: groceryItem.DiscountPrice,
       },
       create: {
         PromotionId: promo.PromotionId,
         ChainId: promo.ChainId,
         SubChainId: promo.SubChainId,
         StoreId: promo.StoreId,
-        itemCode: promo.groceryItems[i].itemCode,
-        DiscountPrice: promo.groceryItems[i].DiscountPrice,
+        itemCode: groceryItem.itemCode,
+        DiscountPrice: groceryItem.DiscountPrice,
       },
     });
   }
+
+  return true;
 }

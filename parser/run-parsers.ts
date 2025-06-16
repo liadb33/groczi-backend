@@ -27,11 +27,11 @@ async function run() {
       await processAllGroceriesFiles(groceriesPath);
    }
 
-  //   if (actions.has("promotions")) {
-  //     const promotionsPath = path.join(dirname, "..", "scraper-engine", "output", "promotions");
-  //     console.log("💸 Processing promotions...");
-  //     await processAllPromotionsFiles(promotionsPath);
-  //  }
+    if (actions.has("promotions")) {
+      const promotionsPath = path.join(dirname, "..", "scraper-engine", "output", "promotions");
+      console.log("💸 Processing promotions...");
+      await processAllPromotionsFiles(promotionsPath);
+   }
 
 
     console.log("✅ All data processed successfully.");

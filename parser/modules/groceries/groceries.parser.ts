@@ -6,7 +6,7 @@ import {
   extractItemDataForAI, 
   mapToGroceryWithAIData 
 } from "./groceries.mapper.js";
-import { fixProductDataBatch } from "../../utils/openai.utils.js";
+// import { fixProductDataBatch } from "../../utils/openai.utils.js";
 import { findGroceriesBulk } from "../../repositories/groceries.repository.js";
 import {
   ensureArray,
@@ -33,7 +33,7 @@ export async function parseGroceryXmlFile(
   const xmlStoreRaw = dataRoot.StoreId ?? dataRoot.StoreID ?? "";
 
   const { chainId, storeId, subChainId } = await getIdsFromRoot(
-    xmlChainRaw,xmlSubRaw,xmlStoreRaw,
+    xmlChainRaw,xmlStoreRaw,xmlSubRaw,
     filePath
   );
 
@@ -82,10 +82,12 @@ export async function parseGroceryXmlFile(
   const dbItemsPromises = itemsFromDB.map(item => mapToGroceryAndReference(item));
   const dbResults = await Promise.all(dbItemsPromises);
 
-  // Step 4: Process AI items with controlled parallel batches
-  const BATCH_SIZE = 100; // Increased from 25 (more items per request)
-  const MAX_CONCURRENT_BATCHES = 3; // Control concurrent requests to stay within rate limits
-  const DELAY_BETWEEN_BATCHES = 200; // 200ms delay to avoid rate limits
+  // Step 4: COMMENTED OUT - Process AI items with controlled parallel batches
+  // TODO: Re-enable this section later to process items that need AI enhancement
+  /*
+  const BATCH_SIZE = 60; // Increased from 25 (more items per request)
+  const MAX_CONCURRENT_BATCHES = 7; // Control concurrent requests to stay within rate limits
+  const DELAY_BETWEEN_BATCHES = 50; // 200ms delay to avoid rate limits
   
   const aiResults: (GroceryReference | null)[] = [];
 
@@ -161,6 +163,18 @@ export async function parseGroceryXmlFile(
       console.log(`✅ Completed ${processedBatches}/${batches.length} batches`);
     }
   }
+  */
+
+  // Step 4 ALTERNATIVE: Process items that need AI without AI for now (just basic processing)
+  const aiResults: (GroceryReference | null)[] = [];
+  
+  if (itemsNeedingAI.length > 0) {
+    console.log(`📝 Processing ${itemsNeedingAI.length} items without AI enhancement for now...`);
+    const noAiItemsPromises = itemsNeedingAI.map(item => mapToGroceryAndReference(item));
+    const noAiResults = await Promise.all(noAiItemsPromises);
+    aiResults.push(...noAiResults);
+    console.log(`✅ Processed ${itemsNeedingAI.length} items without AI enhancement`);
+  }
 
   // Step 5: Combine results and filter out nulls
   const allResults = [...dbResults, ...aiResults];
@@ -168,7 +182,7 @@ export async function parseGroceryXmlFile(
 
   if (!items) return logUnrecognizedFormat(filePath, "groceries.parser.ts");
 
-  console.log(`🎉 Successfully processed ${items.length} items (${itemsFromDB.length} from DB, ${aiResults.filter(r => r !== null).length} with AI)`);
+  console.log(`🎉 Successfully processed ${items.length} items (${itemsFromDB.length} from DB, ${aiResults.filter(r => r !== null).length} without AI enhancement)`);
 
   return items;
 }

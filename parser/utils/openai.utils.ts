@@ -111,7 +111,6 @@ export async function fixProductDataBatch(batchData: {
   if (batchData.length === 0) return [];
   
   try {
-    console.log(`🔄 Processing batch of ${batchData.length} items with AI...`);
     
     const prompt = groceryBatchPrompt + `\nהנה המערך של אובייקטים:\n${JSON.stringify(batchData, null, 2)}`;
 

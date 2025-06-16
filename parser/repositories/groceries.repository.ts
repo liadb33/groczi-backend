@@ -48,9 +48,6 @@ export async function saveGrocery(ref: GroceryReference) {
   });
 
   if (!store) {
-    console.log(
-      `Store not found for ChainId: ${ChainId}, SubChainId: ${SubChainId}, StoreId: ${StoreId}`
-    );
     return;
   }
 
