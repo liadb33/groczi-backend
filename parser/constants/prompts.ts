@@ -37,3 +37,26 @@ export const groceryPrompt = `
    - אם אין התאמה ברורה, הגדר category ל-null.
 
    החזר אך ורק JSON תקף, ללא טקסט נוסף.`;
+
+export const groceryBatchPrompt = `
+אתה מקבל מערך JSON של אובייקטים, כל אובייקט מכיל השדות הבאים בלבד:
+  - "itemName" (שם המוצר)
+  - "unitQty" (כמות/משקל – מחרוזת או null)
+  - "manufactureName" (יצרן – מחרוזת או null)
+  - "itemCode" (קוד פריט - רק לזיהוי, אל תשנה אותו)
+
+הנחיות:
+- חיפוש וחליצה מתוך itemName:
+   - אם מתוך itemName ניתן לזהות את שם היצרן (manufactureName), הוצא אותו והחזר אותו בשדה manufactureName.
+   - אם מתוך itemName ניתן לזהות את הכמות/משקל בעברית (למשל "250 גרם", "1 ליטר"), המיר אותו לשדה unitQty.
+- ניקוי manufactureName:
+   - אם manufactureName חסר, ריק או לא מחרוזת תקפה – הגדר ל-null.
+- בדיקת unitQty:
+   - אם לא ניתן לחלץ כמות ברורה, הגדר unitQty ל-null.
+- הוספת שדה חדש "category":
+   - בחר מתוך רשימת הקטגוריות הבאות: [${formattedCategories}]
+   - על סמך ה־itemName בחר את הקטגוריה המתאימה ביותר.
+   - אם אין התאמה ברורה, הגדר category ל-null.
+
+עבד כל פריט במערך בנפרד והחזר מערך JSON תקף של אובייקטים מעובדים באותו סדר, כל אחד עם השדות: itemCode, itemName, manufactureName, unitQty, category. 
+ללא טקסט נוסף, רק JSON.`;

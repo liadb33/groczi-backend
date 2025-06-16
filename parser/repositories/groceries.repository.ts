@@ -24,7 +24,8 @@ export async function saveGrocery(ref: GroceryReference) {
       isWeighted: item.isWeighted,
       qtyInPackage: item.qtyInPackage,
       unitOfMeasurePrice: item.unitOfMeasurePrice,
-      quantity: item.quantity,      
+      quantity: item.quantity,
+      category: item.category,
     },
     create: {
       itemCode,
@@ -36,6 +37,7 @@ export async function saveGrocery(ref: GroceryReference) {
       qtyInPackage: item.qtyInPackage,
       unitOfMeasurePrice: item.unitOfMeasurePrice,
       quantity: item.quantity,
+      category: item.category,
     },
   });
 
@@ -109,5 +111,26 @@ export async function saveGrocery(ref: GroceryReference) {
 export async function findGrocery(itemCode: string) {
   return await prisma.grocery.findFirst({
     where: { itemCode },
+  });
+}
+
+export async function findGroceriesBulk(itemCodes: string[]) {
+  // Handle empty array
+  if (itemCodes.length === 0) return [];
+  
+  // Prisma bulk query - much faster than individual queries
+  return await prisma.grocery.findMany({
+    where: {
+      itemCode: {
+        in: itemCodes // Single query for all items instead of individual queries
+      }
+    },
+    select: {
+      itemCode: true,
+      category: true,
+      itemName: true,
+      manufacturerName: true,
+      unitQty: true
+    }
   });
 }
