@@ -138,7 +138,7 @@ export async function parseGroceryXmlFile(
             batch.map(async (originalItem, index) => {
               const aiData = aiEnhancedData[index];
               if (aiData) {
-                console.log(`🤖 AI enhanced: ${aiData.itemName} (${aiData.category || 'no category'})`);
+                console.log(`🤖 AI enhanced: ${aiData.itemName} (${aiData.category || 'no category - other'})`);
                 return await mapToGroceryWithAIData(originalItem, aiData);
               }
               return null;
