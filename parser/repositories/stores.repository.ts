@@ -1,6 +1,51 @@
 import prisma from "../prisma-client/prismaClient.js";
 import { Store } from "../modules/stores/store.entity.js";
 
+
+export async function findStoreByIds(ids: {
+  ChainId: string;
+  SubChainId: string;
+  StoreId: string;
+}): Promise<{
+  StoreName: string | null;
+  Address: string | null;
+  City: string | null;
+} | null> {
+  return await prisma.stores.findFirst({
+    where: {
+      ChainId: ids.ChainId,
+      SubChainId: ids.SubChainId,
+      StoreId: ids.StoreId,
+    },
+    select: {
+      StoreName: true,
+      Address: true,
+      City: true,
+    },
+  });
+}
+
+export async function findStoreCoordinates(ids: {
+  ChainId: string;
+  SubChainId: string;
+  StoreId: string;
+}): Promise<{
+  Latitude: number | null;
+  Longitude: number | null;
+} | null> {
+  return await prisma.stores.findFirst({
+    where: {
+      ChainId: ids.ChainId,
+      SubChainId: ids.SubChainId,
+      StoreId: ids.StoreId,
+    },
+    select: {
+      Latitude: true,
+      Longitude: true,
+    },
+  });
+}
+
 export async function findStoreByChainIdAndStoreId(
   chainId: string,
   storeId: string
@@ -76,28 +121,6 @@ export async function saveStore(store: Store) {
     },
   });
 }
-export async function findStoreByIds(ids: {
-  ChainId: string;
-  SubChainId: string;
-  StoreId: string;
-}): Promise<{
-  StoreName: string | null;
-  Address: string | null;
-  City: string | null;
-} | null> {
-  return await prisma.stores.findFirst({
-    where: {
-      ChainId: ids.ChainId,
-      SubChainId: ids.SubChainId,
-      StoreId: ids.StoreId,
-    },
-    select: {
-      StoreName: true,
-      Address: true,
-      City: true,
-    },
-  });
-}
 
 export async function getSubchainsByChainId(chainId: string): Promise<
   {SubChainId: string}[]
@@ -106,27 +129,6 @@ export async function getSubchainsByChainId(chainId: string): Promise<
     where: { ChainId: chainId },
     select: {
       SubChainId: true,
-    },
-  });
-}
-
-export async function findStoreCoordinates(ids: {
-  ChainId: string;
-  SubChainId: string;
-  StoreId: string;
-}): Promise<{
-  Latitude: number | null;
-  Longitude: number | null;
-} | null> {
-  return await prisma.stores.findFirst({
-    where: {
-      ChainId: ids.ChainId,
-      SubChainId: ids.SubChainId,
-      StoreId: ids.StoreId,
-    },
-    select: {
-      Latitude: true,
-      Longitude: true,
     },
   });
 }

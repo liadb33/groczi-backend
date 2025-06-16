@@ -41,10 +41,6 @@ export async function parseGroceryXmlFile(
 
   const arr = ensureArray(dataRoot.Items?.Item);
 
-  // Step 1: Bulk database lookup instead of individual queries
-  console.log(`📦 Processing ${arr.length} items - bulk database lookup...`);
-  const startTime = Date.now();
-
   // Extract all itemCodes at once
   const allItemCodes = arr.map(item => {
     const enhancedItem = { ...item, chainId, subChainId, storeId };
@@ -58,8 +54,6 @@ export async function parseGroceryXmlFile(
       .filter(g => g.category) // Only items with categories
       .map(g => g.itemCode)
   );
-
-  console.log(`⚡ Bulk lookup completed in ${Date.now() - startTime}ms`);
 
   // Step 2: Separate items based on bulk lookup results
   const itemsFromDB: any[] = [];
@@ -75,8 +69,6 @@ export async function parseGroceryXmlFile(
       itemsNeedingAI.push(enhancedItem);
     }
   }
-
-  console.log(`✅ Found ${itemsFromDB.length} items in DB, ${itemsNeedingAI.length} items need AI processing`);
 
   // Step 3: Process database items normally
   const dbItemsPromises = itemsFromDB.map(item => mapToGroceryAndReference(item));
@@ -169,11 +161,9 @@ export async function parseGroceryXmlFile(
   const aiResults: (GroceryReference | null)[] = [];
   
   if (itemsNeedingAI.length > 0) {
-    console.log(`📝 Processing ${itemsNeedingAI.length} items without AI enhancement for now...`);
     const noAiItemsPromises = itemsNeedingAI.map(item => mapToGroceryAndReference(item));
     const noAiResults = await Promise.all(noAiItemsPromises);
     aiResults.push(...noAiResults);
-    console.log(`✅ Processed ${itemsNeedingAI.length} items without AI enhancement`);
   }
 
   // Step 5: Combine results and filter out nulls

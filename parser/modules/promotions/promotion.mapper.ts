@@ -1,3 +1,4 @@
+import { parseDateTime } from "../../utils/date.utils.js";
 import { ensureArray, normalizeKeys } from "../../utils/general.utils.js";
 import { GroceryItem, Promotion } from "./promotion.entity.js";
 
@@ -31,12 +32,8 @@ export function mapPromotion(raw: Record<string, any>): Promotion {
 
       // pull description & dates from PromotionDetails
       PromotionName: d.PromotionDescription?.trim(),
-      StartDate: d.PromotionStartDate
-        ? new Date(`${d.PromotionStartDate}T${d.PromotionStartHour}`)
-        : undefined,
-      EndDate: d.PromotionEndDate
-        ? new Date(`${d.PromotionEndDate}T${d.PromotionEndHour}`)
-        : undefined,
+      StartDate: parseDateTime(d.PromotionStartDate),
+      EndDate: parseDateTime(d.PromotionEndDate),
 
       // only one item per <Line> — use ItemCode + discount price from promotion level
       groceryItems: [
@@ -61,21 +58,13 @@ export function mapPromotion(raw: Record<string, any>): Promotion {
     PromotionName: data["promotiondescription"]
       ? String(data["promotiondescription"]).trim()
       : undefined,
-    StartDate: raw.PromotionStartDate
-      ? new Date(
-          `${raw.PromotionStartDate}T${raw.PromotionStartHour ?? "00:00:00"}`
-        )
-      : undefined,
-    EndDate: raw.PromotionEndDate
-      ? new Date(
-          `${raw.PromotionEndDate}T${raw.PromotionEndHour ?? "23:59:59"}`
-        )
-      : undefined,
+    StartDate: parseDateTime(raw.PromotionStartDate),
+    EndDate: parseDateTime(raw.PromotionEndDate),
     groceryItems: items.map(
       (it: any): GroceryItem => {
         return {
           itemCode: String(it.ItemCode).trim(),
-          DiscountPrice: promotionDiscountPrice, // Use promotion-level discount price for all items
+          DiscountPrice: promotionDiscountPrice, 
         };
       }
     ),

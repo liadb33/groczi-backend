@@ -7,7 +7,6 @@ import {
   getIdsFromRoot,
   logUnrecognizedFormat,
 } from "../../utils/general.utils.js";
-import { getSubChainId } from "../../utils/extract-ids.utils.js";
 
 const parser = createParser("promotions");
 

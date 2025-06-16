@@ -5,33 +5,7 @@ import {
   GroceryPriceUpdate,
   GroceryReference,
 } from "./grocery.entity.js";
-
-// Helper function to find date value from multiple possible field names
-function extractDateValue(data: Record<string, any>): string | undefined {
-  const possibleDateFields = [
-    'priceupdatedate',     // PriceUpdateDate
-    'priceupdatetime',     // PriceUpdateTime
-  ];
-
-  for (const field of possibleDateFields) {
-    if (data[field]) {
-      return data[field];
-    }
-  }
-  
-  return undefined;
-}
-
-// Helper function to parse date string in multiple formats
-function parseDateTime(dateString: string): Date {
-  // Handle space-separated format: "2024-01-15 10:30:00"
-  if (dateString.includes(' ') && !dateString.includes('T')) {
-    return new Date(dateString.replace(" ", "T"));
-  }
-  
-  // Handle ISO format: "2025-01-14T16:17:19.000"
-  return new Date(dateString);
-}
+import { parseDateTime } from "../../utils/date.utils.js";
 
 // Extract common data from input for AI processing
 export function extractItemDataForAI(input: Record<string, any>): {
@@ -113,7 +87,7 @@ export async function mapToGroceryWithAIData(
   const resolvedStoreId = storeid ?? (storeId ? String(storeId).trim() : undefined);
 
   // Extract date from any supported field and parse it properly
-  const dateValue = extractDateValue(data);
+  const dateValue = data["priceupdatedate"] ?? data["priceupdatetime"] ?? undefined;
 
   const finalItemPrice = itemprice ?? Number(itemprice);
   
@@ -199,7 +173,7 @@ export async function mapToGroceryAndReference(
   const resolvedStoreId = storeid ?? (storeId ? String(storeId).trim() : undefined);
 
   // Extract date from any supported field and parse it properly
-  const dateValue = extractDateValue(data);
+  const dateValue = data["priceupdatedate"] ?? data["priceupdatetime"] ?? undefined;
 
   const finalItemPrice = itemprice ?? Number(itemprice);
   

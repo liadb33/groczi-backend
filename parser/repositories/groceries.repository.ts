@@ -63,7 +63,7 @@ export async function saveGrocery(ref: GroceryReference) {
     },
   });
 
-  const storeGrocery = await prisma.store_grocery.upsert({
+  await prisma.store_grocery.upsert({
     where: {
       itemCode_ChainId_SubChainId_StoreId: {
         itemCode,
@@ -86,7 +86,7 @@ export async function saveGrocery(ref: GroceryReference) {
 
 
   const priceChanged =
-    !previous || // חדש לגמרי
+    !previous || 
     previous.itemPrice === null ||
     priceUpdate.itemPrice === undefined ||
     Number(previous.itemPrice) !== Number(priceUpdate.itemPrice);

@@ -4,19 +4,9 @@ import { getIdsFromRoot, normalizeKeys, normalizeStoreKeys } from "../../utils/g
 import { findStoreCoordinates } from "../../repositories/stores.repository.js";
 import { Store } from "./store.entity.js";
 
-export async function mapToStore(input: Record<string, any>, filePath: string): Promise<Store> {
+export async function mapToStore(input: Record<string, any>): Promise<Store> {
   
   const normalizedInput = normalizeKeys(input);
-  
-  //const { chainId, storeId, subChainId } = await getIdsFromRoot(normalizedInput["chainid"], normalizedInput["storeid"], normalizedInput["subchainid"], filePath);
-  
-  // Merge the extracted IDs into the input object before normalizing
-  // const inputWithIds = {
-  //   ...input,
-  //   chainid: chainId,
-  //   storeid: storeId,
-  //   subchainid: subChainId,
-  // };
   
   const data = normalizeStoreKeys(normalizedInput);
   
