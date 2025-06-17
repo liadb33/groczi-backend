@@ -1,12 +1,12 @@
+import { ReqStatus } from "@prisma/client";
 import prisma from "../../shared/prisma-client/prisma-client.js";
-import { ReqStatus } from ".prisma/client/index.js";
 
 export const findAllRequests = async () => {
   return prisma.requests.findMany();
 };
 
 export const findRequestById = async (id: number) => {
-  return prisma.requests.findUnique({where: { id },});
+  return prisma.requests.findUnique({ where: { id } });
 };
 
 export const insertRequest = async (
@@ -33,7 +33,9 @@ export const updateRequestStatus = async (
   return prisma.requests.update({
     where: { id },
     data: {
-      reqStatus,
+      reqStatus: {
+        set: reqStatus,
+      },
     },
   });
 };
@@ -41,5 +43,20 @@ export const updateRequestStatus = async (
 export const deleteRequest = async (id: number) => {
   return prisma.requests.delete({
     where: { id },
+  });
+};
+
+export const updateAllRequestsStatus = async (status: ReqStatus) => {
+  return prisma.requests.updateMany({
+    where: {
+      reqStatus: {
+        equals: ReqStatus.SENT,
+      },
+    },
+    data: {
+      reqStatus: {
+        set: status,
+      },
+    },
   });
 };
