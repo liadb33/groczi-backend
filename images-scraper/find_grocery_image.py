@@ -17,8 +17,7 @@ logging.basicConfig(
     level=logging.INFO, 
     format=LOG_FORMAT,
     handlers=[
-        logging.StreamHandler(), 
-        logging.FileHandler("scraper.log", mode='w', encoding='utf-8')
+        logging.StreamHandler()
     ]
 )
 logger = logging.getLogger(__name__)
@@ -473,7 +472,7 @@ class SupermarketScraper:
 
 async def scrape_parallel(item_names_to_search: List[str], 
                          existing_data: Dict[str, str] = None, 
-                         num_browsers: int = 3,
+                         num_browsers: int = 7,
                          save_interval: int = 100) -> Dict[str, str]:
     """
     Parallel scraping with multiple browser instances and periodic progress saving.
@@ -504,8 +503,8 @@ async def scrape_parallel(item_names_to_search: List[str],
                     combined_progress[name] = url
                     total_from_browsers += 1
         
-        # Save combined progress every 150 total new products (50 per browser * 3)
-        if total_from_browsers - last_combined_save >= 150:
+        # Save combined progress every 350 total new products (50 per browser * 7)
+        if total_from_browsers - last_combined_save >= 350:
             await save_to_json(combined_progress, PROGRESS_JSON_FILE)
             scraped_data_global.update(combined_progress)  # Update global for signal handler
             logger.info(f"💾 COMBINED progress saved: {len(combined_progress)} total products")
@@ -528,7 +527,7 @@ async def scrape_parallel(item_names_to_search: List[str],
     
     logger.info(f"🚀 Starting PARALLEL scraping with {len(batches)} browsers")
     logger.info(f"📊 Total items: {total_items}, Average per browser: {batch_size}")
-    logger.info(f"💾 Progress saving: Every 50 items per browser + combined every 150 total")
+    logger.info(f"💾 Progress saving: Every 50 items per browser + combined every 350 total")
     
     # Create browser instances
     scrapers = []
@@ -619,7 +618,7 @@ async def main_json_only():
     # Setup signal handlers for graceful shutdown
     setup_signal_handlers()
     
-    logger.info("🚀 Starting FAST JSON-ONLY scraping process for comprehensive catalog building.")
+    logger.info("🚀 Starting FAST JSON-ONLY scraping process for items WITHOUT existing imageUrls.")
 
     db_manager = DatabaseManager()
 
@@ -628,23 +627,23 @@ async def main_json_only():
         logger.info("📁 Loading existing JSON data...")
         existing_data = await load_existing_json()
         
-        # 2. Connect to database and get ALL product names
+        # 2. Connect to database and get products WITHOUT images
         logger.info("🔗 Connecting to database...")
         await db_manager.connect()
         
-        all_product_names = await db_manager.get_all_product_names()
+        products_without_images = await db_manager.get_products_without_images()
         
-        if not all_product_names:
-            logger.info("❌ No products found in database. Exiting.")
+        if not products_without_images:
+            logger.info("✅ No products in database need image scraping. Exiting.")
             return
 
-        logger.info(f"📦 Total products in database: {len(all_product_names)}")
+        logger.info(f"📦 Products without images in database: {len(products_without_images)}")
         logger.info(f"📊 Already scraped: {len(existing_data)}")
         
         # 3. Filter out items we might have already searched for
         remaining_items = []
         skipped_count = 0
-        for item in all_product_names:
+        for item in products_without_images:
             if not is_search_term_covered(item, existing_data):
                 remaining_items.append(item)
             else:
@@ -658,12 +657,12 @@ async def main_json_only():
             await save_to_json(existing_data)
             return
 
-        print(f"\n🚀 FAST PARALLEL PROCESSING MODE (3 Browsers):")
+        print(f"\n🚀 FAST PARALLEL PROCESSING MODE (7 Browsers):")
         print(f"   📁 Existing products: {len(existing_data)}")
         print(f"   🎯 Items to process: {len(remaining_items)}")
-        print(f"   🤖 Browsers: 3 parallel instances")
-        print(f"   💾 Progress saves: Every 50 items per browser + combined every 150")
-        print(f"   ⚡ Expected duration: ~{len(remaining_items) * 0.17 / 60:.1f} minutes (~3x faster)")
+        print(f"   🤖 Browsers: 7 parallel instances")
+        print(f"   💾 Progress saves: Every 50 items per browser + combined every 350")
+        print(f"   ⚡ Expected duration: ~{len(remaining_items) * 0.07 / 60:.1f} minutes (~7x faster)")
         print("="*80)
 
         # 4. Disconnect from database (we don't need it anymore)
@@ -674,7 +673,7 @@ async def main_json_only():
         final_scraped_data = await scrape_parallel(
             remaining_items, 
             existing_data=existing_data,
-            num_browsers=3,
+            num_browsers=7,
             save_interval=100
         )
 
@@ -685,12 +684,12 @@ async def main_json_only():
         # 7. Results summary
         new_products = len(final_scraped_data) - len(existing_data)
         
-        print(f"\n🎉 COMPREHENSIVE CATALOG BUILDING COMPLETED!")
-        print(f"   📦 Original database items: {len(all_product_names)}")
+        print(f"\n🎉 IMAGE SCRAPING FOR MISSING ITEMS COMPLETED!")
+        print(f"   📦 Items without images processed: {len(products_without_images)}")
         print(f"   📊 Total unique products found: {len(final_scraped_data)}")
         print(f"   ✨ New products added: {new_products}")
         print(f"   📁 JSON saved to: {JSON_OUTPUT_FILE}")
-        print(f"   📈 Catalog growth: {len(final_scraped_data) / len(all_product_names):.1f}x database size")
+        print(f"   📈 Success rate: {len(final_scraped_data) / len(products_without_images) * 100:.1f}% coverage")
         print("="*80)
 
     except mysql.connector.Error as e:
@@ -789,8 +788,8 @@ if __name__ == "__main__":
         else:
             print("Usage:")
             print("  python find_grocery_image.py          # Original process")
-            print("  python find_grocery_image.py fast     # Fast parallel process (3 browsers)")
-            print("  python find_grocery_image.py parallel # Fast parallel process (3 browsers)")
+            print("  python find_grocery_image.py fast     # Fast parallel process (7 browsers)")
+            print("  python find_grocery_image.py parallel # Fast parallel process (7 browsers)")
             print("  python find_grocery_image.py demo     # Demo with 2 test products")
     else:
         # Run original process: python fine_grocery_image.py
