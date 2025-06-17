@@ -22,24 +22,50 @@ export async function parseGroceryXmlFile(
     return [];
   }
 
-  const dataRoot: any = json.root ?? json.Root;
-  if (!dataRoot) return [];
+  // Handle different XML formats
+  let dataRoot: any;
+  let xmlChainRaw: string;
+  let xmlSubRaw: string;
+  let xmlStoreRaw: string;
+  let itemsArray: any[];
 
-  const xmlChainRaw = dataRoot.ChainId ?? dataRoot.ChainID ?? "";
-  const xmlSubRaw = dataRoot.SubChainId ?? dataRoot.SubChainID ?? "";
-  const xmlStoreRaw = dataRoot.StoreId ?? dataRoot.StoreID ?? "";
+  // Check for Victory format: <Prices><Products><Product>
+  if (json.Prices) {
+    dataRoot = json.Prices;
+    xmlChainRaw = dataRoot.ChainID ?? dataRoot.ChainId ?? "";
+    xmlSubRaw = dataRoot.SubChainID ?? dataRoot.SubChainId ?? "";
+    xmlStoreRaw = dataRoot.StoreID ?? dataRoot.StoreId ?? "";
+    
+    // Victory format uses Products.Product instead of Items.Item
+    itemsArray = ensureArray(dataRoot.Products?.Product);
+  }
+  // Check for standard format: <root><Items><Item>
+  else {
+    dataRoot = json.root ?? json.Root;
+    if (!dataRoot) return [];
+
+    xmlChainRaw = dataRoot.ChainId ?? dataRoot.ChainID ?? "";
+    xmlSubRaw = dataRoot.SubChainId ?? dataRoot.SubChainID ?? "";
+    xmlStoreRaw = dataRoot.StoreId ?? dataRoot.StoreID ?? "";
+    
+    // Standard format uses Items.Item
+    itemsArray = ensureArray(dataRoot.Items?.Item);
+  }
+
+  if (!itemsArray || itemsArray.length === 0) {
+    console.log("❌ No items found in XML file:", filePath);
+    return [];
+  }
 
   const { chainId, storeId, subChainId } = await getIdsFromRoot(
-    xmlChainRaw,xmlStoreRaw,xmlSubRaw,
+    xmlChainRaw, xmlStoreRaw, xmlSubRaw,
     filePath
   );
 
   if (subChainId === null) return [];
 
-  const arr = ensureArray(dataRoot.Items?.Item);
-
   // Extract all itemCodes at once
-  const allItemCodes = arr.map(item => {
+  const allItemCodes = itemsArray.map(item => {
     const enhancedItem = { ...item, chainId, subChainId, storeId };
     return extractItemDataForAI(enhancedItem).itemCode;
   });
@@ -56,7 +82,7 @@ export async function parseGroceryXmlFile(
   const itemsFromDB: any[] = [];
   const itemsNeedingAI: any[] = [];
 
-  for (const item of arr) {
+  for (const item of itemsArray) {
     const enhancedItem = { ...item, chainId, subChainId, storeId };
     const itemCode = extractItemDataForAI(enhancedItem).itemCode;
     

@@ -27,6 +27,13 @@ function multiStoreTravelCostTspNn(
 ): number {
   if (storesToVisit.length === 0) return 0;
   
+  // Single store optimization
+  if (storesToVisit.length === 1) {
+    const storeLocation = storesToVisit[0].location;
+    const distanceToStore = calculateDistanceForTSP(userLoc, storeLocation);
+    return (distanceToStore * 2) * costPerDistanceUnit; // Round trip
+  }
+  
   const locationsToVisit: { id: string; loc: [number, number] }[] = [
     { id: "_user_start", loc: userLoc },
     ...storesToVisit.map(s => ({ id: s.storeId, loc: s.location })),
@@ -150,53 +157,35 @@ export async function runTopNMultiStoreDPForList(
 
   const finalDPCostStates = dp.get(finalItemMask)!;
   for (const [finalStoreMaskCandidate, totalItemCostForCandidate] of finalDPCostStates) {
-    const storesToVisitInThisOption: { storeId: string; location: [number, number] }[] = [];
-    for (let k = 0; k < m_stores; k++) {
-      if ((finalStoreMaskCandidate >> k) & 1) {
-        const sId = storeIds[k];
-        storesToVisitInThisOption.push({ storeId: sId, location: dpStoresData[sId].location });
-      }
-    }
-    const currentTravelCostRaw = multiStoreTravelCostTspNn(userLocation, storesToVisitInThisOption, 1); // Raw distance units
-    const currentTravelCostWithFactor = currentTravelCostRaw * costPerDistanceUnit;
-
-    if (currentTravelCostRaw > maxTravelForSolution) { // Compare raw distance if maxTravelDistance is in km
-        continue;
-    }
-
-    // The 'lambdaTravel' for multi-store usually applies to the actual travel cost for scoring
-    // If lambdaTravel = 1, totalCost = itemCost + travelCostWithFactor
-    // If lambdaTravel > 1, travel is penalized more.
-    // Let's assume the "total_cost" field in MultiStoreSolution should be the actual spendable amount.
-    // The ranking might use a different score (e.g. items + lambda * travel) if needed,
-    // but the problem statement implies total_cost includes product prices + travel cost.
-    // The previous example used lambdaTravel directly in the total cost for the DP.
-    // For clarity, let's assume the `total_cost` in the solution is the actual spend.
-    // The sorting should be based on `itemCost + lambdaTravel * travelCostRaw * costPerDistanceUnit`
-    // or simply `itemCost + lambdaTravel * travelCostWithFactor`.
-    // Let's adjust to use lambdaTravel for sorting, but store actual travel cost.
-
-    const scoringCost = totalItemCostForCandidate + lambdaTravel * currentTravelCostWithFactor;
-
+    // TEMPORARILY store the DP solution for later travel cost calculation
     allPotentialSolutions.push({
       finalStoreUsageMask: finalStoreMaskCandidate,
       itemCost: totalItemCostForCandidate,
-      travelCostRaw: currentTravelCostWithFactor, // Actual travel cost
-      totalCostWithLambda: scoringCost,           // Score used for ranking
+      travelCostRaw: 0, // Will be calculated after backtracking
+      totalCostWithLambda: 0, // Will be calculated after backtracking
     });
   }
 
   if (allPotentialSolutions.length === 0) return { solutions: [] };
 
-  allPotentialSolutions.sort((a, b) => a.totalCostWithLambda - b.totalCostWithLambda);
+  // Process each solution: do backtracking first, then calculate travel cost
+  const processedSolutions: {
+    assignments: MultiStoreSolution['assignments'];
+    itemCost: number;
+    travelCost: number;
+    totalCost: number;
+    scoringCost: number;
+  }[] = [];
 
-  const topSolutions: MultiStoreSolution[] = [];
-  for (let i = 0; i < Math.min(topNSolutionsToReturn, allPotentialSolutions.length); i++) {
-    const solCandidate = allPotentialSolutions[i];
+  for (const solCandidate of allPotentialSolutions) {
     const assignments: MultiStoreSolution['assignments'] = {};
+    
     let tempItemMask = finalItemMask;
     let tempStoreMask = solCandidate.finalStoreUsageMask;
     let backtrackingSuccessful = true;
+    
+    const storesActuallyUsed = new Set<string>();
+    
     while (tempItemMask > 0) {
       if (!parent.has(tempItemMask) || !parent.get(tempItemMask)!.has(tempStoreMask)) {
         backtrackingSuccessful = false; break;
@@ -204,9 +193,15 @@ export async function runTopNMultiStoreDPForList(
       const pData = parent.get(tempItemMask)!.get(tempStoreMask)!;
       const itemIdx = pData.itemIdx; const storeIdx = pData.storeIdx;
       const itemCode = itemCodes[itemIdx]; const storeId = storeIds[storeIdx];
+      
+      storesActuallyUsed.add(storeId);
+      
       const storeInfo = dpStoresData[storeId];
       const storeKey = storeInfo.storeName || storeId;
       if (!assignments![storeKey]) {
+        // Calculate distance from user to this store
+        const distanceToStore = calculateDistanceForTSP(userLocation, storeInfo.location);
+        
         assignments![storeKey] = { 
           store_id: storeId, 
           address: storeInfo.address, 
@@ -215,6 +210,7 @@ export async function runTopNMultiStoreDPForList(
           longitude: storeInfo.location[1], 
           chainId: storeInfo.chainId,
           subChainId: storeInfo.subChainId,
+          distance_km: parseFloat(distanceToStore.toFixed(2)),
           items: [] 
         };
       }
@@ -222,14 +218,52 @@ export async function runTopNMultiStoreDPForList(
       assignments![storeKey].items.push({ itemCode, itemName: itemDetailsMap.get(itemCode)?.itemName || itemCode, quantity, price: parseFloat(price.toFixed(2)) });
       tempItemMask = pData.prevItemMask; tempStoreMask = pData.prevStoreMask;
     }
-    if (backtrackingSuccessful) {
-      topSolutions.push({
-        assignments: assignments,
-        total_cost: parseFloat((solCandidate.itemCost + solCandidate.travelCostRaw).toFixed(2)), // Actual total cost
-        item_cost: parseFloat(solCandidate.itemCost.toFixed(2)),
-        travel_cost: parseFloat(solCandidate.travelCostRaw.toFixed(2)),
+    
+    if (!backtrackingSuccessful) continue;
+    
+    // NOW calculate travel cost based on ONLY the stores actually used
+    const actualStoresToVisit: { storeId: string; location: [number, number] }[] = [];
+    for (const storeId of storesActuallyUsed) {
+      actualStoresToVisit.push({ 
+        storeId: storeId, 
+        location: dpStoresData[storeId].location 
       });
     }
+    
+    const actualTravelDistanceKm = multiStoreTravelCostTspNn(userLocation, actualStoresToVisit, 1);
+    const actualTravelCost = actualTravelDistanceKm * costPerDistanceUnit;
+    
+    // Apply travel distance constraint
+    if (actualTravelDistanceKm > maxTravelForSolution) {
+      continue;
+    }
+    
+    const totalCost = solCandidate.itemCost + actualTravelCost;
+    const scoringCost = solCandidate.itemCost + lambdaTravel * actualTravelCost;
+    
+    processedSolutions.push({
+      assignments,
+      itemCost: solCandidate.itemCost,
+      travelCost: actualTravelCost,
+      totalCost,
+      scoringCost
+    });
+  }
+
+  if (processedSolutions.length === 0) return { solutions: [] };
+
+  // Sort by scoring cost (items + lambda * travel)
+  processedSolutions.sort((a, b) => a.scoringCost - b.scoringCost);
+
+  const topSolutions: MultiStoreSolution[] = [];
+  for (let i = 0; i < Math.min(topNSolutionsToReturn, processedSolutions.length); i++) {
+    const sol = processedSolutions[i];
+    topSolutions.push({
+      assignments: sol.assignments,
+      total_cost: parseFloat(sol.totalCost.toFixed(2)),
+      item_cost: parseFloat(sol.itemCost.toFixed(2)),
+      travel_cost: parseFloat(sol.travelCost.toFixed(2)),
+    });
   }
   return { solutions: topSolutions };
 } 

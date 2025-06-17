@@ -24,6 +24,7 @@ const mapBookmarksToResponse = (bookmarks: any[]) => {
       quantity: grocery?.quantity,
       isWeighted: grocery?.isWeighted,
       qtyInPackage: grocery?.qtyInPackage,
+      imageUrl: grocery?.imageUrl || null,
     };
   });
 };

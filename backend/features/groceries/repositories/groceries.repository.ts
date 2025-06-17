@@ -86,13 +86,56 @@ export const getGroceryHistory = async (itemCode: string) => {
     ],
   });
 };
+
+
 export const getStoresByItemCode = async (
   itemCode: string,
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
+  userLatitude?: number,
+  userLongitude?: number
 ) => {
   const offset = (page - 1) * limit;
 
+  // If user coordinates are provided, get all data first (no pagination) to sort by distance
+  // then apply pagination manually after sorting
+  if (userLatitude !== undefined && userLongitude !== undefined) {
+    const [allData, total] = await Promise.all([
+      prisma.store_grocery.findMany({
+        where: { itemCode },
+        include: {
+          stores: {
+            include: {
+              subchains: {
+                select: {
+                  imageUrl: true,
+                  SubChainName: true
+                }
+              }
+            }
+          }
+        },
+        orderBy: { itemPrice: 'asc' }, // Secondary sort by price
+      }),
+      prisma.store_grocery.count({
+        where: { itemCode },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+    
+    return {
+      data: allData,
+      page,
+      limit,
+      total,
+      totalPages,
+      userLatitude,
+      userLongitude,
+    };
+  }
+
+  // Original logic for when no user coordinates are provided
   const [data, total] = await Promise.all([
     prisma.store_grocery.findMany({
       where: { itemCode },
