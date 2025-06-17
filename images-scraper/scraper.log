@@ -1,0 +1,163 @@
+2025-06-17 14:31:18,110 - INFO - fine_grocery_image - 🚀 Starting the Shufersal image scraping process.
+2025-06-17 14:31:18,110 - INFO - fine_grocery_image - 🔗 Connecting to database...
+2025-06-17 14:31:18,181 - INFO - __init__ - package: mysql.connector.plugins
+2025-06-17 14:31:18,182 - INFO - __init__ - plugin_name: caching_sha2_password
+2025-06-17 14:31:18,182 - INFO - __init__ - AUTHENTICATION_PLUGIN_CLASS: MySQLCachingSHA2PasswordAuthPlugin
+2025-06-17 14:31:18,186 - INFO - fine_grocery_image - Successfully connected to the database.
+2025-06-17 14:31:18,187 - INFO - fine_grocery_image - Found 14 products without images.
+2025-06-17 14:31:18,188 - INFO - fine_grocery_image - 📦 Found 14 products without images
+2025-06-17 14:31:18,188 - INFO - fine_grocery_image - 🚀 Setting up browser automation...
+2025-06-17 14:31:18,813 - INFO - fine_grocery_image - Playwright setup complete.
+2025-06-17 14:31:18,813 - INFO - fine_grocery_image - 🔍 Starting search and extraction process...
+2025-06-17 14:31:18,814 - INFO - fine_grocery_image - --- Starting search for: קוטג תנובה 5% בדץ 250ג ---
+2025-06-17 14:31:18,814 - INFO - fine_grocery_image - Navigating to base URL: https://www.shufersal.co.il/online/he/S
+2025-06-17 14:31:24,969 - INFO - fine_grocery_image - Successfully navigated to https://www.shufersal.co.il/online/he/S
+2025-06-17 14:31:24,969 - INFO - fine_grocery_image - Attempting to find search input: input#js-site-search-input
+2025-06-17 14:31:26,535 - INFO - fine_grocery_image - Typing 'קוטג תנובה 5% בדץ 250ג' into search input.
+2025-06-17 14:31:26,732 - INFO - fine_grocery_image - Pressing Enter to submit search.
+2025-06-17 14:31:27,611 - INFO - fine_grocery_image - Waiting for search results grid to load...
+2025-06-17 14:31:31,613 - INFO - fine_grocery_image - Search results grid loaded.
+2025-06-17 14:31:33,638 - INFO - fine_grocery_image - Found 20 product items on the page.
+2025-06-17 14:31:33,924 - INFO - fine_grocery_image - Extracted 19 unique products with valid images from current page.
+2025-06-17 14:31:34,939 - INFO - fine_grocery_image - --- Starting search for: קוטג תנובה בד"צ 9% 250ג ---
+2025-06-17 14:31:34,939 - INFO - fine_grocery_image - Navigating to base URL: https://www.shufersal.co.il/online/he/S
+2025-06-17 14:31:40,705 - INFO - fine_grocery_image - Successfully navigated to https://www.shufersal.co.il/online/he/S
+2025-06-17 14:31:40,705 - INFO - fine_grocery_image - Attempting to find search input: input#js-site-search-input
+2025-06-17 14:31:42,044 - INFO - fine_grocery_image - Typing 'קוטג תנובה בד"צ 9% 250ג' into search input.
+2025-06-17 14:31:42,283 - INFO - fine_grocery_image - Pressing Enter to submit search.
+2025-06-17 14:31:43,280 - INFO - fine_grocery_image - Waiting for search results grid to load...
+2025-06-17 14:31:46,649 - INFO - fine_grocery_image - Search results grid loaded.
+2025-06-17 14:31:48,658 - INFO - fine_grocery_image - Found 20 product items on the page.
+2025-06-17 14:31:48,920 - INFO - fine_grocery_image - Extracted 19 unique products with valid images from current page.
+2025-06-17 14:31:49,934 - INFO - fine_grocery_image - --- Starting search for: קוטג תנובה עם זיתים 5% 250ג ---
+2025-06-17 14:31:49,934 - INFO - fine_grocery_image - Navigating to base URL: https://www.shufersal.co.il/online/he/S
+2025-06-17 14:31:54,838 - INFO - fine_grocery_image - Successfully navigated to https://www.shufersal.co.il/online/he/S
+2025-06-17 14:31:54,838 - INFO - fine_grocery_image - Attempting to find search input: input#js-site-search-input
+2025-06-17 14:31:56,010 - INFO - fine_grocery_image - Typing 'קוטג תנובה עם זיתים 5% 250ג' into search input.
+2025-06-17 14:31:56,112 - INFO - fine_grocery_image - Pressing Enter to submit search.
+2025-06-17 14:31:57,058 - INFO - fine_grocery_image - Waiting for search results grid to load...
+2025-06-17 14:32:00,476 - INFO - fine_grocery_image - Search results grid loaded.
+2025-06-17 14:32:02,491 - INFO - fine_grocery_image - Found 20 product items on the page.
+2025-06-17 14:32:02,764 - INFO - fine_grocery_image - Extracted 19 unique products with valid images from current page.
+2025-06-17 14:32:03,782 - INFO - fine_grocery_image - --- Starting search for: קוטג תנובה עם שום שמיר 5% 250גר ---
+2025-06-17 14:32:03,782 - INFO - fine_grocery_image - Navigating to base URL: https://www.shufersal.co.il/online/he/S
+2025-06-17 14:32:08,839 - INFO - fine_grocery_image - Successfully navigated to https://www.shufersal.co.il/online/he/S
+2025-06-17 14:32:08,840 - INFO - fine_grocery_image - Attempting to find search input: input#js-site-search-input
+2025-06-17 14:32:10,137 - INFO - fine_grocery_image - Typing 'קוטג תנובה עם שום שמיר 5% 250גר' into search input.
+2025-06-17 14:32:10,238 - INFO - fine_grocery_image - Pressing Enter to submit search.
+2025-06-17 14:32:11,057 - INFO - fine_grocery_image - Waiting for search results grid to load...
+2025-06-17 14:32:14,249 - INFO - fine_grocery_image - Search results grid loaded.
+2025-06-17 14:32:16,270 - INFO - fine_grocery_image - Found 20 product items on the page.
+2025-06-17 14:32:16,564 - INFO - fine_grocery_image - Extracted 20 unique products with valid images from current page.
+2025-06-17 14:32:17,569 - INFO - fine_grocery_image - --- Starting search for: קוטג תנובה 3% 250 ג ---
+2025-06-17 14:32:17,570 - INFO - fine_grocery_image - Navigating to base URL: https://www.shufersal.co.il/online/he/S
+2025-06-17 14:32:22,648 - INFO - fine_grocery_image - Successfully navigated to https://www.shufersal.co.il/online/he/S
+2025-06-17 14:32:22,648 - INFO - fine_grocery_image - Attempting to find search input: input#js-site-search-input
+2025-06-17 14:32:23,962 - INFO - fine_grocery_image - Typing 'קוטג תנובה 3% 250 ג' into search input.
+2025-06-17 14:32:24,141 - INFO - fine_grocery_image - Pressing Enter to submit search.
+2025-06-17 14:32:25,010 - INFO - fine_grocery_image - Waiting for search results grid to load...
+2025-06-17 14:32:28,112 - INFO - fine_grocery_image - Search results grid loaded.
+2025-06-17 14:32:30,127 - INFO - fine_grocery_image - Found 20 product items on the page.
+2025-06-17 14:32:30,409 - INFO - fine_grocery_image - Extracted 19 unique products with valid images from current page.
+2025-06-17 14:32:31,429 - INFO - fine_grocery_image - --- Starting search for: קוטג תנובה מהדרין 5% 250ג ---
+2025-06-17 14:32:31,429 - INFO - fine_grocery_image - Navigating to base URL: https://www.shufersal.co.il/online/he/S
+2025-06-17 14:32:34,955 - INFO - fine_grocery_image - Successfully navigated to https://www.shufersal.co.il/online/he/S
+2025-06-17 14:32:34,955 - INFO - fine_grocery_image - Attempting to find search input: input#js-site-search-input
+2025-06-17 14:32:36,058 - INFO - fine_grocery_image - Typing 'קוטג תנובה מהדרין 5% 250ג' into search input.
+2025-06-17 14:32:36,156 - INFO - fine_grocery_image - Pressing Enter to submit search.
+2025-06-17 14:32:37,014 - INFO - fine_grocery_image - Waiting for search results grid to load...
+2025-06-17 14:32:40,054 - INFO - fine_grocery_image - Search results grid loaded.
+2025-06-17 14:32:42,064 - INFO - fine_grocery_image - Found 20 product items on the page.
+2025-06-17 14:32:42,332 - INFO - fine_grocery_image - Extracted 20 unique products with valid images from current page.
+2025-06-17 14:32:43,336 - INFO - fine_grocery_image - --- Starting search for: קוטג תנובה 9% 250ג ---
+2025-06-17 14:32:43,337 - INFO - fine_grocery_image - Navigating to base URL: https://www.shufersal.co.il/online/he/S
+2025-06-17 14:32:48,146 - INFO - fine_grocery_image - Successfully navigated to https://www.shufersal.co.il/online/he/S
+2025-06-17 14:32:48,146 - INFO - fine_grocery_image - Attempting to find search input: input#js-site-search-input
+2025-06-17 14:32:49,519 - INFO - fine_grocery_image - Typing 'קוטג תנובה 9% 250ג' into search input.
+2025-06-17 14:32:49,617 - INFO - fine_grocery_image - Pressing Enter to submit search.
+2025-06-17 14:32:50,999 - INFO - fine_grocery_image - Waiting for search results grid to load...
+2025-06-17 14:32:53,990 - INFO - fine_grocery_image - Search results grid loaded.
+2025-06-17 14:32:56,010 - INFO - fine_grocery_image - Found 20 product items on the page.
+2025-06-17 14:32:56,261 - INFO - fine_grocery_image - Extracted 19 unique products with valid images from current page.
+2025-06-17 14:32:57,268 - INFO - fine_grocery_image - --- Starting search for: קוטג`3% מועשר 250 גר` ---
+2025-06-17 14:32:57,268 - INFO - fine_grocery_image - Navigating to base URL: https://www.shufersal.co.il/online/he/S
+2025-06-17 14:33:01,887 - INFO - fine_grocery_image - Successfully navigated to https://www.shufersal.co.il/online/he/S
+2025-06-17 14:33:01,887 - INFO - fine_grocery_image - Attempting to find search input: input#js-site-search-input
+2025-06-17 14:33:03,037 - INFO - fine_grocery_image - Typing 'קוטג`3% מועשר 250 גר`' into search input.
+2025-06-17 14:33:03,664 - INFO - fine_grocery_image - Pressing Enter to submit search.
+2025-06-17 14:33:03,784 - INFO - fine_grocery_image - Waiting for search results grid to load...
+2025-06-17 14:33:33,800 - WARNING - fine_grocery_image - Timeout while searching for 'קוטג`3% מועשר 250 גר`'. Product grid or elements not found in time.
+2025-06-17 14:33:34,519 - INFO - fine_grocery_image - Screenshot saved to error_search_קוטג`3%_מועשר_250_גר`.png
+2025-06-17 14:33:34,519 - WARNING - fine_grocery_image - Search failed or no results for 'קוטג`3% מועשר 250 גר`'.
+2025-06-17 14:33:35,530 - INFO - fine_grocery_image - --- Starting search for: קוטג' 5% 250 גרם ---
+2025-06-17 14:33:35,530 - INFO - fine_grocery_image - Navigating to base URL: https://www.shufersal.co.il/online/he/S
+2025-06-17 14:33:39,957 - INFO - fine_grocery_image - Successfully navigated to https://www.shufersal.co.il/online/he/S
+2025-06-17 14:33:39,958 - INFO - fine_grocery_image - Attempting to find search input: input#js-site-search-input
+2025-06-17 14:33:41,107 - INFO - fine_grocery_image - Typing 'קוטג' 5% 250 גרם' into search input.
+2025-06-17 14:33:41,208 - INFO - fine_grocery_image - Pressing Enter to submit search.
+2025-06-17 14:33:42,145 - INFO - fine_grocery_image - Waiting for search results grid to load...
+2025-06-17 14:33:45,132 - INFO - fine_grocery_image - Search results grid loaded.
+2025-06-17 14:33:47,148 - INFO - fine_grocery_image - Found 20 product items on the page.
+2025-06-17 14:33:47,429 - INFO - fine_grocery_image - Extracted 19 unique products with valid images from current page.
+2025-06-17 14:33:48,447 - INFO - fine_grocery_image - --- Starting search for: קוטג תנובה 1% 250ג ---
+2025-06-17 14:33:48,448 - INFO - fine_grocery_image - Navigating to base URL: https://www.shufersal.co.il/online/he/S
+2025-06-17 14:33:52,722 - INFO - fine_grocery_image - Successfully navigated to https://www.shufersal.co.il/online/he/S
+2025-06-17 14:33:52,722 - INFO - fine_grocery_image - Attempting to find search input: input#js-site-search-input
+2025-06-17 14:33:53,929 - INFO - fine_grocery_image - Typing 'קוטג תנובה 1% 250ג' into search input.
+2025-06-17 14:33:54,072 - INFO - fine_grocery_image - Pressing Enter to submit search.
+2025-06-17 14:33:55,197 - INFO - fine_grocery_image - Waiting for search results grid to load...
+2025-06-17 14:33:57,934 - INFO - fine_grocery_image - Search results grid loaded.
+2025-06-17 14:33:59,959 - INFO - fine_grocery_image - Found 20 product items on the page.
+2025-06-17 14:34:00,284 - INFO - fine_grocery_image - Extracted 19 unique products with valid images from current page.
+2025-06-17 14:34:01,291 - INFO - fine_grocery_image - --- Starting search for: קוטג בקטנה 5% 100ג ---
+2025-06-17 14:34:01,291 - INFO - fine_grocery_image - Navigating to base URL: https://www.shufersal.co.il/online/he/S
+2025-06-17 14:34:06,686 - INFO - fine_grocery_image - Successfully navigated to https://www.shufersal.co.il/online/he/S
+2025-06-17 14:34:06,687 - INFO - fine_grocery_image - Attempting to find search input: input#js-site-search-input
+2025-06-17 14:34:08,077 - INFO - fine_grocery_image - Typing 'קוטג בקטנה 5% 100ג' into search input.
+2025-06-17 14:34:08,199 - INFO - fine_grocery_image - Pressing Enter to submit search.
+2025-06-17 14:34:09,115 - INFO - fine_grocery_image - Waiting for search results grid to load...
+2025-06-17 14:34:12,130 - INFO - fine_grocery_image - Search results grid loaded.
+2025-06-17 14:34:14,151 - INFO - fine_grocery_image - Found 20 product items on the page.
+2025-06-17 14:34:14,438 - INFO - fine_grocery_image - Extracted 18 unique products with valid images from current page.
+2025-06-17 14:34:15,451 - INFO - fine_grocery_image - --- Starting search for: קוטג 5% 250 ג ---
+2025-06-17 14:34:15,451 - INFO - fine_grocery_image - Navigating to base URL: https://www.shufersal.co.il/online/he/S
+2025-06-17 14:34:20,137 - INFO - fine_grocery_image - Successfully navigated to https://www.shufersal.co.il/online/he/S
+2025-06-17 14:34:20,138 - INFO - fine_grocery_image - Attempting to find search input: input#js-site-search-input
+2025-06-17 14:34:21,273 - INFO - fine_grocery_image - Typing 'קוטג 5% 250 ג' into search input.
+2025-06-17 14:34:21,467 - INFO - fine_grocery_image - Pressing Enter to submit search.
+2025-06-17 14:34:22,594 - INFO - fine_grocery_image - Waiting for search results grid to load...
+2025-06-17 14:34:26,755 - INFO - fine_grocery_image - Search results grid loaded.
+2025-06-17 14:34:28,765 - INFO - fine_grocery_image - Found 20 product items on the page.
+2025-06-17 14:34:29,048 - INFO - fine_grocery_image - Extracted 17 unique products with valid images from current page.
+2025-06-17 14:34:30,060 - INFO - fine_grocery_image - --- Starting search for: קוטג תנובה 12% 250גרם ---
+2025-06-17 14:34:30,060 - INFO - fine_grocery_image - Navigating to base URL: https://www.shufersal.co.il/online/he/S
+2025-06-17 14:34:38,716 - INFO - fine_grocery_image - Successfully navigated to https://www.shufersal.co.il/online/he/S
+2025-06-17 14:34:38,716 - INFO - fine_grocery_image - Attempting to find search input: input#js-site-search-input
+2025-06-17 14:34:39,890 - INFO - fine_grocery_image - Typing 'קוטג תנובה 12% 250גרם' into search input.
+2025-06-17 14:34:40,001 - INFO - fine_grocery_image - Pressing Enter to submit search.
+2025-06-17 14:34:41,170 - INFO - fine_grocery_image - Waiting for search results grid to load...
+2025-06-17 14:34:44,044 - INFO - fine_grocery_image - Search results grid loaded.
+2025-06-17 14:34:46,067 - INFO - fine_grocery_image - Found 20 product items on the page.
+2025-06-17 14:34:46,339 - INFO - fine_grocery_image - Extracted 19 unique products with valid images from current page.
+2025-06-17 14:34:47,346 - INFO - fine_grocery_image - --- Starting search for: קוטג ב 5.50 ---
+2025-06-17 14:34:47,346 - INFO - fine_grocery_image - Navigating to base URL: https://www.shufersal.co.il/online/he/S
+2025-06-17 14:34:52,265 - INFO - fine_grocery_image - Successfully navigated to https://www.shufersal.co.il/online/he/S
+2025-06-17 14:34:52,265 - INFO - fine_grocery_image - Attempting to find search input: input#js-site-search-input
+2025-06-17 14:34:53,501 - INFO - fine_grocery_image - Typing 'קוטג ב 5.50' into search input.
+2025-06-17 14:34:53,614 - INFO - fine_grocery_image - Pressing Enter to submit search.
+2025-06-17 14:34:54,883 - INFO - fine_grocery_image - Waiting for search results grid to load...
+2025-06-17 14:34:58,254 - INFO - fine_grocery_image - Search results grid loaded.
+2025-06-17 14:35:00,269 - INFO - fine_grocery_image - Found 20 product items on the page.
+2025-06-17 14:35:00,567 - INFO - fine_grocery_image - Extracted 18 unique products with valid images from current page.
+2025-06-17 14:35:01,574 - INFO - fine_grocery_image - ✅ Total unique products scraped: 62
+2025-06-17 14:35:01,581 - INFO - fine_grocery_image - Scraped data saved to scraped_product_images.json
+2025-06-17 14:35:01,581 - INFO - fine_grocery_image - Sample products saved:
+2025-06-17 14:35:01,581 - INFO - fine_grocery_image -   1. קוטג' תנובה 9% שומן -> https://res.cloudinary.com/shufersal/image/upload/...
+2025-06-17 14:35:01,582 - INFO - fine_grocery_image -   2. קוטג' תנובה 3% שומן -> https://res.cloudinary.com/shufersal/image/upload/...
+2025-06-17 14:35:01,582 - INFO - fine_grocery_image -   3. קוטג' תנובה 12% שומן -> https://res.cloudinary.com/shufersal/image/upload/...
+2025-06-17 14:35:01,582 - INFO - fine_grocery_image - Starting database update process...
+2025-06-17 14:35:01,584 - INFO - fine_grocery_image - Fetched 14 distinct item names from the database.
+2025-06-17 14:35:01,584 - INFO - fine_grocery_image - Database update complete. 0 products had their imageUrl updated.
+2025-06-17 14:35:01,689 - INFO - fine_grocery_image - Playwright closed.
+2025-06-17 14:35:01,691 - INFO - fine_grocery_image - Successfully disconnected from the database.
+2025-06-17 14:35:01,691 - INFO - fine_grocery_image - 🏁 Scraping process finished.

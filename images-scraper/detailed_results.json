@@ -1,0 +1,34 @@
+[
+  {
+    "supermarket": "shufersal",
+    "product": "קוטג בקטנה 5% 100ג",
+    "success": true,
+    "image_count": 0,
+    "image_data": {},
+    "timestamp": 1750156567.440106
+  },
+  {
+    "supermarket": "shufersal",
+    "product": "קוטג 5% 250 ג",
+    "success": true,
+    "image_count": 0,
+    "image_data": {},
+    "timestamp": 1750156596.547415
+  },
+  {
+    "supermarket": "shufersal",
+    "product": "קוטג תנובה 12% 250גרם",
+    "success": true,
+    "image_count": 0,
+    "image_data": {},
+    "timestamp": 1750156623.246099
+  },
+  {
+    "supermarket": "shufersal",
+    "product": "קוטג ב 5.50",
+    "success": true,
+    "image_count": 0,
+    "image_data": {},
+    "timestamp": 1750156805.0513148
+  }
+]
