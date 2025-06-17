@@ -8,6 +8,8 @@ import cartRoute from './features/cart/routes/cart.routes.js';
 import listsRoute from './features/lists/routes/lists.routes.js';
 import singleStoreOptimizationRoute from './features/optimization/routes/single-store-optimization.routes.js';
 import multiStoreOptimizationRoute from './features/optimization/routes/multi-store-optimization.routes.js';
+import authenticationRoutes from './features/authentication/routes/authentication.routes.js';
+import requestsRoutes from './features/requests/routes/requests.routes.js';
 
 // Create Express app
 const app = express();
@@ -30,6 +32,8 @@ app.use("/me/cart", cartRoute);
 app.use("/me/lists", listsRoute);
 app.use("/optimize/single-store", singleStoreOptimizationRoute);
 app.use("/optimize/multi-store", multiStoreOptimizationRoute);
+app.use("/authentication", authenticationRoutes);
+app.use("/requests", requestsRoutes);
 
 // Export app for testing
 export { app };
