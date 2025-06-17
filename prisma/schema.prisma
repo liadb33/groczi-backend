@@ -179,3 +179,32 @@ model store_grocery_price_history {
   grocery grocery @relation(fields: [itemCode], references: [itemCode], onDelete: NoAction, onUpdate: NoAction, map: "store_grocery_price_history_ibfk_1")
   stores  stores  @relation("StoreToPriceHistory", fields: [ChainId, SubChainId, StoreId], references: [ChainId, SubChainId, StoreId], onDelete: NoAction, onUpdate: NoAction, map: "store_grocery_price_history_ibfk_2")
 }
+
+enum ReqStatus {
+  SENT        @map("נשלחה")
+  IN_PROGRESS @map("בטיפול")
+  DONE        @map("טופל")
+  REJECTED    @map("נדחתה")
+}
+
+model users {
+  id           Int        @id @default(autoincrement()) @db.UnsignedInt
+  username     String     @unique @db.VarChar(255)
+  passwordHash String     @map("password_hash") @db.Char(60)
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamp(0)
+  lastLogin    DateTime?  @default(now()) @map("last_login") @db.Timestamp(0)
+}
+
+
+model requests {
+  id         Int          @id @default(autoincrement()) @db.UnsignedInt
+  itemId     String       @map("item_id") @db.VarChar(255)
+  deviceId   String       @map("device_id") @db.VarChar(255)
+
+  reqSubject String       @map("req_subject") @db.VarChar(255)
+  reqBody    String?      @map("req_body") @db.Text
+  reqStatus  ReqStatus    @map("req_status") @default(SENT)
+  createdAt  DateTime     @default(now()) @map("created_at") @db.Timestamp(0)
+
+  @@index([deviceId])
+}
