@@ -3,7 +3,7 @@ import {
   getAllRequests,
   getRequestById,
   createRequest,
-  updateRequestById,
+  updateRequestStatusById,
   deleteRequestById,
 } from "../controllers/requests.controller.js";
 
@@ -12,7 +12,7 @@ const requestsRoutes = Router();
 requestsRoutes.get("/", getAllRequests);
 requestsRoutes.get("/:id", getRequestById as RequestHandler);
 requestsRoutes.post("/", createRequest as RequestHandler);
-requestsRoutes.put("/:id", updateRequestById  as RequestHandler);
+requestsRoutes.put("/:id", updateRequestStatusById  as RequestHandler);
 requestsRoutes.delete("/:id", deleteRequestById);
 
 export default requestsRoutes;

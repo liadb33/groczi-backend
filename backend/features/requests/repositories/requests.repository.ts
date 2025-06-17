@@ -26,17 +26,13 @@ export const insertRequest = async (
   });
 };
 
-export const updateRequest = async (
+export const updateRequestStatus = async (
   id: number,
-  reqSubject: string,
-  reqBody: string,
   reqStatus: ReqStatus
 ) => {
   return prisma.requests.update({
     where: { id },
     data: {
-      reqSubject,
-      reqBody,
       reqStatus,
     },
   });

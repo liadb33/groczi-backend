@@ -184,7 +184,6 @@ enum ReqStatus {
   SENT        @map("נשלחה")
   IN_PROGRESS @map("בטיפול")
   DONE        @map("טופל")
-  REJECTED    @map("נדחתה")
 }
 
 model users {

@@ -1,9 +1,8 @@
 
 export enum ReqStatus {
-  SENT = "SENT",
-  IN_PROGRESS = "IN_PROGRESS",
-  DONE = "DONE",
-  REJECTED = "REJECTED"
+  SENT = "נשלחה",
+  IN_PROGRESS = "בטיפול",
+  DONE = "טופל",
 }
 
 export interface Request {

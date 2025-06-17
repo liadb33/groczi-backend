@@ -3,7 +3,7 @@ import {
   findAllRequests,
   findRequestById,
   insertRequest,
-  updateRequest,
+  updateRequestStatus,
   deleteRequest,
 } from "../repositories/requests.repository.js";
 
@@ -43,20 +43,20 @@ export const createRequest = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-export const updateRequestById = async (req: Request, res: Response, next: NextFunction) => {
+export const updateRequestStatusById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = Number(req.params.id);
-    const { reqSubject, reqBody, requestStatus } = req.body;
-    if (!reqSubject || !reqBody || !requestStatus) {
+    const { requestStatus } = req.body;
+    if (!requestStatus) 
       return res.status(400).json({ message: "reqSubject, reqBody and requestStatus are required" });
-    }
+    
 
     const validStatuses = ["נשלחה", "בטיפול", "טופל", "נדחתה"];
-    if (!validStatuses.includes(requestStatus)) {
+    if (!validStatuses.includes(requestStatus)) 
       return res.status(400).json({ message: "Invalid requestStatus value" });
-    }
+    
 
-    const updated = await updateRequest(id, reqSubject, reqBody, requestStatus);
+    const updated = await updateRequestStatus(id,requestStatus);
     res.json(updated);
   } catch (err) {
     next(err);
