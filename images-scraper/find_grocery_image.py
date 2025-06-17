@@ -405,6 +405,196 @@ class SupermarketScraper:
         logger.info(f"🎉 Fast scraping completed! Processed {processed_count} searches, found {new_products_count} new products")
         return all_found_products
 
+    async def scrape_batch(self, items_batch: List[str], browser_id: int, existing_data: Dict[str, str] = None, 
+                         progress_callback=None, save_interval: int = 50) -> Dict[str, str]:
+        """
+        Scrape a batch of items for parallel processing with periodic saving.
+        """
+        if not self.page:
+            await self.setup_playwright()
+
+        batch_results = {}
+        batch_size = len(items_batch)
+        processed_count = 0
+        
+        logger.info(f"🤖 Browser {browser_id}: Starting batch of {batch_size} items")
+        
+        for index, item_name in enumerate(items_batch, 1):
+            # Smart duplicate avoidance
+            if existing_data and is_search_term_covered(item_name, existing_data):
+                logger.debug(f"🤖 Browser {browser_id}: Skipping '{item_name}' - likely already covered")
+                continue
+                
+            logger.info(f"🤖 Browser {browser_id}: [{index}/{batch_size}] Searching: '{item_name}'")
+            
+            if await self.search_product(item_name):
+                # Reduced delay for parallel processing
+                await asyncio.sleep(0.2)
+                
+                page_products = await self.extract_products_from_results()
+                
+                # Add new products
+                new_count = 0
+                for name, url in page_products.items():
+                    if name not in batch_results:
+                        batch_results[name] = url
+                        new_count += 1
+                
+                if new_count > 0:
+                    logger.info(f"🤖 Browser {browser_id}: ✅ Found {new_count} new products")
+                else:
+                    logger.debug(f"🤖 Browser {browser_id}: ℹ️  No new products for '{item_name}'")
+            else:
+                logger.warning(f"🤖 Browser {browser_id}: ❌ Search failed for '{item_name}'")
+            
+            processed_count += 1
+            
+            # Periodic saving for this browser
+            if processed_count % save_interval == 0:
+                browser_filename = f"browser_{browser_id}_progress.json"
+                await save_to_json(batch_results, browser_filename)
+                logger.info(f"🤖 Browser {browser_id}: 💾 Progress saved ({len(batch_results)} products)")
+                
+                # Notify main thread for combined progress saving
+                if progress_callback:
+                    await progress_callback(browser_id, batch_results)
+            
+            # Respectful delay between searches
+            await asyncio.sleep(0.5)  # Slightly longer delay for parallel processing
+
+        logger.info(f"🤖 Browser {browser_id}: ✅ Batch completed! Found {len(batch_results)} products")
+        
+        # Final save for this browser
+        browser_filename = f"browser_{browser_id}_final.json"
+        await save_to_json(batch_results, browser_filename)
+        
+        return batch_results
+
+
+async def scrape_parallel(item_names_to_search: List[str], 
+                         existing_data: Dict[str, str] = None, 
+                         num_browsers: int = 3,
+                         save_interval: int = 100) -> Dict[str, str]:
+    """
+    Parallel scraping with multiple browser instances and periodic progress saving.
+    """
+    global scraped_data_global
+    
+    all_found_products = existing_data or {}
+    scraped_data_global = all_found_products
+    total_items = len(item_names_to_search)
+    
+    # Progress tracking for combined saves
+    browser_progress = {}
+    last_combined_save = 0
+    
+    async def progress_callback(browser_id: int, browser_results: Dict[str, str]):
+        """Called when a browser saves progress - combines and saves all progress."""
+        nonlocal last_combined_save
+        
+        browser_progress[browser_id] = browser_results
+        
+        # Combine all browser results
+        combined_progress = dict(all_found_products)
+        total_from_browsers = 0
+        
+        for browser_data in browser_progress.values():
+            for name, url in browser_data.items():
+                if name not in combined_progress:
+                    combined_progress[name] = url
+                    total_from_browsers += 1
+        
+        # Save combined progress every 150 total new products (50 per browser * 3)
+        if total_from_browsers - last_combined_save >= 150:
+            await save_to_json(combined_progress, PROGRESS_JSON_FILE)
+            scraped_data_global.update(combined_progress)  # Update global for signal handler
+            logger.info(f"💾 COMBINED progress saved: {len(combined_progress)} total products")
+            last_combined_save = total_from_browsers
+    
+    # Split items into batches for each browser
+    batch_size = len(item_names_to_search) // num_browsers
+    batches = []
+    
+    for i in range(num_browsers):
+        start_idx = i * batch_size
+        if i == num_browsers - 1:  # Last batch gets any remaining items
+            end_idx = len(item_names_to_search)
+        else:
+            end_idx = (i + 1) * batch_size
+        
+        batch = item_names_to_search[start_idx:end_idx]
+        if batch:  # Only add non-empty batches
+            batches.append(batch)
+    
+    logger.info(f"🚀 Starting PARALLEL scraping with {len(batches)} browsers")
+    logger.info(f"📊 Total items: {total_items}, Average per browser: {batch_size}")
+    logger.info(f"💾 Progress saving: Every 50 items per browser + combined every 150 total")
+    
+    # Create browser instances
+    scrapers = []
+    for i in range(len(batches)):
+        scraper = SupermarketScraper(headless=True)
+        scrapers.append(scraper)
+    
+    try:
+        # Setup all browsers in parallel
+        logger.info("⚡ Setting up browsers in parallel...")
+        setup_tasks = [scraper.setup_playwright() for scraper in scrapers]
+        await asyncio.gather(*setup_tasks)
+        
+        # Start parallel scraping with progress callback
+        logger.info("🔥 Starting parallel batch processing...")
+        scraping_tasks = []
+        for i, (scraper, batch) in enumerate(zip(scrapers, batches)):
+            task = scraper.scrape_batch(
+                batch, 
+                browser_id=i+1, 
+                existing_data=existing_data,
+                progress_callback=progress_callback,
+                save_interval=50
+            )
+            scraping_tasks.append(task)
+        
+        # Wait for all browsers to complete
+        batch_results = await asyncio.gather(*scraping_tasks, return_exceptions=True)
+        
+        # Combine final results from all browsers
+        combined_results = dict(all_found_products)
+        total_new_products = 0
+        
+        for i, result in enumerate(batch_results):
+            if isinstance(result, Exception):
+                logger.error(f"🤖 Browser {i+1} failed with error: {result}")
+                continue
+            
+            browser_new_count = 0
+            for name, url in result.items():
+                if name not in combined_results:
+                    combined_results[name] = url
+                    browser_new_count += 1
+                    total_new_products += 1
+            
+            logger.info(f"🤖 Browser {i+1}: Added {browser_new_count} unique products")
+        
+        # Update global for signal handler
+        scraped_data_global = combined_results
+        
+        logger.info(f"🎉 PARALLEL SCRAPING COMPLETED!")
+        logger.info(f"   📊 Total unique products: {len(combined_results)}")
+        logger.info(f"   ✨ New products found: {total_new_products}")
+        logger.info(f"   ⚡ Speed boost: ~{num_browsers}x faster than single browser")
+        
+        return combined_results
+        
+    except Exception as e:
+        logger.error(f"💥 Error in parallel scraping: {e}")
+        return all_found_products
+    finally:
+        # Clean up all browsers
+        logger.info("🧹 Cleaning up browsers...")
+        cleanup_tasks = [scraper.close_playwright() for scraper in scrapers]
+        await asyncio.gather(*cleanup_tasks, return_exceptions=True)
+
 
 async def save_to_json(data: Dict[str, str], filename: str = JSON_OUTPUT_FILE):
     """Save scraped data to JSON file."""
@@ -432,7 +622,6 @@ async def main_json_only():
     logger.info("🚀 Starting FAST JSON-ONLY scraping process for comprehensive catalog building.")
 
     db_manager = DatabaseManager()
-    scraper = SupermarketScraper(headless=True)
 
     try:
         # 1. Load existing JSON to avoid re-scraping
@@ -469,24 +658,23 @@ async def main_json_only():
             await save_to_json(existing_data)
             return
 
-        print(f"\n🚀 FAST PROCESSING MODE:")
+        print(f"\n🚀 FAST PARALLEL PROCESSING MODE (3 Browsers):")
         print(f"   📁 Existing products: {len(existing_data)}")
         print(f"   🎯 Items to process: {len(remaining_items)}")
-        print(f"   ⚡ Expected duration: ~{len(remaining_items) * 0.5 / 60:.1f} minutes")
+        print(f"   🤖 Browsers: 3 parallel instances")
+        print(f"   💾 Progress saves: Every 50 items per browser + combined every 150")
+        print(f"   ⚡ Expected duration: ~{len(remaining_items) * 0.17 / 60:.1f} minutes (~3x faster)")
         print("="*80)
 
         # 4. Disconnect from database (we don't need it anymore)
         await db_manager.disconnect()
 
-        # 5. Setup browser and start fast scraping
-        logger.info("🚀 Setting up browser automation...")
-        await scraper.setup_playwright()
-        
-        # Fast scraping with existing data
-        logger.info("🔍 Starting FAST search and extraction process...")
-        final_scraped_data = await scraper.scrape_for_item_names_fast(
+        # 5. Start fast PARALLEL scraping (browsers will be created automatically)
+        logger.info("🔍 Starting FAST PARALLEL search and extraction process...")
+        final_scraped_data = await scrape_parallel(
             remaining_items, 
             existing_data=existing_data,
+            num_browsers=3,
             save_interval=100
         )
 
@@ -511,8 +699,6 @@ async def main_json_only():
         logger.critical(f"💥 Unexpected critical error occurred: {e}", exc_info=True)
     finally:
         # Cleanup
-        if scraper:
-            await scraper.close_playwright()
         if db_manager:
             await db_manager.disconnect()
         logger.info("🏁 Fast JSON-only scraping process finished.")
@@ -597,11 +783,15 @@ if __name__ == "__main__":
         elif sys.argv[1] == "fast":
             # Run optimized JSON-only process: python fine_grocery_image.py fast
             asyncio.run(main_json_only())
+        elif sys.argv[1] == "parallel":
+            # Run parallel process (same as fast, but explicit): python fine_grocery_image.py parallel
+            asyncio.run(main_json_only())
         else:
             print("Usage:")
-            print("  python fine_grocery_image.py          # Original process")
-            print("  python fine_grocery_image.py fast     # Fast JSON-only process (recommended)")
-            print("  python fine_grocery_image.py demo     # Demo with 2 test products")
+            print("  python find_grocery_image.py          # Original process")
+            print("  python find_grocery_image.py fast     # Fast parallel process (3 browsers)")
+            print("  python find_grocery_image.py parallel # Fast parallel process (3 browsers)")
+            print("  python find_grocery_image.py demo     # Demo with 2 test products")
     else:
         # Run original process: python fine_grocery_image.py
         asyncio.run(main())
