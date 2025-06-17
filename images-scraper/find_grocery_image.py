@@ -3,6 +3,8 @@ import json
 import time
 import os
 import logging
+import signal
+import sys
 from typing import List, Dict, Optional, Set
 from urllib.parse import urljoin, urlparse
 from playwright.async_api import async_playwright, Page, Browser, BrowserContext, TimeoutError as PlaywrightTimeoutError
@@ -46,6 +48,39 @@ PLACEHOLDER_PATTERNS = ["/fix.png", "placeholder", "default", "no-image"]
 
 # Output configuration
 JSON_OUTPUT_FILE = "scraped_product_images.json"
+PROGRESS_JSON_FILE = "progress_scraped_products.json"
+
+# Global variable for graceful shutdown
+scraped_data_global = {}
+
+
+async def load_existing_json(filename: str = JSON_OUTPUT_FILE) -> Dict[str, str]:
+    """Load existing JSON file to avoid re-scraping."""
+    try:
+        if os.path.exists(filename):
+            with open(filename, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            logger.info(f"✅ Loaded {len(data)} existing products from {filename}")
+            return data
+        else:
+            logger.info(f"ℹ️  No existing file found at {filename}. Starting fresh.")
+            return {}
+    except Exception as e:
+        logger.error(f"❌ Error loading existing JSON: {e}")
+        return {}
+
+
+def setup_signal_handlers():
+    """Setup signal handlers for graceful shutdown."""
+    def signal_handler(sig, frame):
+        logger.info("🛑 Interrupt received! Saving progress...")
+        if scraped_data_global:
+            asyncio.create_task(save_to_json(scraped_data_global, "emergency_save.json"))
+            logger.info(f"💾 Emergency save completed: {len(scraped_data_global)} products")
+        sys.exit(0)
+    
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
 
 
 class DatabaseManager:
@@ -61,9 +96,9 @@ class DatabaseManager:
         try:
             self.connection = mysql.connector.connect(**self.config)
             self.cursor = self.connection.cursor(dictionary=True)
-            logger.info("Successfully connected to the database.")
+            logger.info("✅ Successfully connected to the database.")
         except mysql.connector.Error as err:
-            logger.error(f"Error connecting to database: {err}")
+            logger.error(f"❌ Error connecting to database: {err}")
             raise
 
     async def disconnect(self):
@@ -72,7 +107,26 @@ class DatabaseManager:
             if self.cursor:
                 self.cursor.close()
             self.connection.close()
-            logger.info("Successfully disconnected from the database.")
+            logger.info("✅ Successfully disconnected from the database.")
+
+    async def get_all_product_names(self, limit: int = None) -> List[str]:
+        """Get ALL product names from database for comprehensive scraping."""
+        if not self.cursor:
+            logger.error("❌ Database not connected. Call connect() first.")
+            return []
+        
+        try:
+            query = "SELECT DISTINCT itemName FROM grocery WHERE itemName IS NOT NULL AND itemName != '' ORDER BY itemName"
+            if limit:
+                query += f" LIMIT {limit}"
+            
+            self.cursor.execute(query)
+            products = [row['itemName'] for row in self.cursor.fetchall() if row['itemName']]
+            logger.info(f"📦 Found {len(products)} total products in database.")
+            return products
+        except mysql.connector.Error as err:
+            logger.error(f"❌ Error fetching all products: {err}")
+            return []
 
     async def get_products_without_images(self, limit: int = None) -> List[str]:
         """Get list of product names that don't have images."""
@@ -131,6 +185,21 @@ class DatabaseManager:
             return False
 
 
+def is_search_term_covered(search_term: str, existing_products: Dict[str, str]) -> bool:
+    """Check if a search term is likely already covered by existing results."""
+    search_lower = search_term.lower().strip()
+    
+    # Check if any existing product name contains the search term or vice versa
+    for product_name in existing_products.keys():
+        product_lower = product_name.lower().strip()
+        
+        # If search term is contained in existing product name or vice versa
+        if (search_lower in product_lower or product_lower in search_lower) and len(search_lower) > 2:
+            return True
+    
+    return False
+
+
 class SupermarketScraper:
     """Handles Playwright automation for Shufersal website scraping."""
     
@@ -180,9 +249,9 @@ class SupermarketScraper:
                 viewport={'width': 1920, 'height': 1080}
             )
             self.page = await self.context.new_page()
-            logger.info("Playwright setup complete.")
+            logger.info("✅ Playwright setup complete.")
         except Exception as e:
-            logger.error(f"Error setting up Playwright: {e}")
+            logger.error(f"❌ Error setting up Playwright: {e}")
             raise
 
     async def close_playwright(self):
@@ -194,9 +263,9 @@ class SupermarketScraper:
                 await self.browser.close()
             if self.playwright:
                 await self.playwright.stop()
-            logger.info("Playwright closed.")
+            logger.info("✅ Playwright closed.")
         except Exception as e:
-            logger.error(f"Error closing Playwright: {e}")
+            logger.error(f"❌ Error closing Playwright: {e}")
 
     async def search_product(self, product_name: str) -> bool:
         """Search for a product on Shufersal website."""
@@ -204,43 +273,26 @@ class SupermarketScraper:
             logger.error("Page not initialized. Call setup_playwright() first.")
             return False
 
-        logger.info(f"Navigating to base URL: {BASE_URL}")
         try:
             # Navigate to homepage
             await self.page.goto(BASE_URL, timeout=60000, wait_until="domcontentloaded")
-            logger.info(f"Successfully navigated to {BASE_URL}")
 
             # Wait for and fill search input
-            logger.info(f"Attempting to find search input: {SEARCH_INPUT_SELECTOR}")
             search_input = self.page.locator(SEARCH_INPUT_SELECTOR)
             await search_input.wait_for(state="visible", timeout=30000)
-            
-            logger.info(f"Typing '{product_name}' into search input.")
             await search_input.fill(product_name)
-            
-            # Submit search by pressing Enter (more reliable than clicking button)
-            logger.info("Pressing Enter to submit search.")
             await search_input.press("Enter")
 
             # Wait for search results to load
-            logger.info("Waiting for search results grid to load...")
             await self.page.wait_for_selector(PRODUCT_GRID_SELECTOR, timeout=30000, state="visible")
-            await self.page.wait_for_load_state("networkidle", timeout=20000)
-            logger.info("Search results grid loaded.")
+            await self.page.wait_for_load_state("networkidle", timeout=15000)
             return True
             
         except PlaywrightTimeoutError:
-            logger.warning(f"Timeout while searching for '{product_name}'. Product grid or elements not found in time.")
-            # Save screenshot for debugging
-            try:
-                screenshot_name = f"error_search_{product_name.replace(' ','_').replace('/', '_')}.png"
-                await self.page.screenshot(path=screenshot_name)
-                logger.info(f"Screenshot saved to {screenshot_name}")
-            except Exception as e_ss:
-                logger.error(f"Could not save screenshot: {e_ss}")
+            logger.warning(f"⏰ Timeout while searching for '{product_name}'.")
             return False
         except Exception as e:
-            logger.error(f"Error during search for '{product_name}': {e}")
+            logger.error(f"❌ Error during search for '{product_name}': {e}")
             return False
 
     async def extract_products_from_results(self) -> Dict[str, str]:
@@ -253,10 +305,8 @@ class SupermarketScraper:
         try:
             # Get all product items
             product_elements = await self.page.locator(PRODUCT_ITEM_SELECTOR).all()
-            logger.info(f"Found {len(product_elements)} product items on the page.")
 
             if not product_elements:
-                logger.info("No product items found on the current page.")
                 return {}
 
             for item_element in product_elements:
@@ -264,7 +314,6 @@ class SupermarketScraper:
                     # Extract product name from data-product-name attribute
                     product_name = await item_element.get_attribute("data-product-name")
                     if not product_name:
-                        logger.warning("Product name from data-product-name attribute is missing. Skipping item.")
                         continue
                     
                     product_name = product_name.strip()
@@ -280,104 +329,80 @@ class SupermarketScraper:
                         if self._is_valid_image_url(image_url_absolute):
                             if product_name not in extracted_data:
                                 extracted_data[product_name] = image_url_absolute
-                                logger.debug(f"Extracted: Name='{product_name}', Image='{image_url_absolute}'")
                             else:
                                 logger.debug(f"Duplicate product name '{product_name}' found on page, keeping first image.")
                         else:
                             logger.debug(f"Invalid or placeholder image URL for '{product_name}': {image_url_absolute}")
-                    else:
-                        logger.debug(f"No image URL found for product: '{product_name}'")
 
                 except Exception as e:
                     logger.error(f"Error processing a product item: {e}")
                     continue
             
-            logger.info(f"Extracted {len(extracted_data)} unique products with valid images from current page.")
             return extracted_data
 
         except Exception as e:
             logger.error(f"Error extracting products from results: {e}")
             return {}
 
-    async def scrape_for_item_names(self, item_names_to_search: List[str]) -> Dict[str, str]:
+    async def scrape_for_item_names_fast(self, item_names_to_search: List[str], 
+                                       existing_data: Dict[str, str] = None,
+                                       save_interval: int = 100) -> Dict[str, str]:
         """
-        Search for each item name and collect all products from search results.
-        Returns dictionary of {product_name: image_url}.
+        Fast scraping for thousands of items with progress saving and smart duplicate avoidance.
         """
+        global scraped_data_global
+        
         if not self.page:
             await self.setup_playwright()
 
-        all_found_products = {}
+        all_found_products = existing_data or {}
+        scraped_data_global = all_found_products  # For signal handler
+        total_items = len(item_names_to_search)
+        processed_count = 0
+        new_products_count = 0
         
-        for item_name in item_names_to_search:
-            logger.info(f"--- Starting search for: {item_name} ---")
+        logger.info(f"🚀 Starting fast scraping for {total_items} items...")
+        
+        for index, item_name in enumerate(item_names_to_search, 1):
+            # Smart duplicate avoidance - skip if likely already covered
+            if is_search_term_covered(item_name, all_found_products):
+                logger.debug(f"⏭️  Skipping '{item_name}' - likely already covered")
+                continue
+                
+            logger.info(f"🔍 [{processed_count + 1}/{total_items}] Searching: '{item_name}'")
             
             if await self.search_product(item_name):
-                # Small delay to ensure content is fully rendered
-                await asyncio.sleep(2)
+                # Short delay for page to fully load
+                await asyncio.sleep(0.3)
                 
                 page_products = await self.extract_products_from_results()
+                
+                # Add new products (avoid duplicates)
+                new_count = 0
                 for name, url in page_products.items():
                     if name not in all_found_products:
                         all_found_products[name] = url
-                    else:
-                        logger.debug(f"Product '{name}' already found from a previous search. Keeping existing image.")
-            else:
-                logger.warning(f"Search failed or no results for '{item_name}'.")
-            
-            # Small delay between searches to be respectful
-            await asyncio.sleep(1)
-
-        return all_found_products
-
-    async def scrape_for_item_names_with_logging(self, item_names_to_search: List[str]) -> Dict[str, str]:
-        """
-        Search for each item name individually and log results after each search.
-        Returns dictionary of {product_name: image_url}.
-        """
-        if not self.page:
-            await self.setup_playwright()
-
-        all_found_products = {}
-        
-        for index, item_name in enumerate(item_names_to_search, 1):
-            print(f"\n🔍 [{index}/{len(item_names_to_search)}] SEARCHING FOR: '{item_name}'")
-            print("-" * 60)
-            
-            logger.info(f"--- Starting search for: {item_name} ---")
-            
-            if await self.search_product(item_name):
-                # Small delay to ensure content is fully rendered
-                await asyncio.sleep(2)
+                        new_count += 1
+                        new_products_count += 1
                 
-                page_products = await self.extract_products_from_results()
-                
-                # Log individual search results
-                if page_products:
-                    print(f"✅ FOUND {len(page_products)} PRODUCTS:")
-                    print("📋 JSON for this search:")
-                    print(json.dumps(page_products, ensure_ascii=False, indent=2))
-                    
-                    # Add to overall collection
-                    for name, url in page_products.items():
-                        if name not in all_found_products:
-                            all_found_products[name] = url
-                        else:
-                            logger.debug(f"Product '{name}' already found from a previous search. Keeping existing image.")
-                            print(f"⚠️  Duplicate: '{name}' already found, keeping first image")
+                if new_count > 0:
+                    logger.info(f"✅ Found {new_count} new products | Total: {len(all_found_products)}")
                 else:
-                    print(f"❌ NO PRODUCTS FOUND for '{item_name}'")
-                    print("📋 JSON for this search: {}")
-                    
+                    logger.debug(f"ℹ️  No new products for '{item_name}'")
             else:
-                logger.warning(f"Search failed or no results for '{item_name}'.")
-                print(f"💥 SEARCH FAILED for '{item_name}'")
-                print("📋 JSON for this search: {}")
+                logger.warning(f"❌ Search failed for '{item_name}'")
             
-            print("-" * 60)
-            # Small delay between searches to be respectful
-            await asyncio.sleep(1)
+            processed_count += 1
+            
+            # Save progress periodically
+            if processed_count % save_interval == 0:
+                await save_to_json(all_found_products, PROGRESS_JSON_FILE)
+                logger.info(f"💾 Progress saved: {len(all_found_products)} total products after {processed_count} searches")
+            
+            # Small delay to be respectful to the website
+            await asyncio.sleep(0.2)
 
+        logger.info(f"🎉 Fast scraping completed! Processed {processed_count} searches, found {new_products_count} new products")
         return all_found_products
 
 
@@ -397,32 +422,109 @@ async def save_to_json(data: Dict[str, str], filename: str = JSON_OUTPUT_FILE):
         logger.error(f"Error writing JSON to file: {e}")
 
 
-async def update_database_with_scraped_data(scraped_data: Dict[str, str], db_manager: DatabaseManager) -> int:
-    """Update database with scraped image URLs."""
-    logger.info("Starting database update process...")
-    updated_count = 0
+async def main_json_only():
+    """Optimized main function focused on building comprehensive JSON file."""
+    global scraped_data_global
     
-    # Get all item names from DB for efficient matching
-    db_item_names_set = await db_manager.get_all_item_names()
+    # Setup signal handlers for graceful shutdown
+    setup_signal_handlers()
+    
+    logger.info("🚀 Starting FAST JSON-ONLY scraping process for comprehensive catalog building.")
 
-    for scraped_name, image_url in scraped_data.items():
-        # Check if scraped name exists in database (exact match)
-        if scraped_name in db_item_names_set:
-            if await db_manager.update_product_image(scraped_name, image_url):
-                updated_count += 1
-        else:
-            logger.debug(f"Scraped product '{scraped_name}' not found in database item names for update.")
-    
-    logger.info(f"Database update complete. {updated_count} products had their imageUrl updated.")
-    return updated_count
+    db_manager = DatabaseManager()
+    scraper = SupermarketScraper(headless=True)
+
+    try:
+        # 1. Load existing JSON to avoid re-scraping
+        logger.info("📁 Loading existing JSON data...")
+        existing_data = await load_existing_json()
+        
+        # 2. Connect to database and get ALL product names
+        logger.info("🔗 Connecting to database...")
+        await db_manager.connect()
+        
+        all_product_names = await db_manager.get_all_product_names()
+        
+        if not all_product_names:
+            logger.info("❌ No products found in database. Exiting.")
+            return
+
+        logger.info(f"📦 Total products in database: {len(all_product_names)}")
+        logger.info(f"📊 Already scraped: {len(existing_data)}")
+        
+        # 3. Filter out items we might have already searched for
+        remaining_items = []
+        skipped_count = 0
+        for item in all_product_names:
+            if not is_search_term_covered(item, existing_data):
+                remaining_items.append(item)
+            else:
+                skipped_count += 1
+        
+        logger.info(f"⏭️  Skipping {skipped_count} items likely already covered")
+        logger.info(f"🎯 Remaining to process: {len(remaining_items)} items")
+        
+        if not remaining_items:
+            logger.info("✅ All items appear to be covered already. Final save...")
+            await save_to_json(existing_data)
+            return
+
+        print(f"\n🚀 FAST PROCESSING MODE:")
+        print(f"   📁 Existing products: {len(existing_data)}")
+        print(f"   🎯 Items to process: {len(remaining_items)}")
+        print(f"   ⚡ Expected duration: ~{len(remaining_items) * 0.5 / 60:.1f} minutes")
+        print("="*80)
+
+        # 4. Disconnect from database (we don't need it anymore)
+        await db_manager.disconnect()
+
+        # 5. Setup browser and start fast scraping
+        logger.info("🚀 Setting up browser automation...")
+        await scraper.setup_playwright()
+        
+        # Fast scraping with existing data
+        logger.info("🔍 Starting FAST search and extraction process...")
+        final_scraped_data = await scraper.scrape_for_item_names_fast(
+            remaining_items, 
+            existing_data=existing_data,
+            save_interval=100
+        )
+
+        # 6. Final save
+        logger.info("💾 Saving final comprehensive JSON...")
+        await save_to_json(final_scraped_data)
+        
+        # 7. Results summary
+        new_products = len(final_scraped_data) - len(existing_data)
+        
+        print(f"\n🎉 COMPREHENSIVE CATALOG BUILDING COMPLETED!")
+        print(f"   📦 Original database items: {len(all_product_names)}")
+        print(f"   📊 Total unique products found: {len(final_scraped_data)}")
+        print(f"   ✨ New products added: {new_products}")
+        print(f"   📁 JSON saved to: {JSON_OUTPUT_FILE}")
+        print(f"   📈 Catalog growth: {len(final_scraped_data) / len(all_product_names):.1f}x database size")
+        print("="*80)
+
+    except mysql.connector.Error as e:
+        logger.critical(f"💥 Critical MySQL error occurred: {e}")
+    except Exception as e:
+        logger.critical(f"💥 Unexpected critical error occurred: {e}", exc_info=True)
+    finally:
+        # Cleanup
+        if scraper:
+            await scraper.close_playwright()
+        if db_manager:
+            await db_manager.disconnect()
+        logger.info("🏁 Fast JSON-only scraping process finished.")
 
 
 async def main():
-    """Main workflow orchestrator."""
-    logger.info("🚀 Starting the Shufersal image scraping process.")
+    """Original main function for backwards compatibility."""
+    logger.info("🚀 Starting the original Shufersal image scraping process.")
+    logger.info("💡 TIP: Use 'python fine_grocery_image.py fast' for optimized JSON-only processing")
 
     db_manager = DatabaseManager()
-    scraper = SupermarketScraper(headless=True)  # Set headless=False to see browser
+    scraper = SupermarketScraper(headless=True)
 
     try:
         # 1. Database Integration: Connect and get product names
@@ -436,52 +538,21 @@ async def main():
             return
 
         logger.info(f"📦 Found {len(product_names_to_search_for)} products without images")
-        print(f"\n🚀 PROCESSING MODE: Will search for {len(product_names_to_search_for)} products")
-        print(f"🎯 Products to process: {', '.join(product_names_to_search_for[:5])}{'...' if len(product_names_to_search_for) > 5 else ''}")
-        print("="*80)
 
-        # 2. Automated Searching & 3. Data Extraction with individual logging
+        # 2. Setup browser and scrape
         logger.info("🚀 Setting up browser automation...")
         await scraper.setup_playwright()
         
-        # Scrape products from search results one by one with logging
-        logger.info("🔍 Starting search and extraction process...")
-        scraped_products_data = await scraper.scrape_for_item_names_with_logging(product_names_to_search_for)
+        scraped_products_data = await scraper.scrape_for_item_names_fast(product_names_to_search_for)
 
-        if not scraped_products_data:
-            logger.info("❌ No products were successfully scraped.")
-            print("\n❌ FINAL RESULT: No products found in any search results")
-            print("="*80)
-        else:
+        if scraped_products_data:
             logger.info(f"✅ Total unique products scraped: {len(scraped_products_data)}")
-
-            # Print final combined JSON
-            print(f"\n📋 FINAL COMBINED JSON (ALL SEARCHES):")
-            print("="*80)
-            print(json.dumps(scraped_products_data, ensure_ascii=False, indent=2))
-            print("="*80)
-            print(f"📊 Total unique products found across all searches: {len(scraped_products_data)}")
-
-            # 4. Data Processing: Save to JSON
             await save_to_json(scraped_products_data)
+            print(f"📁 JSON saved to: {JSON_OUTPUT_FILE}")
 
-            # 5. Database Update
-            print(f"\n🔄 UPDATING DATABASE...")
-            updated_count = await update_database_with_scraped_data(scraped_products_data, db_manager)
-            
-            print(f"\n🎉 PROCESS COMPLETED!")
-            print(f"   🔍 Database products searched: {len(product_names_to_search_for)}")
-            print(f"   📊 Total unique products scraped: {len(scraped_products_data)}")
-            print(f"   💾 Database updates: {updated_count}")
-            print(f"   📁 JSON saved to: {JSON_OUTPUT_FILE}")
-            print("="*80)
-
-    except mysql.connector.Error as e:
-        logger.critical(f"💥 Critical MySQL error occurred: {e}")
     except Exception as e:
         logger.critical(f"💥 Unexpected critical error occurred: {e}", exc_info=True)
     finally:
-        # Cleanup
         if scraper:
             await scraper.close_playwright()
         if db_manager:
@@ -498,11 +569,19 @@ async def demo_single_search():
         await scraper.setup_playwright()
         
         test_products = ["קוטג", "חלב"]
-        results = await scraper.scrape_for_item_names(test_products)
+        results = await scraper.scrape_for_item_names_fast(test_products)
         
         print(f"✅ Demo Results: Found {len(results)} products")
         for name, url in list(results.items())[:3]:
             print(f"   📦 {name} -> {url[:50]}...")
+        
+        # Save demo results to JSON file
+        if results:
+            demo_filename = "demo_results.json"
+            await save_to_json(results, demo_filename)
+            print(f"💾 Demo results saved to: {demo_filename}")
+        else:
+            print("❌ No results to save")
             
     finally:
         await scraper.close_playwright()
@@ -511,9 +590,18 @@ async def demo_single_search():
 if __name__ == "__main__":
     import sys
     
-    if len(sys.argv) > 1 and sys.argv[1] == "demo":
-        # Run demo: python fine_grocery_image.py demo
-        asyncio.run(demo_single_search())
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "demo":
+            # Run demo: python fine_grocery_image.py demo
+            asyncio.run(demo_single_search())
+        elif sys.argv[1] == "fast":
+            # Run optimized JSON-only process: python fine_grocery_image.py fast
+            asyncio.run(main_json_only())
+        else:
+            print("Usage:")
+            print("  python fine_grocery_image.py          # Original process")
+            print("  python fine_grocery_image.py fast     # Fast JSON-only process (recommended)")
+            print("  python fine_grocery_image.py demo     # Demo with 2 test products")
     else:
-        # Run full process: python fine_grocery_image.py
+        # Run original process: python fine_grocery_image.py
         asyncio.run(main())
