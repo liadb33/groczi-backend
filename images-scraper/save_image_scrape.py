@@ -27,7 +27,7 @@ DB_CONFIG = {
 }
 
 # File paths
-JSON_INPUT_FILE = "progress_scraped_products.json"
+JSON_INPUT_FILE = "scraped_product_images.json"
 BATCH_SIZE = 1000  # Process updates in batches for efficiency
 
 

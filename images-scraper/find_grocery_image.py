@@ -74,9 +74,16 @@ def setup_signal_handlers():
     def signal_handler(sig, frame):
         logger.info("🛑 Interrupt received! Saving progress...")
         if scraped_data_global:
-            asyncio.create_task(save_to_json(scraped_data_global, "emergency_save.json"))
-            logger.info(f"💾 Emergency save completed: {len(scraped_data_global)} products")
-        sys.exit(0)
+            try:
+                # Force synchronous save to avoid async issues during shutdown
+                with open("emergency_save.json", 'w', encoding='utf-8') as f:
+                    json.dump(scraped_data_global, f, ensure_ascii=False, indent=4)
+                logger.info(f"💾 Emergency save completed: {len(scraped_data_global)} products")
+            except Exception as e:
+                logger.error(f"❌ Error during emergency save: {e}")
+        
+        logger.info("🚨 Force exiting - skipping browser cleanup to avoid hang...")
+        os._exit(0)  # Force exit without cleanup to avoid hanging
     
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
@@ -472,7 +479,7 @@ class SupermarketScraper:
 
 async def scrape_parallel(item_names_to_search: List[str], 
                          existing_data: Dict[str, str] = None, 
-                         num_browsers: int = 7,
+                         num_browsers: int = 10,
                          save_interval: int = 100) -> Dict[str, str]:
     """
     Parallel scraping with multiple browser instances and periodic progress saving.
@@ -503,8 +510,8 @@ async def scrape_parallel(item_names_to_search: List[str],
                     combined_progress[name] = url
                     total_from_browsers += 1
         
-        # Save combined progress every 350 total new products (50 per browser * 7)
-        if total_from_browsers - last_combined_save >= 350:
+        # Save combined progress every 500 total new products (50 per browser * 10)
+        if total_from_browsers - last_combined_save >= 500:
             await save_to_json(combined_progress, PROGRESS_JSON_FILE)
             scraped_data_global.update(combined_progress)  # Update global for signal handler
             logger.info(f"💾 COMBINED progress saved: {len(combined_progress)} total products")
@@ -527,7 +534,7 @@ async def scrape_parallel(item_names_to_search: List[str],
     
     logger.info(f"🚀 Starting PARALLEL scraping with {len(batches)} browsers")
     logger.info(f"📊 Total items: {total_items}, Average per browser: {batch_size}")
-    logger.info(f"💾 Progress saving: Every 50 items per browser + combined every 350 total")
+    logger.info(f"💾 Progress saving: Every 50 items per browser + combined every 500 total")
     
     # Create browser instances
     scrapers = []
@@ -657,12 +664,12 @@ async def main_json_only():
             await save_to_json(existing_data)
             return
 
-        print(f"\n🚀 FAST PARALLEL PROCESSING MODE (7 Browsers):")
+        print(f"\n🚀 FAST PARALLEL PROCESSING MODE (10 Browsers):")
         print(f"   📁 Existing products: {len(existing_data)}")
         print(f"   🎯 Items to process: {len(remaining_items)}")
-        print(f"   🤖 Browsers: 7 parallel instances")
-        print(f"   💾 Progress saves: Every 50 items per browser + combined every 350")
-        print(f"   ⚡ Expected duration: ~{len(remaining_items) * 0.07 / 60:.1f} minutes (~7x faster)")
+        print(f"   🤖 Browsers: 10 parallel instances")
+        print(f"   💾 Progress saves: Every 50 items per browser + combined every 500")
+        print(f"   ⚡ Expected duration: ~{len(remaining_items) * 0.05 / 60:.1f} minutes (~10x faster)")
         print("="*80)
 
         # 4. Disconnect from database (we don't need it anymore)
@@ -673,7 +680,7 @@ async def main_json_only():
         final_scraped_data = await scrape_parallel(
             remaining_items, 
             existing_data=existing_data,
-            num_browsers=7,
+            num_browsers=10,
             save_interval=100
         )
 
@@ -788,8 +795,8 @@ if __name__ == "__main__":
         else:
             print("Usage:")
             print("  python find_grocery_image.py          # Original process")
-            print("  python find_grocery_image.py fast     # Fast parallel process (7 browsers)")
-            print("  python find_grocery_image.py parallel # Fast parallel process (7 browsers)")
+            print("  python find_grocery_image.py fast     # Fast parallel process (10 browsers)")
+            print("  python find_grocery_image.py parallel # Fast parallel process (10 browsers)")
             print("  python find_grocery_image.py demo     # Demo with 2 test products")
     else:
         # Run original process: python fine_grocery_image.py
