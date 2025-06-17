@@ -51,6 +51,7 @@ const formatListWithItems = (list: Awaited<ReturnType<typeof getListWithItems>>)
       name,
       quantity: listItem.quantity,
       subtotal: subtotal.toFixed(2),
+      imageUrl: listItem.grocery?.imageUrl || null,
     };
   });
 

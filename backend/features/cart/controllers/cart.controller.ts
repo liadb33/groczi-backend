@@ -26,6 +26,7 @@ const formatCartResponse = (cartItems: any[]) => {
       name,
       quantity: item.quantity,
       subtotal: subtotal.toFixed(2),
+      imageUrl: item.grocery?.imageUrl || null,
     };
   });
 
