@@ -252,12 +252,21 @@ export async function runTopNMultiStoreDPForList(
 
   if (processedSolutions.length === 0) return { solutions: [] };
 
+  // Filter out single-store solutions - only keep multi-store solutions
+  const multiStoreSolutions = processedSolutions.filter(sol => 
+    sol.assignments && Object.keys(sol.assignments).length > 1
+  );
+
+  if (multiStoreSolutions.length === 0) {
+    return { solutions: [] }; // No multi-store solutions found
+  }
+
   // Sort by scoring cost (items + lambda * travel)
-  processedSolutions.sort((a, b) => a.scoringCost - b.scoringCost);
+  multiStoreSolutions.sort((a, b) => a.scoringCost - b.scoringCost);
 
   const topSolutions: MultiStoreSolution[] = [];
-  for (let i = 0; i < Math.min(topNSolutionsToReturn, processedSolutions.length); i++) {
-    const sol = processedSolutions[i];
+  for (let i = 0; i < Math.min(topNSolutionsToReturn, multiStoreSolutions.length); i++) {
+    const sol = multiStoreSolutions[i];
     topSolutions.push({
       assignments: sol.assignments,
       total_cost: parseFloat(sol.totalCost.toFixed(2)),
