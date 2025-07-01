@@ -23,6 +23,129 @@ This repository contains the backend implementation of Groczi. The frontend appl
 
 This backend system encompasses data scraping, processing, API services, and intelligent optimization algorithms to help users find the best grocery deals across multiple stores.
 
+---
+
+## 📱 App Screenshots
+
+<div align="center">
+
+### 🏠 Main Navigation & Core Features
+
+<table align="center">
+  <tr>
+    <td align="center" width="50%">
+      <h4>Home Screen</h4>
+      <img src="https://github.com/user-attachments/assets/f310cb73-3918-447e-acdc-03c1e5451684" alt="Home Screen" width="300px">
+    </td>
+    <td align="center" width="50%">
+      <h4>Shopping Cart</h4>
+      <img src="https://github.com/user-attachments/assets/d534e793-b7e6-40aa-a384-721646ddf99d" alt="Shopping Cart" width="300px">
+    </td>
+  </tr>
+</table>
+
+### 🔍 Search & Discovery Features
+
+<table align="center">
+  <tr>
+    <td align="center" width="50%">
+      <h4>Search Filters</h4>
+      <img src="https://github.com/user-attachments/assets/156e237d-5555-42dd-a042-eece90ba0c18" alt="Search Filters" width="300px">
+    </td>
+    <td align="center" width="50%">
+      <h4>Promotions</h4>
+      <img src="https://github.com/user-attachments/assets/7fee7ca3-141a-4fed-8fcf-f24c404b8f0a" alt="Promotions Popup" width="300px">
+    </td>
+  </tr>
+</table>
+
+### 📋 List Management & Bookmarks
+
+<table align="center">
+  <tr>
+    <td align="center" width="50%">
+      <h4>My Lists</h4>
+      <img src="https://github.com/user-attachments/assets/d89a955f-508c-4e82-a2b9-e2e80af1da5a" alt="My Lists Screen" width="300px">
+    </td>
+    <td align="center" width="50%">
+      <h4>My Groceries</h4>
+      <img src="https://github.com/user-attachments/assets/b063069b-fac9-4efa-87d5-c1494f6c28ca" alt="My Groceries Screen" width="300px">
+    </td>
+  </tr>
+</table>
+
+### 📝 List Operations
+
+<table align="center">
+  <tr>
+    <td align="center" width="50%">
+      <h4>List Details</h4>
+      <img src="https://github.com/user-attachments/assets/4f04c5a1-5ff8-4b10-8c71-6e60fb4ecffa" alt="List Info Screen" width="300px">
+    </td>
+    <td align="center" width="50%">
+      <h4>Add New List</h4>
+      <img src="https://github.com/user-attachments/assets/0e295a5f-570d-4802-aff6-a743721db2b7" alt="Add List Popup" width="300px">
+    </td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2">
+      <h4>Add to List</h4>
+      <img src="https://github.com/user-attachments/assets/b3d9b05c-08bb-41e8-9d78-72b1488fbbd8" alt="Add to List Popup" width="300px">
+    </td>
+  </tr>
+</table>
+
+### 🛍️ Product Discovery & Optimization
+
+<table align="center">
+  <tr>
+    <td align="center" width="50%">
+      <h4>Product Information</h4>
+      <img src="https://github.com/user-attachments/assets/029b8276-6bde-4892-a4b4-dd9f4fa51b19" alt="Product Info Screen" width="300px">
+    </td>
+    <td align="center" width="50%">
+      <h4>Price Comparison</h4>
+      <img src="https://github.com/user-attachments/assets/31322aed-052b-4944-8d70-3020fc450fb7" alt="Compare Prices Screen" width="300px">
+    </td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2">
+      <h4>Price History Analytics</h4>
+      <img src="https://github.com/user-attachments/assets/2cac0e6d-f08e-4013-91d4-43a7d943957d" alt="Price History Screen" width="300px">
+    </td>
+  </tr>
+</table>
+
+### 📍 Location Services
+
+<table align="center">
+  <tr>
+    <td align="center" width="50%">
+      <h4>Location Panel</h4>
+      <img src="https://github.com/user-attachments/assets/c5aa6866-e378-4817-a918-cab0b53e3b72" alt="Location Floating Panel" width="300px">
+    </td>
+    <td align="center" width="50%">
+      <h4>Online Stores</h4>
+      <img src="https://github.com/user-attachments/assets/21f0aa31-ad05-486c-bca3-03b7629a98f0" alt="Online Stores Popup" width="300px">
+    </td>
+  </tr>
+</table>
+
+### ⚙️ Settings & Configuration
+
+<table align="center">
+  <tr>
+    <td align="center" colspan="2">
+      <h4>Settings & Preferences</h4>
+      <img src="https://github.com/user-attachments/assets/71457cd8-5766-45b5-98ff-d52281abf3a2" alt="Settings Screen" width="300px">
+    </td>
+  </tr>
+</table>
+
+</div>
+
+---
+
 ## 🏗️ System Architecture
 
 ```mermaid
