@@ -17,6 +17,9 @@ This repository contains the backend implementation of Groczi. The frontend appl
 - [Detailed Design Document](https://github.com/user-attachments/files/18307645/Detailed.Design.Groczi.docx)
 - [Project Presentation](https://github.com/user-attachments/files/18429187/Groczi.Presentation.1.pptx)
 
+
+
+
 ## 🛒 Project Overview
 
 **Groczi** is a grocery shopping optimization app that helps users save both time and money. By comparing grocery prices across nearby supermarkets in real time, Groczi identifies the most cost-effective stores for an entire shopping list. Combining dynamic pricing data, geolocation, and user-centric features.
@@ -24,6 +27,22 @@ This repository contains the backend implementation of Groczi. The frontend appl
 This backend system encompasses data scraping, processing, API services, and intelligent optimization algorithms to help users find the best grocery deals across multiple stores.
 
 ---
+
+## 📋 Table of Contents
+
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Project Structure](#-project-structure)
+- [Database Schema](#-database-schema)
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [Usage](#-usage)
+- [API Documentation](#-api-documentation)
+- [Data Pipeline](#-data-pipeline)
+- [Development](#-development)
+- [Contributing](#-contributing)
+
+--- 
 
 ## 📱 App Screenshots
 
@@ -176,19 +195,6 @@ graph TB
     M[Frontend Client] --> G
 ```
 
-## 📋 Table of Contents
-
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Database Schema](#-database-schema)
-- [Installation](#-installation)
-- [Configuration](#-configuration)
-- [Usage](#-usage)
-- [API Documentation](#-api-documentation)
-- [Data Pipeline](#-data-pipeline)
-- [Development](#-development)
-- [Contributing](#-contributing)
 
 ## ✨ Features
 
